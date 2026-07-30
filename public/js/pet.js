@@ -1,106 +1,43 @@
 const parametros = new URLSearchParams(window.location.search);
-
-const codigoTag = parametros
-  .get("tag")
-  ?.trim()
-  .toUpperCase();
-
+const codigoTag = parametros.get("tag")?.trim().toUpperCase();
 const estadoCarregando = document.getElementById("estadoCarregando");
 const perfilPet = document.getElementById("perfilPet");
 const estadoErro = document.getElementById("estadoErro");
 const tituloErro = document.getElementById("tituloErro");
 const mensagemErro = document.getElementById("mensagemErro");
 const botaoAtivar = document.getElementById("botaoAtivar");
+let telefoneTutor = "";
+let temporizadorToast;
 
 iniciar();
 
 async function iniciar() {
-  if (!codigoTag) {
-    mostrarErro(
-      "Código não informado",
-      "Não foi possível identificar o código desta tag."
-    );
-    return;
-  }
-
+  if (!codigoTag) return mostrarErro("Código não informado", "Não foi possível identificar o código desta tag.");
   try {
     const resultadoApi = await consultarTag();
     const resultado = resultadoApi.dados;
-
-    if (resultado.status === "nao-ativada") {
-      mostrarTagNaoAtivada();
-      return;
+    if (resultado.status === "nao-ativada") return mostrarTagNaoAtivada();
+    if (!resultadoApi.ok || !["ativa", "perdido"].includes(resultado.status) || !resultado.pet) {
+      return mostrarErro("Não foi possível abrir esta tag", resultado.mensagem || "O perfil do pet não foi encontrado.");
     }
-
-    const perfilValido =
-      resultado.status === "ativa" ||
-      resultado.status === "perdido";
-
-    if (
-      !resultadoApi.ok ||
-      !perfilValido ||
-      !resultado.pet
-    ) {
-      mostrarErro(
-        "Não foi possível abrir esta tag",
-        resultado.mensagem ||
-          "O perfil do pet não foi encontrado."
-      );
-      return;
-    }
-
     preencherPerfil(resultado.pet, resultado.status);
   } catch (erro) {
     console.error("Erro ao consultar tag:", erro);
-
-    mostrarErro(
-      "Erro de conexão",
-      erro?.message ||
-        "Não foi possível consultar esta tag agora."
-    );
+    mostrarErro("Erro de conexão", erro?.message || "Não foi possível consultar esta tag agora.");
   }
 }
 
 async function consultarTag() {
-  const url =
-    `/api/tag?tag=${encodeURIComponent(codigoTag)}`;
-
-  if (window.OrbitekAPI?.get) {
-    return window.OrbitekAPI.get(url, {
-      aceitarErroDeNegocio: true,
-      redirecionarLogin: false,
-      retornarRespostaCompleta: true
-    });
-  }
-
-  const resposta = await fetch(url, {
-    method: "GET",
-    credentials: "same-origin",
-    headers: {
-      Accept: "application/json"
-    }
-  });
-
-  const dados = await resposta.json().catch(() => ({}));
-
-  return {
-    ok: resposta.ok,
-    statusHttp: resposta.status,
-    dados
-  };
+  const url = `/api/tag?tag=${encodeURIComponent(codigoTag)}`;
+  if (window.OrbitekAPI?.get) return window.OrbitekAPI.get(url, { aceitarErroDeNegocio: true, redirecionarLogin: false, retornarRespostaCompleta: true });
+  const resposta = await fetch(url, { method: "GET", credentials: "same-origin", headers: { Accept: "application/json" } });
+  return { ok: resposta.ok, statusHttp: resposta.status, dados: await resposta.json().catch(() => ({})) };
 }
 
 function mostrarTagNaoAtivada() {
-  mostrarErro(
-    "Tag ainda não ativada",
-    "Esta tag ainda precisa ser cadastrada."
-  );
-
+  mostrarErro("Tag ainda não ativada", "Esta tag ainda precisa ser cadastrada para exibir o perfil do pet.");
   if (!botaoAtivar) return;
-
-  botaoAtivar.href =
-    `/ativar.html?tag=${encodeURIComponent(codigoTag)}`;
-
+  botaoAtivar.href = `/ativar.html?tag=${encodeURIComponent(codigoTag)}`;
   botaoAtivar.classList.remove("escondido");
 }
 
@@ -108,212 +45,74 @@ function preencherPerfil(pet, statusApi) {
   estadoCarregando?.classList.add("escondido");
   estadoErro?.classList.add("escondido");
   perfilPet?.classList.remove("escondido");
-
-  definirTexto("nomePet", pet.nome || "Pet");
-  definirTexto(
-    "localPet",
-    montarLocalizacaoSegura(pet)
-  );
-  definirTexto(
-    "especiePet",
-    pet.especie || "Não informado"
-  );
-  definirTexto(
-    "racaPet",
-    pet.raca || "Não informada"
-  );
-  definirTexto(
-    "sexoPet",
-    pet.sexo || "Não informado"
-  );
-  definirTexto(
-    "idadePet",
-    pet.idade || "Não informada"
-  );
-  definirTexto(
-    "comportamentoPet",
-    pet.comportamento ||
-      "Nenhuma informação cadastrada."
-  );
-  definirTexto(
-    "nomeTutor",
-    pet.nome_tutor || "Não informado"
-  );
-
-  const estaPerdido =
-    statusApi === "perdido" ||
-    Number(pet.perdido) === 1;
-
+  const nome = textoSeguro(pet.nome, "Pet");
+  definirTexto("nomePet", nome);
+  definirTexto("codigoTagPerfil", codigoTag);
+  definirTexto("localPet", montarLocalizacaoSegura(pet));
+  definirTexto("especiePet", textoSeguro(pet.especie));
+  definirTexto("racaPet", textoSeguro(pet.raca));
+  definirTexto("sexoPet", textoSeguro(pet.sexo));
+  definirTexto("idadePet", textoSeguro(pet.idade));
+  definirTexto("comportamentoPet", textoSeguro(pet.comportamento, "Nenhuma orientação especial foi cadastrada pelo tutor."));
+  definirTexto("nomeTutor", textoSeguro(pet.nome_tutor));
+  const estaPerdido = statusApi === "perdido" || Number(pet.perdido) === 1;
   preencherStatus(estaPerdido);
-  configurarWhatsapp(pet, estaPerdido);
+  configurarContato(pet, estaPerdido);
   configurarFoto(pet);
   configurarModoPerdido(estaPerdido);
+  configurarCompartilhamento(nome);
+  atualizarMetadados(nome, estaPerdido);
 }
 
-function definirTexto(id, valor) {
-  const elemento = document.getElementById(id);
-
-  if (elemento) {
-    elemento.textContent = valor;
-  }
-}
-
-function montarLocalizacaoSegura(pet) {
-  const bairro = String(pet?.bairro || "").trim();
-  const cidade = String(pet?.cidade || "").trim();
-  const estado = String(pet?.estado || "")
-    .trim()
-    .toUpperCase();
-
-  const cidadeEstado = [cidade, estado]
-    .filter(Boolean)
-    .join(" - ");
-
-  if (bairro && cidadeEstado) {
-    return `${bairro} • ${cidadeEstado}`;
-  }
-
-  return cidadeEstado ||
-    bairro ||
-    "Localização não informada";
-}
+function textoSeguro(valor, fallback = "Não informado") { const texto = String(valor ?? "").trim(); return texto || fallback; }
+function definirTexto(id, valor) { const elemento = document.getElementById(id); if (elemento) elemento.textContent = valor; }
+function montarLocalizacaoSegura(pet) { const bairro=String(pet?.bairro||"").trim(), cidade=String(pet?.cidade||"").trim(), estado=String(pet?.estado||"").trim().toUpperCase(); const cidadeEstado=[cidade,estado].filter(Boolean).join(" - "); return bairro&&cidadeEstado?`${bairro} • ${cidadeEstado}`:cidadeEstado||bairro||"Localização não informada"; }
 
 function preencherStatus(estaPerdido) {
-  const statusPet =
-    document.getElementById("statusPet");
-
+  const statusPet = document.getElementById("statusPet");
   if (!statusPet) return;
-
-  statusPet.textContent = estaPerdido
-    ? "Pet desaparecido"
-    : "Estou seguro";
-
-  statusPet.classList.toggle(
-    "perdido",
-    estaPerdido
-  );
-
-  statusPet.classList.toggle(
-    "seguro",
-    !estaPerdido
-  );
+  statusPet.textContent = estaPerdido ? "Pet desaparecido" : "Estou seguro";
+  statusPet.classList.toggle("perdido", estaPerdido);
+  statusPet.classList.toggle("seguro", !estaPerdido);
 }
 
 function configurarModoPerdido(estaPerdido) {
-  perfilPet?.classList.toggle(
-    "modo-perdido",
-    estaPerdido
-  );
-
-  let alerta =
-    document.getElementById("alertaPetPerdido");
-
-  if (!estaPerdido) {
-    alerta?.remove();
-    return;
-  }
-
-  if (alerta || !perfilPet) return;
-
-  alerta = document.createElement("div");
-  alerta.id = "alertaPetPerdido";
-  alerta.className = "alerta-pet-perdido";
-
-  const titulo = document.createElement("strong");
-  titulo.textContent = "Estou perdido!";
-
-  const mensagem = document.createElement("p");
-  mensagem.textContent =
-    "Ajude-me a voltar para casa. Entre em contato com meu tutor pelo WhatsApp.";
-
-  alerta.append(titulo, mensagem);
-
-  const cabecalho =
-    perfilPet.querySelector(".cabecalho-pet");
-
-  if (cabecalho) {
-    cabecalho.insertAdjacentElement(
-      "afterend",
-      alerta
-    );
-  }
+  perfilPet?.classList.toggle("modo-perdido", estaPerdido);
+  document.getElementById("alertaPetPerdido")?.classList.toggle("escondido", !estaPerdido);
 }
 
-function configurarWhatsapp(pet, estaPerdido) {
-  const botaoWhatsapp =
-    document.getElementById("botaoWhatsapp");
-
-  if (!botaoWhatsapp) return;
-
-  const telefone = somenteNumeros(pet.whatsapp);
-
-  if (!telefone) {
-    botaoWhatsapp.classList.add("escondido");
-    botaoWhatsapp.removeAttribute("href");
-    return;
-  }
-
-  const telefoneCompleto =
-    telefone.length === 10 ||
-    telefone.length === 11
-      ? `55${telefone}`
-      : telefone;
-
+function configurarContato(pet, estaPerdido) {
+  const whatsapp = document.getElementById("botaoWhatsapp");
+  const ligar = document.getElementById("botaoLigar");
+  const copiar = document.getElementById("botaoCopiarContato");
+  telefoneTutor = somenteNumeros(pet.whatsapp);
+  if (!telefoneTutor) return;
+  const completo = (telefoneTutor.length===10||telefoneTutor.length===11)?`55${telefoneTutor}`:telefoneTutor;
   const nomePet = pet.nome || "o pet";
-
-  const textoMensagem = estaPerdido
-    ? `Olá! Encontrei ${nomePet}, que consta como desaparecido na Tag Orbitek ${codigoTag}.`
-    : `Olá! Encontrei ${nomePet} pela Tag Orbitek ${codigoTag}.`;
-
-  botaoWhatsapp.href =
-    `https://wa.me/${telefoneCompleto}?text=${encodeURIComponent(textoMensagem)}`;
-
-  botaoWhatsapp.textContent = estaPerdido
-    ? "Avisar que encontrei este pet"
-    : "Falar com o tutor pelo WhatsApp";
-
-  botaoWhatsapp.classList.toggle(
-    "destaque-perdido",
-    estaPerdido
-  );
-
-  botaoWhatsapp.classList.remove("escondido");
+  const mensagem = estaPerdido ? `Olá! Encontrei ${nomePet}, que consta como desaparecido na Tag Orbitek ${codigoTag}.` : `Olá! Encontrei ${nomePet} pela Tag Orbitek ${codigoTag}.`;
+  if (whatsapp) { whatsapp.href=`https://wa.me/${completo}?text=${encodeURIComponent(mensagem)}`; whatsapp.querySelector("span:last-child").textContent=estaPerdido?"Avisar que encontrei":"Falar no WhatsApp"; whatsapp.classList.remove("escondido"); }
+  if (ligar) { ligar.href=`tel:+${completo}`; ligar.classList.remove("escondido"); }
+  if (copiar) { copiar.classList.remove("escondido"); copiar.addEventListener("click",()=>copiarTexto(formatarTelefone(telefoneTutor),"Contato copiado")); }
 }
 
 function configurarFoto(pet) {
-  const fotoPet = document.getElementById("fotoPet");
-
-  if (!fotoPet || !pet.foto_url) return;
-
-  fotoPet.textContent = "";
-
-  const imagem = document.createElement("img");
-  imagem.src = pet.foto_url;
-  imagem.alt = `Foto de ${pet.nome || "pet"}`;
-  imagem.loading = "lazy";
-  imagem.decoding = "async";
-
-  imagem.addEventListener("error", function () {
-    imagem.remove();
-  });
-
-  fotoPet.appendChild(imagem);
+  const fotoPet=document.getElementById("fotoPet");
+  if(!fotoPet||!pet.foto_url)return;
+  const imagem=document.createElement("img"); imagem.src=pet.foto_url; imagem.alt=`Foto de ${pet.nome||"pet"}`; imagem.loading="eager"; imagem.decoding="async";
+  imagem.addEventListener("load",()=>{fotoPet.textContent="";fotoPet.appendChild(imagem);});
 }
 
-function somenteNumeros(valor) {
-  return String(valor || "").replace(/\D/g, "");
+function configurarCompartilhamento(nomePet) {
+  const botaoCompartilhar=document.getElementById("botaoCompartilhar");
+  const botaoCopiarLink=document.getElementById("botaoCopiarLink");
+  const url=window.location.href;
+  botaoCompartilhar?.addEventListener("click",async()=>{ if(navigator.share){ try{await navigator.share({title:`${nomePet} - Orbitek Pets`,text:`Veja o perfil de ${nomePet} na Orbitek Pets.`,url});return;}catch(e){if(e?.name==="AbortError")return;} } await copiarTexto(url,"Link do perfil copiado"); });
+  botaoCopiarLink?.addEventListener("click",()=>copiarTexto(url,"Link do perfil copiado"));
 }
 
-function mostrarErro(titulo, mensagem) {
-  estadoCarregando?.classList.add("escondido");
-  perfilPet?.classList.add("escondido");
-  estadoErro?.classList.remove("escondido");
-
-  if (tituloErro) {
-    tituloErro.textContent = titulo;
-  }
-
-  if (mensagemErro) {
-    mensagemErro.textContent = mensagem;
-  }
-}
+async function copiarTexto(texto,mensagem){ try{await navigator.clipboard.writeText(texto);}catch{const campo=document.createElement("textarea");campo.value=texto;campo.style.position="fixed";campo.style.opacity="0";document.body.appendChild(campo);campo.select();document.execCommand("copy");campo.remove();}mostrarToast(mensagem); }
+function mostrarToast(mensagem){const toast=document.getElementById("toastPerfil");if(!toast)return;clearTimeout(temporizadorToast);toast.textContent=mensagem;toast.classList.add("visivel");temporizadorToast=setTimeout(()=>toast.classList.remove("visivel"),2400);}
+function atualizarMetadados(nome,estaPerdido){const titulo=estaPerdido?`${nome} está desaparecido - Orbitek Pets`:`${nome} - Orbitek Pets`;const descricao=estaPerdido?`Ajude ${nome} a voltar para casa. Consulte o perfil e fale com o tutor.`:`Perfil de identificação de ${nome}, protegido pela Orbitek Pets.`;document.title=titulo;document.getElementById("metaOgTitulo")?.setAttribute("content",titulo);document.getElementById("metaOgDescricao")?.setAttribute("content",descricao);document.getElementById("metaOgUrl")?.setAttribute("content",window.location.href);document.querySelector('meta[name="description"]')?.setAttribute("content",descricao);}
+function formatarTelefone(valor){const n=somenteNumeros(valor);if(n.length===11)return`(${n.slice(0,2)}) ${n.slice(2,7)}-${n.slice(7)}`;if(n.length===10)return`(${n.slice(0,2)}) ${n.slice(2,6)}-${n.slice(6)}`;return n;}
+function somenteNumeros(valor){return String(valor||"").replace(/\D/g,"");}
+function mostrarErro(titulo,mensagem){estadoCarregando?.classList.add("escondido");perfilPet?.classList.add("escondido");estadoErro?.classList.remove("escondido");if(tituloErro)tituloErro.textContent=titulo;if(mensagemErro)mensagemErro.textContent=mensagem;}

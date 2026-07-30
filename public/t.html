@@ -1,148 +1,111 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-
 <head>
-    <meta charset="UTF-8">
-
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
-
-    <title>Perfil do Pet - Orbitek Pets</title>
-
-    <link rel="stylesheet" href="/css/geral.css">
-    <link rel="stylesheet" href="/css/pet.css">
-  <link rel="stylesheet" href="/css/ux.css?v=1" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#12358b">
+  <meta name="description" content="Perfil de identificação pet protegido pela Orbitek Pets.">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Orbitek Pets">
+  <meta property="og:title" content="Perfil do Pet - Orbitek Pets" id="metaOgTitulo">
+  <meta property="og:description" content="Consulte as informações e entre em contato com o tutor." id="metaOgDescricao">
+  <meta property="og:url" content="https://orbitekoficial.com.br" id="metaOgUrl">
+  <title>Perfil do Pet - Orbitek Pets</title>
+  <link rel="icon" href="/assets/logo-orbitek-pets.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/css/geral.css">
+  <link rel="stylesheet" href="/css/pet.css?v=3">
+  <link rel="stylesheet" href="/css/ux.css?v=1">
 </head>
-
 <body>
+  <main class="pagina-pet">
+    <section id="estadoCarregando" class="estado-carregando" aria-live="polite">
+      <div class="marca-carregando"><img src="/assets/logo-orbitek-pets.svg" alt="Orbitek Pets"></div>
+      <div class="spinner" aria-hidden="true"></div>
+      <p>Carregando perfil do pet...</p>
+    </section>
 
-    <main class="pagina-pet">
+    <article id="perfilPet" class="perfil-premium escondido">
+      <header class="topo-marca">
+        <a class="marca-orbitek" href="https://orbitekoficial.com.br" aria-label="Orbitek Pets">
+          <img src="/assets/logo-orbitek-pets.svg" alt="Orbitek Pets">
+        </a>
+        <span class="selo-protegido">Perfil protegido</span>
+      </header>
 
-        <section class="cartao-pet">
+      <section class="hero-pet">
+        <div class="decoracao-pata" aria-hidden="true">🐾</div>
+        <div class="foto-pet" id="fotoPet" aria-label="Foto do pet">🐾</div>
+        <div class="hero-conteudo">
+          <span class="status-pet seguro" id="statusPet">Estou seguro</span>
+          <h1 id="nomePet">Pet</h1>
+          <p class="local-pet"><span aria-hidden="true">📍</span><span id="localPet">Localização não informada</span></p>
+          <p class="codigo-tag">Tag <strong id="codigoTagPerfil">—</strong></p>
+        </div>
+      </section>
 
-            <div id="estadoCarregando">
-                <p>Carregando perfil do pet...</p>
-            </div>
+      <div id="alertaPetPerdido" class="alerta-pet-perdido escondido" role="alert">
+        <div class="icone-alerta" aria-hidden="true">!</div>
+        <div><strong>Este pet está desaparecido</strong><p>Ajude-o a voltar para casa. Entre em contato com o tutor imediatamente.</p></div>
+      </div>
 
-            <div
-                id="perfilPet"
-                class="escondido"
-            >
+      <section class="acoes-principais" aria-label="Ações de contato">
+        <a href="#" class="botao-acao botao-whatsapp escondido" id="botaoWhatsapp" target="_blank" rel="noopener noreferrer">
+          <span aria-hidden="true">💬</span><span>Falar no WhatsApp</span>
+        </a>
+        <a href="#" class="botao-acao botao-ligar escondido" id="botaoLigar">
+          <span aria-hidden="true">📞</span><span>Ligar para o tutor</span>
+        </a>
+      </section>
 
-                <div class="cabecalho-pet">
+      <section class="secao-perfil" aria-labelledby="tituloIdentificacao">
+        <div class="titulo-secao"><span class="icone-secao" aria-hidden="true">🐶</span><div><h2 id="tituloIdentificacao">Identificação</h2><p>Informações principais do pet</p></div></div>
+        <div class="grade-informacoes">
+          <div class="informacao"><span>Espécie</span><strong id="especiePet">—</strong></div>
+          <div class="informacao"><span>Raça</span><strong id="racaPet">—</strong></div>
+          <div class="informacao"><span>Sexo</span><strong id="sexoPet">—</strong></div>
+          <div class="informacao"><span>Idade</span><strong id="idadePet">—</strong></div>
+        </div>
+      </section>
 
-                    <div
-                        class="foto-pet"
-                        id="fotoPet"
-                    >
-                        🐾
-                    </div>
+      <section class="secao-perfil" aria-labelledby="tituloCuidados">
+        <div class="titulo-secao"><span class="icone-secao" aria-hidden="true">❤️</span><div><h2 id="tituloCuidados">Cuidados importantes</h2><p>Orientações para abordar e cuidar deste pet</p></div></div>
+        <div class="bloco-texto"><p id="comportamentoPet">Nenhuma informação cadastrada.</p></div>
+      </section>
 
-                    <span
-                        class="status-pet"
-                        id="statusPet"
-                    >
-                        Estou seguro
-                    </span>
+      <section class="secao-perfil secao-tutor" aria-labelledby="tituloTutor">
+        <div class="titulo-secao"><span class="icone-secao" aria-hidden="true">👤</span><div><h2 id="tituloTutor">Tutor responsável</h2><p>Contato cadastrado na Orbitek Pets</p></div></div>
+        <div class="tutor-conteudo">
+          <div><span class="rotulo">Nome do tutor</span><strong id="nomeTutor">Não informado</strong></div>
+          <button type="button" class="botao-copiar escondido" id="botaoCopiarContato">Copiar contato</button>
+        </div>
+      </section>
 
-                    <h1 id="nomePet">
-                        Pet
-                    </h1>
+      <section class="barra-compartilhar" aria-label="Compartilhar perfil">
+        <button type="button" id="botaoCompartilhar"><span aria-hidden="true">↗</span> Compartilhar perfil</button>
+        <button type="button" id="botaoCopiarLink"><span aria-hidden="true">🔗</span> Copiar link</button>
+      </section>
 
-                    <p id="localPet">
-                        Cidade não informada
-                    </p>
+      <footer class="rodape-perfil">
+        <img src="/assets/logo-orbitek-pets.svg" alt="Orbitek Pets">
+        <p>Identificação inteligente para quem você ama.</p>
+        <small>As informações deste perfil são fornecidas pelo tutor.</small>
+      </footer>
+    </article>
 
-                </div>
+    <section id="estadoErro" class="estado-erro escondido" role="alert">
+      <img src="/assets/logo-orbitek-pets.svg" alt="Orbitek Pets">
+      <div class="icone-erro" aria-hidden="true">🐾</div>
+      <h1 id="tituloErro">Não foi possível abrir esta tag</h1>
+      <p id="mensagemErro"></p>
+      <a href="#" id="botaoAtivar" class="botao-principal escondido">Ativar minha tag</a>
+      <a href="https://orbitekoficial.com.br" class="link-voltar">Ir para o site da Orbitek</a>
+    </section>
+  </main>
 
-                <div class="grade-informacoes">
-
-                    <div class="informacao">
-                        <span>Espécie</span>
-                        <strong id="especiePet">—</strong>
-                    </div>
-
-                    <div class="informacao">
-                        <span>Raça</span>
-                        <strong id="racaPet">—</strong>
-                    </div>
-
-                    <div class="informacao">
-                        <span>Sexo</span>
-                        <strong id="sexoPet">—</strong>
-                    </div>
-
-                    <div class="informacao">
-                        <span>Idade</span>
-                        <strong id="idadePet">—</strong>
-                    </div>
-
-                </div>
-
-                <div class="bloco-comportamento">
-
-                    <span>Comportamento</span>
-
-                    <p id="comportamentoPet">
-                        Nenhuma informação cadastrada.
-                    </p>
-
-                </div>
-
-                <div class="bloco-tutor">
-
-                    <span>Tutor</span>
-
-                    <strong id="nomeTutor">
-                        Não informado
-                    </strong>
-
-                </div>
-
-                <a
-                    href="#"
-                    class="botao-whatsapp"
-                    id="botaoWhatsapp"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                >
-                    Falar com o tutor no WhatsApp
-                </a>
-
-            </div>
-
-            <div
-                id="estadoErro"
-                class="estado-erro escondido"
-            >
-
-                <h1 id="tituloErro">
-                    Não foi possível abrir esta tag
-                </h1>
-
-                <p id="mensagemErro"></p>
-
-                <a
-                    href="#"
-                    id="botaoAtivar"
-                    class="botao-principal escondido"
-                >
-                    Ativar minha tag
-                </a>
-
-            </div>
-
-        </section>
-
-    </main>
-
-    <script src="/js/core/api.js?v=2"></script>
-    <script src="/js/pet.js?v=2"></script>
-
+  <div id="toastPerfil" class="toast-perfil" role="status" aria-live="polite"></div>
+  <script src="/js/core/api.js?v=2"></script>
+  <script src="/js/pet.js?v=3"></script>
   <script src="/js/core/notifications.js?v=2"></script>
   <script src="/js/core/ux.js?v=1"></script>
 </body>
-
 </html>
