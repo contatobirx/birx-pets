@@ -1760,3 +1760,16 @@ body.modal-aberto {
 .checklist-item.pendente:focus-visible {
   background: #ffefca;
 }
+
+
+/* Sprint 14.2.2 — modal em abas e preservação de dados */
+.modal-caixa-edicao{width:min(920px,calc(100% - 28px));max-height:92vh;overflow:hidden;display:flex;flex-direction:column}
+.modal-caixa-edicao .modal-topo{flex:0 0 auto}.modal-caixa-edicao form{overflow:auto;padding:0 28px 24px}
+.edicao-abas{display:flex;gap:4px;padding:0 24px;border-bottom:1px solid var(--cor-borda);overflow-x:auto;background:#fff}
+.edicao-aba{flex:0 0 auto;border:0;border-bottom:3px solid transparent;background:transparent;padding:15px 16px;color:var(--cor-texto-claro);font:inherit;font-weight:800;cursor:pointer}
+.edicao-aba:hover,.edicao-aba.ativa{color:#5b36db;background:#f7f4ff}.edicao-aba.ativa{border-bottom-color:#6c4cf1}
+.edicao-painel{padding-top:24px}.edicao-secao-topo{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;margin-bottom:20px}.edicao-secao-topo h3{margin:0}.edicao-secao-topo p{margin:5px 0 0;color:var(--cor-texto-claro);font-size:.88rem}
+.status-secao{flex:0 0 auto;padding:7px 11px;border-radius:999px;font-size:.76rem;font-weight:850}.status-secao.completo{background:#e6f8ee;color:#098547}.status-secao.pendente{background:#fff1e7;color:#b75a00}
+.modal-rodape-edicao{position:sticky;bottom:-24px;display:flex;align-items:center;justify-content:space-between;gap:16px;margin-top:26px;padding:16px 0 0;background:#fff;border-top:1px solid var(--cor-borda)}
+.aviso-alteracoes{margin:0;color:#9a5a00;font-size:.85rem;font-weight:750}.aviso-alteracoes span{color:#ff8a1f}.modal-rodape-edicao .modal-botoes{margin:0}
+@media(max-width:650px){.modal-caixa-edicao{width:100%;max-height:100vh;height:100vh;border-radius:0}.edicao-abas{padding:0 10px}.edicao-aba{padding:13px 12px;font-size:.82rem}.modal-caixa-edicao form{padding:0 18px 18px}.edicao-secao-topo{align-items:flex-start}.modal-rodape-edicao{align-items:stretch;flex-direction:column}.modal-rodape-edicao .modal-botoes{display:grid;grid-template-columns:1fr 1fr;width:100%}}

@@ -15,7 +15,7 @@
 
   <title>Painel do Tutor | Orbitek Pets</title>
 
-  <link rel="stylesheet" href="/css/tutor.css?v=14.1" />
+  <link rel="stylesheet" href="/css/tutor.css?v=14.2.2" />
   <link rel="stylesheet" href="/css/ux.css?v=1" />
 </head>
 
@@ -299,201 +299,57 @@
 
   <!-- Modal de edição -->
 
-<div
-  id="modalEditar"
-  class="modal"
-  hidden
->
+<div id="modalEditar" class="modal" hidden>
   <div class="modal-overlay"></div>
-
-  <div class="modal-caixa">
-
+  <div class="modal-caixa modal-caixa-edicao">
     <div class="modal-topo">
-      <h2>Editar informações</h2>
-
-      <button
-        id="fecharModal"
-        class="modal-fechar"
-        type="button"
-      >
-        ✕
-      </button>
+      <div><h2>Editar informações</h2><p class="modal-subtitulo">Os dados cadastrados ficam preenchidos. Altere somente o que desejar.</p></div>
+      <button id="fecharModal" class="modal-fechar" type="button" aria-label="Fechar">✕</button>
     </div>
-
+    <nav class="edicao-abas" aria-label="Seções de edição">
+      <button class="edicao-aba ativa" type="button" data-edicao-aba="pet">🐶 Pet</button>
+      <button class="edicao-aba" type="button" data-edicao-aba="tutor">👤 Tutor</button>
+      <button class="edicao-aba" type="button" data-edicao-aba="endereco">📍 Endereço</button>
+      <button class="edicao-aba" type="button" data-edicao-acao="saude">❤️ Saúde</button>
+      <button class="edicao-aba" type="button" data-edicao-acao="documentos">📄 Documentos</button>
+    </nav>
     <form id="formEditarPet">
-
-      <input
-        type="hidden"
-        id="editarTag"
-      >
-
-      <h3>🐶 Informações do Pet</h3>
-
-      <div class="grid-2">
-
-        <div class="campo">
-          <label>Nome</label>
-
-          <input
-            id="editarNome"
-            type="text"
-          >
+      <input type="hidden" id="editarTag">
+      <section class="edicao-painel ativo" data-edicao-painel="pet">
+        <div class="edicao-secao-topo"><div><h3>🐶 Informações do Pet</h3><p>Dados principais exibidos no perfil.</p></div><span class="status-secao" id="statusSecaoPet">Pendente</span></div>
+        <div class="grid-2">
+          <div class="campo"><label for="editarNome">Nome</label><input id="editarNome" type="text"></div>
+          <div class="campo"><label for="editarEspecie">Espécie</label><input id="editarEspecie" type="text"></div>
+          <div class="campo"><label for="editarRaca">Raça</label><input id="editarRaca" type="text"></div>
+          <div class="campo"><label for="editarSexo">Sexo</label><select id="editarSexo"><option value="">Selecione</option><option>Macho</option><option>Fêmea</option></select></div>
+          <div class="campo"><label for="editarIdade">Idade</label><input id="editarIdade" type="text"></div>
         </div>
-
-        <div class="campo">
-          <label>Espécie</label>
-
-          <input
-            id="editarEspecie"
-            type="text"
-          >
+        <div class="campo"><label for="editarComportamento">Comportamento</label><textarea id="editarComportamento" rows="3"></textarea></div>
+      </section>
+      <section class="edicao-painel" data-edicao-painel="tutor" hidden>
+        <div class="edicao-secao-topo"><div><h3>👤 Tutor</h3><p>Contato responsável pelo pet.</p></div><span class="status-secao" id="statusSecaoTutor">Pendente</span></div>
+        <div class="grid-2">
+          <div class="campo"><label for="editarTutor">Nome</label><input id="editarTutor" type="text"></div>
+          <div class="campo"><label for="editarWhatsapp">WhatsApp</label><input id="editarWhatsapp" type="tel" inputmode="tel"></div>
+          <div class="campo"><label for="editarEmail">E-mail</label><input id="editarEmail" type="email"></div>
         </div>
-
-        <div class="campo">
-          <label>Raça</label>
-
-          <input
-            id="editarRaca"
-            type="text"
-          >
+      </section>
+      <section class="edicao-painel" data-edicao-painel="endereco" hidden>
+        <div class="edicao-secao-topo"><div><h3>📍 Endereço</h3><p>Localização usada para identificação e emergência.</p></div><span class="status-secao" id="statusSecaoEndereco">Pendente</span></div>
+        <div class="grid-2">
+          <div class="campo"><label for="editarCep">CEP</label><input id="editarCep" type="text" inputmode="numeric"></div>
+          <div class="campo"><label for="editarCidade">Cidade</label><input id="editarCidade" type="text"></div>
+          <div class="campo"><label for="editarEstado">Estado</label><input id="editarEstado" type="text" maxlength="2"></div>
+          <div class="campo"><label for="editarEndereco">Rua / logradouro</label><input id="editarEndereco" type="text"></div>
         </div>
-
-        <div class="campo">
-          <label>Sexo</label>
-
-          <select id="editarSexo">
-            <option value="">Selecione</option>
-            <option>Macho</option>
-            <option>Fêmea</option>
-          </select>
-        </div>
-
-        <div class="campo">
-          <label>Idade</label>
-
-          <input
-            id="editarIdade"
-            type="text"
-          >
-        </div>
-
+      </section>
+      <div class="modal-rodape-edicao">
+        <p class="aviso-alteracoes" id="avisoAlteracoes" hidden><span>●</span> Existem alterações não salvas</p>
+        <div class="modal-botoes"><button type="button" id="cancelarEdicao" class="botao botao-secundario">Cancelar</button><button type="submit" class="botao botao-principal">Salvar alterações</button></div>
       </div>
-
-      <div class="campo">
-
-        <label>Comportamento</label>
-
-        <textarea
-          id="editarComportamento"
-          rows="3"
-        ></textarea>
-
-      </div>
-
-      <hr>
-
-      <h3>👤 Tutor</h3>
-
-      <div class="grid-2">
-
-        <div class="campo">
-          <label>Nome</label>
-
-          <input
-            id="editarTutor"
-            type="text"
-          >
-        </div>
-
-        <div class="campo">
-          <label>WhatsApp</label>
-
-          <input
-            id="editarWhatsapp"
-            type="text"
-          >
-        </div>
-
-        <div class="campo">
-          <label>Email</label>
-
-          <input
-            id="editarEmail"
-            type="email"
-          >
-        </div>
-
-      </div>
-
-      <hr>
-
-      <h3>📍 Endereço</h3>
-
-      <div class="grid-2">
-
-        <div class="campo">
-          <label>CEP</label>
-
-          <input
-            id="editarCep"
-            type="text"
-          >
-        </div>
-
-        <div class="campo">
-          <label>Cidade</label>
-
-          <input
-            id="editarCidade"
-            type="text"
-          >
-        </div>
-
-        <div class="campo">
-          <label>Estado</label>
-
-          <input
-            id="editarEstado"
-            type="text"
-          >
-        </div>
-
-        <div class="campo">
-          <label>Rua</label>
-
-          <input
-            id="editarEndereco"
-            type="text"
-          >
-        </div>
-
-      </div>
-
-      <div class="modal-botoes">
-
-        <button
-          type="button"
-          id="cancelarEdicao"
-          class="botao botao-secundario"
-        >
-          Cancelar
-        </button>
-
-        <button
-          type="submit"
-          class="botao botao-principal"
-        >
-          Salvar alterações
-        </button>
-
-      </div>
-
     </form>
-
   </div>
-
 </div>
-
 
   <!-- Modal de alteração da foto -->
 
@@ -820,7 +676,7 @@
 
   <script src="/js/core/navigation.js?v=1"></script>
   <script src="/js/core/notifications.js?v=1"></script>
-  <script src="/js/tutor.js?v=14.1"></script>
+  <script src="/js/tutor.js?v=14.2.2"></script>
   <script src="/js/timeline.js?v=1"></script>
   <script src="/js/core/ux.js?v=1"></script>
 </body>

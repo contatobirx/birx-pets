@@ -56,6 +56,7 @@ function preencherPerfil(pet, statusApi) {
   definirTexto("comportamentoPet", textoSeguro(pet.comportamento, "Nenhuma orientação especial foi cadastrada pelo tutor."));
   definirTexto("nomeTutor", textoSeguro(pet.nome_tutor));
   const estaPerdido = statusApi === "perdido" || Number(pet.perdido) === 1;
+  configurarTemaSexo(pet.sexo);
   preencherStatus(estaPerdido);
   configurarContato(pet, estaPerdido);
   configurarFoto(pet);
@@ -67,6 +68,16 @@ function preencherPerfil(pet, statusApi) {
 function textoSeguro(valor, fallback = "Não informado") { const texto = String(valor ?? "").trim(); return texto || fallback; }
 function definirTexto(id, valor) { const elemento = document.getElementById(id); if (elemento) elemento.textContent = valor; }
 function montarLocalizacaoSegura(pet) { const bairro=String(pet?.bairro||"").trim(), cidade=String(pet?.cidade||"").trim(), estado=String(pet?.estado||"").trim().toUpperCase(); const cidadeEstado=[cidade,estado].filter(Boolean).join(" - "); return bairro&&cidadeEstado?`${bairro} • ${cidadeEstado}`:cidadeEstado||bairro||"Localização não informada"; }
+
+function configurarTemaSexo(sexo) {
+  const valor = String(sexo || "").trim().toLowerCase();
+  perfilPet?.classList.remove("sexo-macho", "sexo-femea");
+  if (valor.includes("fêmea") || valor.includes("femea") || valor.includes("femin")) {
+    perfilPet?.classList.add("sexo-femea");
+  } else {
+    perfilPet?.classList.add("sexo-macho");
+  }
+}
 
 function preencherStatus(estaPerdido) {
   const statusPet = document.getElementById("statusPet");

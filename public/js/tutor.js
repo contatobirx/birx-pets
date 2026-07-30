@@ -68,6 +68,10 @@ const elementos = {
   editarCidade: document.getElementById("editarCidade"),
   editarEstado: document.getElementById("editarEstado"),
   editarEndereco: document.getElementById("editarEndereco"),
+  avisoAlteracoes: document.getElementById("avisoAlteracoes"),
+  statusSecaoPet: document.getElementById("statusSecaoPet"),
+  statusSecaoTutor: document.getElementById("statusSecaoTutor"),
+  statusSecaoEndereco: document.getElementById("statusSecaoEndereco"),
 
   modalFoto: document.getElementById("modalFoto"),
   modalFotoOverlay: document.querySelector("#modalFoto .modal-overlay"),
@@ -136,6 +140,8 @@ const estado = {
   petEmEdicao: null,
   salvando: false,
   buscandoCep: false,
+  formularioInicial: "",
+  formularioAlterado: false,
   enviandoFoto: false,
   urlPreviewFoto: "",
   registrosSaude: [],
@@ -610,6 +616,10 @@ function preencherFormulario(petOriginal) {
   definirValor(elementos.editarCidade, pet.cidade);
   definirValor(elementos.editarEstado, pet.estado);
   definirValor(elementos.editarEndereco, pet.logradouro);
+  atualizarStatusSecoes();
+  estado.formularioInicial = serializarFormulario();
+  estado.formularioAlterado = false;
+  atualizarAvisoAlteracoes();
 }
 
 function abrirModalEdicao(evento) {
@@ -630,16 +640,63 @@ function abrirModalEdicao(evento) {
   preencherFormulario(pet);
   elementos.modalEditar.hidden = false;
   document.body.classList.add("modal-aberto");
+  selecionarAbaEdicao("pet");
   setTimeout(() => elementos.editarNome?.focus(), 50);
 }
 
-function fecharModalEdicao() {
+async function fecharModalEdicao(forcar = false) {
   if (estado.salvando || !elementos.modalEditar) return;
-
+  if (!forcar && estado.formularioAlterado) {
+    const sair = window.OrbitekUI?.confirmar
+      ? await window.OrbitekUI.confirmar({ titulo: "Alterações não salvas", mensagem: "Você modificou informações. Deseja sair sem salvar?", textoConfirmar: "Sair sem salvar" })
+      : window.confirm("Você possui alterações não salvas. Deseja sair sem salvar?");
+    if (!sair) return;
+  }
   elementos.modalEditar.hidden = true;
   document.body.classList.remove("modal-aberto");
   elementos.formEditarPet?.reset();
   estado.petEmEdicao = null;
+  estado.formularioInicial = "";
+  estado.formularioAlterado = false;
+  atualizarAvisoAlteracoes();
+}
+
+function serializarFormulario() {
+  return JSON.stringify(dadosFormulario());
+}
+
+function atualizarAvisoAlteracoes() {
+  if (elementos.avisoAlteracoes) elementos.avisoAlteracoes.hidden = !estado.formularioAlterado;
+}
+
+function marcarAlteracaoFormulario() {
+  if (!elementos.formEditarPet || !estado.petEmEdicao) return;
+  estado.formularioAlterado = serializarFormulario() !== estado.formularioInicial;
+  atualizarAvisoAlteracoes();
+  atualizarStatusSecoes();
+}
+
+function definirStatusSecao(elemento, completo) {
+  if (!elemento) return;
+  elemento.textContent = completo ? "✓ Completo" : "⚠ Pendente";
+  elemento.classList.toggle("completo", completo);
+  elemento.classList.toggle("pendente", !completo);
+}
+
+function atualizarStatusSecoes() {
+  const d = dadosFormulario();
+  definirStatusSecao(elementos.statusSecaoPet, Boolean(d.nome && d.especie && d.raca && d.sexo));
+  definirStatusSecao(elementos.statusSecaoTutor, Boolean(d.nomeTutor && (d.whatsapp || d.email)));
+  definirStatusSecao(elementos.statusSecaoEndereco, Boolean(d.cidade && d.estado));
+}
+
+function selecionarAbaEdicao(nome) {
+  document.querySelectorAll("[data-edicao-aba]").forEach((botao) => botao.classList.toggle("ativa", botao.dataset.edicaoAba === nome));
+  document.querySelectorAll("[data-edicao-painel]").forEach((painel) => {
+    const ativo = painel.dataset.edicaoPainel === nome;
+    painel.hidden = !ativo;
+    painel.classList.toggle("ativa", ativo);
+  });
 }
 
 function dadosFormulario() {
@@ -739,6 +796,9 @@ async function salvarEdicao(evento) {
     elementos.modalEditar.hidden = true;
     document.body.classList.remove("modal-aberto");
     estado.petEmEdicao = null;
+    estado.formularioAlterado = false;
+    estado.formularioInicial = "";
+    atualizarAvisoAlteracoes();
     await carregarPainel();
   } catch (erroSalvar) {
     console.error("Erro ao salvar:", erroSalvar);
@@ -2006,9 +2066,20 @@ elementos.listaPetsRecentes?.addEventListener("click", (evento) => {
         : "Nenhum pet está em modo perdido."
     );
   });
-  elementos.fecharModal?.addEventListener("click", fecharModalEdicao);
-  elementos.cancelarEdicao?.addEventListener("click", fecharModalEdicao);
-  elementos.modalOverlay?.addEventListener("click", fecharModalEdicao);
+  elementos.fecharModal?.addEventListener("click", () => fecharModalEdicao());
+  elementos.cancelarEdicao?.addEventListener("click", () => fecharModalEdicao());
+  elementos.modalOverlay?.addEventListener("click", () => fecharModalEdicao());
+  elementos.formEditarPet?.addEventListener("input", marcarAlteracaoFormulario);
+  elementos.formEditarPet?.addEventListener("change", marcarAlteracaoFormulario);
+  document.querySelectorAll("[data-edicao-aba]").forEach((botao) => botao.addEventListener("click", () => selecionarAbaEdicao(botao.dataset.edicaoAba)));
+  document.querySelectorAll("[data-edicao-acao]").forEach((botao) => botao.addEventListener("click", () => {
+    const pet = estado.petEmEdicao;
+    if (!pet) return;
+    fecharModalEdicao(true);
+    const acao = botao.dataset.edicaoAcao;
+    if (acao === "saude") abrirModalSaude({ currentTarget: { dataset: { tag: dadosPet(pet).tagCodigo } } });
+    if (acao === "documentos") abrirModalDocumentos({ currentTarget: { dataset: { tag: dadosPet(pet).tagCodigo } } });
+  }));
   elementos.formEditarPet?.addEventListener("submit", salvarEdicao);
   elementos.editarCep?.addEventListener("blur", buscarCep);
 

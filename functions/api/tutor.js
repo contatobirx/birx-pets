@@ -119,6 +119,8 @@ export async function onRequestGet(context) {
           nome_tutor,
           whatsapp,
           email,
+          cep,
+          logradouro,
           cidade,
           estado,
           perdido,
@@ -146,11 +148,16 @@ export async function onRequestGet(context) {
           pet.perdido == 1,
         fotoUrl:
           pet.foto_url,
+        tutor: {
+          nome: pet.nome_tutor || "",
+          email: pet.email || sessao.email,
+          whatsapp: pet.whatsapp || "",
+        },
         localizacao: {
-          cidade:
-            pet.cidade,
-          estado:
-            pet.estado,
+          cep: pet.cep || "",
+          logradouro: pet.logradouro || "",
+          cidade: pet.cidade || "",
+          estado: pet.estado || "",
         },
       })
     );
@@ -160,16 +167,9 @@ export async function onRequestGet(context) {
       autenticado: true,
 
       tutor: {
-        nome:
-          lista[0]
-            ?.nome_tutor ??
-          "",
-        email:
-          sessao.email,
-        whatsapp:
-          lista[0]
-            ?.whatsapp ??
-          "",
+        nome: pets.results[0]?.nome_tutor || "",
+        email: sessao.email,
+        whatsapp: pets.results[0]?.whatsapp || "",
       },
 
       pets: lista,
