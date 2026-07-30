@@ -16,6 +16,7 @@
   <title>Painel do Tutor | Orbitek Pets</title>
 
   <link rel="stylesheet" href="/css/tutor.css" />
+  <link rel="stylesheet" href="/css/ux.css?v=1" />
 </head>
 
 <body>
@@ -85,11 +86,7 @@
             <span class="painel-sobretitulo">Visão geral</span>
             <h2>Últimos pets cadastrados</h2>
           </div>
-          <div class="painel-card-acoes">
-            <span class="painel-atualizado" id="painelAtualizado" aria-live="polite"></span>
-            <button class="link-botao" id="atualizarPainel" type="button">Atualizar</button>
-            <button class="link-botao" id="verTodosPets" type="button">Ver todos</button>
-          </div>
+          <button class="link-botao" id="verTodosPets" type="button">Ver todos</button>
         </div>
         <div class="lista-recentes" id="listaPetsRecentes"></div>
       </article>
@@ -134,14 +131,25 @@
         </div>
       </div>
 
-      <div
-        class="carregando"
-        id="carregando"
-      >
-        <div
-          class="spinner"
-          aria-label="Carregando"
-        ></div>
+      <div class="carregando" id="carregando" aria-label="Carregando seus pets" aria-busy="true">
+        <div class="orbitek-skeleton-grid" aria-hidden="true">
+          <article class="orbitek-skeleton-card">
+            <div class="orbitek-skeleton-foto orbitek-skeleton-bloco"></div>
+            <div class="orbitek-skeleton-corpo">
+              <div class="orbitek-skeleton-linha grande orbitek-skeleton-bloco"></div>
+              <div class="orbitek-skeleton-linha media orbitek-skeleton-bloco"></div>
+              <div class="orbitek-skeleton-linha pequena orbitek-skeleton-bloco"></div>
+            </div>
+          </article>
+          <article class="orbitek-skeleton-card">
+            <div class="orbitek-skeleton-foto orbitek-skeleton-bloco"></div>
+            <div class="orbitek-skeleton-corpo">
+              <div class="orbitek-skeleton-linha grande orbitek-skeleton-bloco"></div>
+              <div class="orbitek-skeleton-linha media orbitek-skeleton-bloco"></div>
+              <div class="orbitek-skeleton-linha pequena orbitek-skeleton-bloco"></div>
+            </div>
+          </article>
+        </div>
       </div>
 
       <div
@@ -820,5 +828,6 @@
   <script src="/js/core/navigation.js?v=1"></script>
   <script src="/js/core/notifications.js?v=1"></script>
   <script src="/js/tutor.js?v=10"></script>
+  <script src="/js/core/ux.js?v=1"></script>
 </body>
 </html>

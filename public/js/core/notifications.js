@@ -8,6 +8,13 @@
     info: "i",
   };
 
+  const TITULOS = {
+    sucesso: "Tudo certo",
+    erro: "Não foi possível concluir",
+    aviso: "Atenção",
+    info: "Informação",
+  };
+
   function obterContainer() {
     let container = document.getElementById("orbitekNotificacoes");
     if (container) return container;
@@ -36,7 +43,7 @@
     toast.innerHTML = `
       <span class="orbitek-toast-icone" aria-hidden="true">${ICONES[tipoNormalizado]}</span>
       <div class="orbitek-toast-conteudo">
-        ${opcoes.titulo ? `<strong>${escaparHtml(opcoes.titulo)}</strong>` : ""}
+        <strong>${escaparHtml(opcoes.titulo || TITULOS[tipoNormalizado])}</strong>
         <span>${escaparHtml(texto)}</span>
       </div>
       <button class="orbitek-toast-fechar" type="button" aria-label="Fechar notificação">×</button>
