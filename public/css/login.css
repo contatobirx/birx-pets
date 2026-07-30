@@ -20,38 +20,29 @@ button:disabled { cursor: wait; opacity: .7; }
     place-items: center;
     overflow: hidden;
     isolation: isolate;
-    background:
-        radial-gradient(circle at 14% 16%, rgba(37, 99, 235, .08) 0 4px, transparent 5px) 0 0 / 34px 34px,
-        linear-gradient(180deg, #f7faff 0%, #edf4ff 55%, #dceaff 100%);
+    background-color: #eef5ff;
+    background-image: url("/assets/fundo.png");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
 }
 
-.pagina-login::after {
-    content: "";
-    position: absolute;
-    z-index: -2;
-    right: -8vw;
-    bottom: -35vh;
-    left: -8vw;
-    height: 58vh;
-    border-radius: 50% 50% 0 0 / 22% 22% 0 0;
-    background: linear-gradient(135deg, #2f6cf4, #1456e8);
-    box-shadow: inset 0 24px 45px rgba(255,255,255,.1);
-}
+
 
 .cartao-login {
     position: relative;
     z-index: 2;
-    width: min(660px, 100%);
+    width: min(620px, 100%);
     overflow: hidden;
     border: 1px solid rgba(203, 213, 225, .78);
     border-radius: 34px;
-    background: rgba(255, 255, 255, .97);
+    background: rgba(255, 255, 255, .96);
     box-shadow: 0 30px 90px rgba(15, 47, 130, .18);
     backdrop-filter: blur(18px);
 }
 
 .cabecalho-login { padding: 34px 54px 24px; text-align: center; }
-.marca { display: inline-flex; width: min(330px, 78%); margin-bottom: 12px; text-decoration: none; }
+.marca { display: inline-flex; width: min(300px, 72%); margin-bottom: 12px; text-decoration: none; }
 .marca img { display: block; width: 100%; height: auto; }
 
 .cabecalho-login h1 {
@@ -180,25 +171,14 @@ label {
 .rodape-login { padding: 22px 34px; border-top: 1px solid #e2e8f0; background: #f8fbff; text-align: center; }
 .rodape-login p { margin: 0; color: #64748b; font-size: 13px; line-height: 1.5; }
 
-.decoracao { position: absolute; z-index: 0; color: #0b2a68; pointer-events: none; user-select: none; }
-.decoracao-esquerda { left: max(34px, 5vw); top: 22%; }
-.decoracao-esquerda p { margin: 32px 0 0; color: #0b2a68; font-family: "Segoe Print", "Bradley Hand", cursive; font-size: clamp(22px, 2.2vw, 36px); line-height: 1.45; transform: rotate(-3deg); }
-.decoracao-esquerda strong { color: #2563eb; }
-.pata { display: block; opacity: .1; filter: grayscale(1); }
-.pata-grande { font-size: 118px; }
-.decoracao-direita { right: max(30px, 4vw); bottom: 9%; width: 260px; height: 430px; opacity: .13; }
-.pet-outline { position: absolute; filter: grayscale(1); }
-.pet-cachorro { top: 0; right: 0; font-size: 210px; transform: rotate(-4deg); }
-.pet-gato { right: 70px; bottom: 15px; font-size: 145px; }
-.pata-pequena { position: absolute; right: 0; bottom: -10px; font-size: 66px; }
 
-@media (max-width: 1180px) {
-    .decoracao { display: none; }
-}
 
 @media (max-width: 680px) {
-    .pagina-login { padding: 18px 14px; align-items: center; }
-    .pagina-login::after { bottom: -42vh; height: 55vh; }
+    .pagina-login {
+        padding: 18px 14px;
+        align-items: center;
+        background-position: 58% center;
+    }
     .cartao-login { border-radius: 26px; }
     .cabecalho-login { padding: 26px 22px 20px; }
     .marca { width: min(280px, 86%); margin-bottom: 8px; }
@@ -212,8 +192,12 @@ label {
 }
 
 @media (max-width: 420px) {
-    .pagina-login { padding: 0; background: #f3f7ff; }
-    .cartao-login { min-height: 100vh; border: 0; border-radius: 0; box-shadow: none; }
+    .pagina-login {
+        padding: 12px;
+        background-position: 62% center;
+        background-size: cover;
+    }
+    .cartao-login { border-radius: 24px; }
     .marca { width: min(250px, 86%); }
     .cabecalho-login { padding-top: 24px; }
 }
