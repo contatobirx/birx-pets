@@ -1,4 +1,17 @@
 const elementos = {
+  painel2: document.getElementById("painel2"),
+  boasVindasTitulo: document.getElementById("boasVindasTitulo"),
+  petDestaqueFoto: document.getElementById("petDestaqueFoto"),
+  petDestaqueNome: document.getElementById("petDestaqueNome"),
+  petDestaquePerfil: document.getElementById("petDestaquePerfil"),
+  petDestaqueTag: document.getElementById("petDestaqueTag"),
+  editarPetDestaque: document.getElementById("editarPetDestaque"),
+  progressoTexto: document.getElementById("progressoTexto"),
+  progressoNumero: document.getElementById("progressoNumero"),
+  progressoTrilho: document.getElementById("progressoTrilho"),
+  progressoBarra: document.getElementById("progressoBarra"),
+  checklistPerfil: document.getElementById("checklistPerfil"),
+  menuInferior: document.getElementById("menuInferior"),
   tituloSaudacao: document.getElementById("tituloSaudacao"),
   textoSaudacao: document.getElementById("textoSaudacao"),
   resumo: document.getElementById("resumo"),
@@ -253,6 +266,80 @@ function renderizarPetsRecentes(pets) {
       </button>
     `;
   }).join("");
+}
+
+function renderizarPainel2(pets, nomeTutor) {
+  if (!elementos.painel2 || !pets.length) return;
+
+  const original = pets[0];
+  const pet = dadosPet(original);
+  const nomePet = formatarTexto(pet.nome, "Seu pet");
+  const perfil = [pet.especie, pet.raca].filter(Boolean).join(" • ") || "Complete o perfil do pet";
+
+  elementos.boasVindasTitulo.textContent = `${nomePet} está protegido 🐾`;
+  elementos.petDestaqueNome.textContent = nomePet;
+  elementos.petDestaquePerfil.textContent = perfil;
+  elementos.petDestaqueTag.textContent = `Tag ${formatarTexto(pet.tagCodigo, "não informada")}`;
+
+  elementos.petDestaqueFoto.innerHTML = pet.fotoUrl
+    ? `<img src="${escaparHtml(pet.fotoUrl)}" alt="Foto de ${escaparHtml(nomePet)}">`
+    : "🐶";
+
+  const itens = [
+    { nome: "Tag ativada", ok: Boolean(pet.tagCodigo) },
+    { nome: "Dados básicos", ok: Boolean(pet.nome && pet.especie) },
+    { nome: "Foto", ok: Boolean(pet.fotoUrl) },
+    { nome: "Contato", ok: Boolean(pet.whatsapp || pet.email) },
+    { nome: "Localização", ok: Boolean(pet.cidade || pet.cep) },
+    { nome: "Raça", ok: Boolean(pet.raca) },
+  ];
+
+  const concluidos = itens.filter((item) => item.ok).length;
+  const percentual = Math.round((concluidos / itens.length) * 100);
+  elementos.progressoTexto.textContent = `${concluidos} de ${itens.length} itens concluídos`;
+  elementos.progressoNumero.textContent = `${percentual}%`;
+  elementos.progressoBarra.style.width = `${percentual}%`;
+  elementos.progressoTrilho.setAttribute("aria-valuenow", String(percentual));
+  elementos.checklistPerfil.innerHTML = itens.map((item) => `
+    <span class="checklist-item ${item.ok ? "concluido" : ""}">
+      ${item.ok ? "✓" : "○"} ${escaparHtml(item.nome)}
+    </span>
+  `).join("");
+
+  elementos.editarPetDestaque.dataset.tag = pet.tagCodigo;
+  elementos.painel2.hidden = false;
+  if (elementos.menuInferior) elementos.menuInferior.hidden = false;
+}
+
+function acionarModulo(modulo) {
+  const petOriginal = estado.pets[0];
+  if (!petOriginal) {
+    exibirMensagem("Cadastre um pet para acessar este recurso.", "erro");
+    return;
+  }
+
+  const pet = dadosPet(petOriginal);
+  const evento = { currentTarget: { dataset: { tag: pet.tagCodigo } } };
+
+  if (modulo === "saude" || modulo === "vacinas") {
+    abrirModalSaude(evento);
+    return;
+  }
+  if (modulo === "documentos") {
+    abrirModalDocumentos(evento);
+    return;
+  }
+  if (modulo === "historico") {
+    abrirHistoricoTutor(evento);
+    return;
+  }
+  if (modulo === "timeline") {
+    window.location.href = `/historico.html?tag=${encodeURIComponent(pet.tagCodigo)}#timeline`;
+    return;
+  }
+  if (modulo === "medicamentos") {
+    exibirMensagem("O módulo de medicamentos será disponibilizado em breve.");
+  }
 }
 
 function montarLocalizacao(petOriginal) {
@@ -1614,6 +1701,8 @@ async function carregarPainel() {
   elementos.listaPets.innerHTML = "";
   elementos.resumo.hidden = true;
   if (elementos.dashboardDetalhes) elementos.dashboardDetalhes.hidden = true;
+  if (elementos.painel2) elementos.painel2.hidden = true;
+  if (elementos.menuInferior) elementos.menuInferior.hidden = true;
   elementos.topoPets.hidden = true;
 
   try {
@@ -1666,6 +1755,7 @@ async function carregarPainel() {
       : pets.slice(0, 3);
 
     const nomeTutor = formatarTexto(dados.tutor?.nome, "Tutor");
+    renderizarPainel2(pets, nomeTutor);
     elementos.tituloSaudacao.textContent = `Olá, ${nomeTutor} 👋`;
     elementos.textoSaudacao.textContent =
       pets.length === 1
@@ -1788,6 +1878,24 @@ async function sair() {
 
 function configurarEventos() {
   elementos.botaoTentarNovamente?.addEventListener("click", carregarPainel);
+  elementos.editarPetDestaque?.addEventListener("click", abrirModalEdicao);
+
+  document.querySelectorAll("[data-modulo]").forEach((botao) => {
+    botao.addEventListener("click", () => acionarModulo(botao.dataset.modulo));
+  });
+
+  document.querySelectorAll("[data-menu]").forEach((botao) => {
+    botao.addEventListener("click", () => {
+      const destino = botao.dataset.menu;
+      if (destino === "painel") window.scrollTo({ top: 0, behavior: "smooth" });
+      if (destino === "pet") rolarAtePets();
+      if (destino === "documentos") acionarModulo("documentos");
+      if (destino === "conta") {
+        elementos.botaoSair?.scrollIntoView({ behavior: "smooth", block: "center" });
+        exibirMensagem("Use o botão Sair no topo para encerrar sua sessão.");
+      }
+    });
+  });
 
 elementos.atualizarPainel?.addEventListener("click", async () => {
   elementos.atualizarPainel.disabled = true;
