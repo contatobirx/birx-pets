@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  />
+
+  <meta
+    name="theme-color"
+    content="#6c4cf1"
+  />
+
+  <title>Painel do Tutor | Orbitek Pets</title>
+
+  <link rel="stylesheet" href="/css/tutor.css" />
+</head>
+
+<body>
+  <header class="cabecalho">
+    <div class="cabecalho-conteudo">
+      <div class="barra-superior">
+        <div class="marca">Orbitek Pets</div>
+
+        <button
+          class="botao-sair"
+          id="botaoSair"
+          type="button"
+        >
+          Sair
+        </button>
+      </div>
+
+      <div class="saudacao">
+        <h1 id="tituloSaudacao">Olá 👋</h1>
+
+        <p id="textoSaudacao">
+          Carregando os dados da sua conta...
+        </p>
+      </div>
+    </div>
+  </header>
+
+  <main class="conteudo">
+    <section class="resumo" id="resumo" hidden aria-label="Resumo da conta">
+      <article class="resumo-card resumo-card-roxo">
+        <div class="resumo-icone" aria-hidden="true">🐾</div>
+        <div>
+          <div class="resumo-label">Pets cadastrados</div>
+          <div class="resumo-valor" id="quantidadePets">0</div>
+        </div>
+      </article>
+
+      <article class="resumo-card resumo-card-verde">
+        <div class="resumo-icone" aria-hidden="true">🏷️</div>
+        <div>
+          <div class="resumo-label">Tags ativas</div>
+          <div class="resumo-valor" id="quantidadeTagsAtivas">0</div>
+        </div>
+      </article>
+
+      <article class="resumo-card resumo-card-vermelho">
+        <div class="resumo-icone" aria-hidden="true">⚠️</div>
+        <div>
+          <div class="resumo-label">Em modo perdido</div>
+          <div class="resumo-valor" id="quantidadePerdidos">0</div>
+        </div>
+      </article>
+
+      <article class="resumo-card resumo-card-azul">
+        <div class="resumo-icone" aria-hidden="true">📅</div>
+        <div>
+          <div class="resumo-label">Cadastros neste mês</div>
+          <div class="resumo-valor" id="quantidadeCadastrosMes">0</div>
+        </div>
+      </article>
+    </section>
+
+    <section class="dashboard-grid" id="dashboardDetalhes" hidden>
+      <article class="painel-card painel-recentes">
+        <div class="painel-card-topo">
+          <div>
+            <span class="painel-sobretitulo">Visão geral</span>
+            <h2>Últimos pets cadastrados</h2>
+          </div>
+          <button class="link-botao" id="verTodosPets" type="button">Ver todos</button>
+        </div>
+        <div class="lista-recentes" id="listaPetsRecentes"></div>
+      </article>
+
+      <article class="painel-card painel-acoes">
+        <div class="painel-card-topo">
+          <div>
+            <span class="painel-sobretitulo">Atalhos</span>
+            <h2>Ações rápidas</h2>
+          </div>
+        </div>
+
+        <div class="acoes-rapidas">
+          <a class="acao-rapida" href="/ativar.html">
+            <span class="acao-rapida-icone">➕</span>
+            <span><strong>Ativar nova tag</strong><small>Cadastre outro pet</small></span>
+          </a>
+          <button class="acao-rapida" id="atalhoMeusPets" type="button">
+            <span class="acao-rapida-icone">🐶</span>
+            <span><strong>Gerenciar pets</strong><small>Editar dados e fotos</small></span>
+          </button>
+          <button class="acao-rapida" id="atalhoPerdidos" type="button">
+            <span class="acao-rapida-icone">📍</span>
+            <span><strong>Modo perdido</strong><small>Localize pets em alerta</small></span>
+          </button>
+        </div>
+      </article>
+    </section>
+
+    <section id="secaoMeusPets">
+      <div
+        class="secao-topo"
+        id="topoPets"
+        hidden
+      >
+        <div>
+          <h2>Meus pets</h2>
+
+          <p>
+            Gerencie as tags vinculadas à sua conta.
+          </p>
+        </div>
+      </div>
+
+      <div
+        class="carregando"
+        id="carregando"
+      >
+        <div
+          class="spinner"
+          aria-label="Carregando"
+        ></div>
+      </div>
+
+      <div
+        class="lista-pets"
+        id="listaPets"
+      ></div>
+
+      <div
+        class="estado"
+        id="estadoVazio"
+        hidden
+      >
+        <div class="estado-icone">🐾</div>
+
+        <h2>Nenhum pet cadastrado</h2>
+
+        <p>
+          Não encontramos pets vinculados ao seu e-mail.
+          Verifique se a tag foi ativada usando a mesma conta.
+        </p>
+      </div>
+
+      <div
+        class="estado"
+        id="estadoErro"
+        hidden
+      >
+        <div class="estado-icone">⚠️</div>
+
+        <h2>Não foi possível carregar</h2>
+
+        <p id="textoErro">
+          Ocorreu um erro ao carregar os dados.
+        </p>
+
+        <button
+          class="botao botao-principal"
+          id="botaoTentarNovamente"
+          type="button"
+          style="margin-top:18px"
+        >
+          Tentar novamente
+        </button>
+      </div>
+    </section>
+  </main>
+
+    <div
+    class="mensagem"
+    id="mensagem"
+    role="status"
+  ></div>
+
+  <!-- Modal de edição -->
+
+<div
+  id="modalEditar"
+  class="modal"
+  hidden
+>
+  <div class="modal-overlay"></div>
+
+  <div class="modal-caixa">
+
+    <div class="modal-topo">
+      <h2>Editar informações</h2>
+
+      <button
+        id="fecharModal"
+        class="modal-fechar"
+        type="button"
+      >
+        ✕
+      </button>
+    </div>
+
+    <form id="formEditarPet">
+
+      <input
+        type="hidden"
+        id="editarTag"
+      >
+
+      <h3>🐶 Informações do Pet</h3>
+
+      <div class="grid-2">
+
+        <div class="campo">
+          <label>Nome</label>
+
+          <input
+            id="editarNome"
+            type="text"
+          >
+        </div>
+
+        <div class="campo">
+          <label>Espécie</label>
+
+          <input
+            id="editarEspecie"
+            type="text"
+          >
+        </div>
+
+        <div class="campo">
+          <label>Raça</label>
+
+          <input
+            id="editarRaca"
+            type="text"
+          >
+        </div>
+
+        <div class="campo">
+          <label>Sexo</label>
+
+          <select id="editarSexo">
+            <option value="">Selecione</option>
+            <option>Macho</option>
+            <option>Fêmea</option>
+          </select>
+        </div>
+
+        <div class="campo">
+          <label>Idade</label>
+
+          <input
+            id="editarIdade"
+            type="text"
+          >
+        </div>
+
+      </div>
+
+      <div class="campo">
+
+        <label>Comportamento</label>
+
+        <textarea
+          id="editarComportamento"
+          rows="3"
+        ></textarea>
+
+      </div>
+
+      <hr>
+
+      <h3>👤 Tutor</h3>
+
+      <div class="grid-2">
+
+        <div class="campo">
+          <label>Nome</label>
+
+          <input
+            id="editarTutor"
+            type="text"
+          >
+        </div>
+
+        <div class="campo">
+          <label>WhatsApp</label>
+
+          <input
+            id="editarWhatsapp"
+            type="text"
+          >
+        </div>
+
+        <div class="campo">
+          <label>Email</label>
+
+          <input
+            id="editarEmail"
+            type="email"
+          >
+        </div>
+
+      </div>
+
+      <hr>
+
+      <h3>📍 Endereço</h3>
+
+      <div class="grid-2">
+
+        <div class="campo">
+          <label>CEP</label>
+
+          <input
+            id="editarCep"
+            type="text"
+          >
+        </div>
+
+        <div class="campo">
+          <label>Cidade</label>
+
+          <input
+            id="editarCidade"
+            type="text"
+          >
+        </div>
+
+        <div class="campo">
+          <label>Estado</label>
+
+          <input
+            id="editarEstado"
+            type="text"
+          >
+        </div>
+
+        <div class="campo">
+          <label>Rua</label>
+
+          <input
+            id="editarEndereco"
+            type="text"
+          >
+        </div>
+
+      </div>
+
+      <div class="modal-botoes">
+
+        <button
+          type="button"
+          id="cancelarEdicao"
+          class="botao botao-secundario"
+        >
+          Cancelar
+        </button>
+
+        <button
+          type="submit"
+          class="botao botao-principal"
+        >
+          Salvar alterações
+        </button>
+
+      </div>
+
+    </form>
+
+  </div>
+
+</div>
+
+
+  <!-- Modal de alteração da foto -->
+
+  <div
+    id="modalFoto"
+    class="modal"
+    hidden
+  >
+    <div class="modal-overlay"></div>
+
+    <div class="modal-caixa modal-caixa-foto">
+      <div class="modal-topo">
+        <div>
+          <h2>Alterar foto do pet</h2>
+          <p class="modal-subtitulo">
+            Escolha uma imagem JPG, PNG ou WEBP de até 5 MB.
+          </p>
+        </div>
+
+        <button
+          id="fecharModalFoto"
+          class="modal-fechar"
+          type="button"
+          aria-label="Fechar"
+        >
+          ✕
+        </button>
+      </div>
+
+      <form id="formFotoPet">
+        <input
+          type="hidden"
+          id="fotoTag"
+        >
+
+        <div class="foto-editor">
+          <div
+            class="foto-preview-area"
+            id="fotoPreviewArea"
+          >
+            <img
+              id="fotoPreview"
+              class="foto-preview"
+              alt="Pré-visualização da nova foto"
+              hidden
+            >
+
+            <div
+              id="fotoPreviewVazio"
+              class="foto-preview-vazio"
+            >
+              🐾
+            </div>
+          </div>
+
+          <div class="foto-controles">
+            <strong id="fotoNomePet">
+              Pet
+            </strong>
+
+            <p>
+              Use uma foto clara, com o rosto do pet visível.
+            </p>
+
+            <label
+              class="botao botao-secundario botao-escolher-foto"
+              for="arquivoFoto"
+            >
+              Escolher imagem
+            </label>
+
+            <input
+              id="arquivoFoto"
+              name="foto"
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              hidden
+            >
+
+            <div
+              id="nomeArquivoFoto"
+              class="nome-arquivo-foto"
+            >
+              Nenhuma imagem selecionada.
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-botoes">
+          <button
+            type="button"
+            id="cancelarFoto"
+            class="botao botao-secundario"
+          >
+            Cancelar
+          </button>
+
+          <button
+            type="submit"
+            id="enviarFoto"
+            class="botao botao-principal"
+            disabled
+          >
+            Enviar nova foto
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+
+  <!-- Modal de saúde do pet -->
+
+  <div
+    id="modalSaude"
+    class="modal"
+    hidden
+  >
+    <div class="modal-overlay"></div>
+
+    <div class="modal-caixa modal-caixa-saude">
+      <div class="modal-topo">
+        <div>
+          <h2>Saúde de <span id="saudeNomePet">Pet</span></h2>
+          <p class="modal-subtitulo">
+            Registre vacinas, medicamentos, consultas e outros cuidados.
+          </p>
+        </div>
+
+        <button
+          id="fecharModalSaude"
+          class="modal-fechar"
+          type="button"
+          aria-label="Fechar"
+        >
+          ✕
+        </button>
+      </div>
+
+      <div class="saude-conteudo">
+        <input
+          type="hidden"
+          id="saudeTag"
+        >
+
+        <div class="saude-barra">
+          <div>
+            <strong>Histórico de saúde</strong>
+            <p id="saudeResumo">Carregando registros...</p>
+          </div>
+
+          <button
+            id="novoRegistroSaude"
+            class="botao botao-principal"
+            type="button"
+          >
+            + Adicionar registro
+          </button>
+        </div>
+
+        <div
+          id="saudeCarregando"
+          class="saude-carregando"
+          hidden
+        >
+          Carregando...
+        </div>
+
+        <div
+          id="listaSaude"
+          class="lista-saude"
+        ></div>
+
+        <div
+          id="saudeVazio"
+          class="saude-vazio"
+          hidden
+        >
+          <div class="saude-vazio-icone">🩺</div>
+          <strong>Nenhum registro ainda</strong>
+          <p>Adicione a primeira vacina, consulta ou cuidado deste pet.</p>
+        </div>
+
+        <form
+          id="formSaude"
+          class="form-saude"
+          hidden
+        >
+          <div class="form-saude-topo">
+            <h3 id="tituloFormSaude">Novo registro</h3>
+
+            <button
+              id="cancelarFormSaude"
+              class="botao-link"
+              type="button"
+            >
+              Cancelar
+            </button>
+          </div>
+
+          <input
+            type="hidden"
+            id="saudeId"
+          >
+
+          <div class="grid-2">
+            <div class="campo">
+              <label for="saudeTipo">Tipo</label>
+
+              <select id="saudeTipo" required>
+                <option value="">Selecione</option>
+                <option value="Vacina">💉 Vacina</option>
+                <option value="Vermífugo">🐛 Vermífugo</option>
+                <option value="Antipulgas">🦟 Antipulgas</option>
+                <option value="Medicamento">💊 Medicamento</option>
+                <option value="Consulta">🏥 Consulta</option>
+                <option value="Exame">📄 Exame</option>
+                <option value="Outro">❤️ Outro cuidado</option>
+              </select>
+            </div>
+
+            <div class="campo">
+              <label for="saudeNome">Nome ou descrição</label>
+
+              <input
+                id="saudeNome"
+                type="text"
+                maxlength="120"
+                placeholder="Ex.: Vacina V10"
+                required
+              >
+            </div>
+
+            <div class="campo">
+              <label for="saudeDataAplicacao">Data</label>
+
+              <input
+                id="saudeDataAplicacao"
+                type="date"
+              >
+            </div>
+
+            <div class="campo">
+              <label for="saudeProximaData">Próxima data</label>
+
+              <input
+                id="saudeProximaData"
+                type="date"
+              >
+            </div>
+          </div>
+
+          <div class="campo">
+            <label for="saudeObservacoes">Observações</label>
+
+            <textarea
+              id="saudeObservacoes"
+              rows="3"
+              maxlength="1000"
+              placeholder="Informações adicionais, clínica, dosagem, reação..."
+            ></textarea>
+          </div>
+
+          <div class="modal-botoes">
+            <button
+              id="fecharFormSaude"
+              class="botao botao-secundario"
+              type="button"
+            >
+              Cancelar
+            </button>
+
+            <button
+              id="salvarSaude"
+              class="botao botao-principal"
+              type="submit"
+            >
+              Salvar registro
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- Modal de documentos do pet -->
+  <div id="modalDocumentos" class="modal" hidden>
+    <div class="modal-overlay"></div>
+
+    <div class="modal-caixa modal-caixa-documentos">
+      <div class="modal-topo">
+        <div>
+          <h2>Documentos de <span id="documentosNomePet">Pet</span></h2>
+          <p class="modal-subtitulo">
+            Guarde receitas, carteiras de vacinação, exames, laudos, fotos e PDFs.
+          </p>
+        </div>
+
+        <button
+          id="fecharModalDocumentos"
+          class="modal-fechar"
+          type="button"
+          aria-label="Fechar"
+        >
+          ✕
+        </button>
+      </div>
+
+      <div class="documentos-conteudo">
+        <input type="hidden" id="documentosTag">
+
+        <div class="documentos-barra">
+          <div>
+            <strong>Biblioteca do pet</strong>
+            <p id="documentosResumo">Carregando documentos...</p>
+          </div>
+
+          <button
+            id="novoDocumento"
+            class="botao botao-principal"
+            type="button"
+          >
+            + Enviar documento
+          </button>
+        </div>
+
+        <div id="documentosCarregando" class="documentos-carregando" hidden>
+          Carregando...
+        </div>
+
+        <div id="listaDocumentos" class="lista-documentos"></div>
+
+        <div id="documentosVazio" class="documentos-vazio" hidden>
+          <div class="documentos-vazio-icone">📂</div>
+          <strong>Nenhum documento enviado</strong>
+          <p>Envie uma foto ou PDF para criar o prontuário digital deste pet.</p>
+        </div>
+
+        <form id="formDocumento" class="form-documento" hidden>
+          <div class="form-documento-topo">
+            <h3 id="tituloFormDocumento">Enviar documento</h3>
+
+            <button
+              id="cancelarFormDocumento"
+              class="botao-link"
+              type="button"
+            >
+              Cancelar
+            </button>
+          </div>
+
+          <input type="hidden" id="documentoId">
+
+          <div class="grid-2">
+            <div class="campo">
+              <label for="documentoCategoria">Categoria</label>
+              <select id="documentoCategoria" required>
+                <option value="">Selecione</option>
+                <option value="Carteira de vacinação">💉 Carteira de vacinação</option>
+                <option value="Receita">🧾 Receita</option>
+                <option value="Exame">🩸 Exame</option>
+                <option value="Laudo">📋 Laudo</option>
+                <option value="Foto">📷 Foto</option>
+                <option value="Outro">📄 Outro</option>
+              </select>
+            </div>
+
+            <div class="campo">
+              <label for="documentoTitulo">Título</label>
+              <input
+                id="documentoTitulo"
+                type="text"
+                maxlength="120"
+                placeholder="Ex.: Receita de 30/07/2026"
+                required
+              >
+            </div>
+          </div>
+
+          <div id="campoArquivoDocumento" class="campo">
+            <label for="documentoArquivo">Imagem ou PDF</label>
+
+            <label class="documento-seletor" for="documentoArquivo">
+              <span class="documento-seletor-icone">📎</span>
+              <span>
+                <strong id="documentoArquivoTexto">Escolher arquivo</strong>
+                <small>JPG, PNG, WEBP ou PDF — máximo de 10 MB</small>
+              </span>
+            </label>
+
+            <input
+              id="documentoArquivo"
+              class="arquivo-escondido"
+              type="file"
+              accept=".jpg,.jpeg,.png,.webp,.pdf,image/jpeg,image/png,image/webp,application/pdf"
+            >
+          </div>
+
+          <p id="documentoEdicaoAviso" class="documento-edicao-aviso" hidden>
+            Ao editar, o arquivo atual será mantido. Aqui você altera apenas a categoria e o título.
+          </p>
+
+          <div class="modal-botoes">
+            <button
+              id="fecharFormDocumento"
+              class="botao botao-secundario"
+              type="button"
+            >
+              Cancelar
+            </button>
+
+            <button
+              id="salvarDocumento"
+              class="botao botao-principal"
+              type="submit"
+            >
+              Enviar documento
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/core/navigation.js?v=1"></script>
+  <script src="/js/tutor.js?v=8"></script>
+</body>
+</html>

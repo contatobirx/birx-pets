@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Histórico de leituras | Orbitek Pets</title>
+
+    <link
+        rel="stylesheet"
+        href="/css/historico.css"
+    >
+</head>
+
+<body>
+    <main class="pagina-historico">
+        <section class="cartao-historico">
+            <header class="cabecalho">
+                <div>
+                    <span class="marca">
+                        Orbitek Pets
+                    </span>
+
+                    <h1>
+                        Histórico de leituras
+                    </h1>
+
+                    <p id="descricaoTag">
+                        Carregando informações da tag...
+                    </p>
+                </div>
+
+                <a
+                    id="botaoVoltar"
+                    class="botao-voltar"
+                    href="/"
+                >
+                    Voltar
+                </a>
+            </header>
+
+            <section
+                id="estadoCarregando"
+                class="estado"
+            >
+                <div class="carregador"></div>
+
+                <p>
+                    Buscando as últimas leituras...
+                </p>
+            </section>
+
+            <section
+                id="estadoErro"
+                class="estado escondido"
+            >
+                <div class="icone-estado">
+                    !
+                </div>
+
+                <h2 id="tituloErro">
+                    Não foi possível carregar
+                </h2>
+
+                <p id="mensagemErro">
+                    Tente novamente em alguns instantes.
+                </p>
+            </section>
+
+            <section
+                id="estadoVazio"
+                class="estado escondido"
+            >
+                <div class="icone-estado">
+                    📍
+                </div>
+
+                <h2>
+                    Nenhuma leitura registrada
+                </h2>
+
+                <p>
+                    Assim que alguém aproximar o celular da tag,
+                    a leitura aparecerá aqui.
+                </p>
+            </section>
+
+            <section
+                id="conteudoHistorico"
+                class="conteudo-historico escondido"
+            >
+                <div class="resumo">
+                    <div>
+                        <span>Total de leituras</span>
+
+                        <strong id="quantidadeLeituras">
+                            0
+                        </strong>
+                    </div>
+
+                    <div>
+                        <span>Última leitura</span>
+
+                        <strong id="ultimaLeitura">
+                            —
+                        </strong>
+                    </div>
+                </div>
+
+                <div
+                    id="listaLeituras"
+                    class="linha-tempo"
+                ></div>
+            </section>
+        </section>
+    </main>
+
+    <script src="/js/core/navigation.js?v=1"></script>
+    <script src="/js/historico.js?v=2"></script>
+</body>
+</html>

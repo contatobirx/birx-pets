@@ -1,0 +1,9 @@
+name = "orbitek-pets-v2"
+compatibility_date = "2026-07-29"
+pages_build_output_dir = "./public"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "orbitek-pets"
+database_id = "d944343a-aebc-404d-a5c6-53afeec4d563"
+remote = true

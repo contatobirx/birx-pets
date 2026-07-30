@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Perfil do Pet - Orbitek Pets</title>
+
+    <link rel="stylesheet" href="/css/geral.css">
+    <link rel="stylesheet" href="/css/pet.css">
+</head>
+
+<body>
+
+    <main class="pagina-pet">
+
+        <section class="cartao-pet">
+
+            <div id="estadoCarregando">
+                <p>Carregando perfil do pet...</p>
+            </div>
+
+            <div
+                id="perfilPet"
+                class="escondido"
+            >
+
+                <div class="cabecalho-pet">
+
+                    <div
+                        class="foto-pet"
+                        id="fotoPet"
+                    >
+                        🐾
+                    </div>
+
+                    <span
+                        class="status-pet"
+                        id="statusPet"
+                    >
+                        Estou seguro
+                    </span>
+
+                    <h1 id="nomePet">
+                        Pet
+                    </h1>
+
+                    <p id="localPet">
+                        Cidade não informada
+                    </p>
+
+                </div>
+
+                <div class="grade-informacoes">
+
+                    <div class="informacao">
+                        <span>Espécie</span>
+                        <strong id="especiePet">—</strong>
+                    </div>
+
+                    <div class="informacao">
+                        <span>Raça</span>
+                        <strong id="racaPet">—</strong>
+                    </div>
+
+                    <div class="informacao">
+                        <span>Sexo</span>
+                        <strong id="sexoPet">—</strong>
+                    </div>
+
+                    <div class="informacao">
+                        <span>Idade</span>
+                        <strong id="idadePet">—</strong>
+                    </div>
+
+                </div>
+
+                <div class="bloco-comportamento">
+
+                    <span>Comportamento</span>
+
+                    <p id="comportamentoPet">
+                        Nenhuma informação cadastrada.
+                    </p>
+
+                </div>
+
+                <div class="bloco-tutor">
+
+                    <span>Tutor</span>
+
+                    <strong id="nomeTutor">
+                        Não informado
+                    </strong>
+
+                </div>
+
+                <a
+                    href="#"
+                    class="botao-whatsapp"
+                    id="botaoWhatsapp"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                >
+                    Falar com o tutor no WhatsApp
+                </a>
+
+            </div>
+
+            <div
+                id="estadoErro"
+                class="estado-erro escondido"
+            >
+
+                <h1 id="tituloErro">
+                    Não foi possível abrir esta tag
+                </h1>
+
+                <p id="mensagemErro"></p>
+
+                <a
+                    href="#"
+                    id="botaoAtivar"
+                    class="botao-principal escondido"
+                >
+                    Ativar minha tag
+                </a>
+
+            </div>
+
+        </section>
+
+    </main>
+
+    <script src="/js/core/api.js?v=2"></script>
+    <script src="/js/pet.js?v=2"></script>
+
+</body>
+
+</html>

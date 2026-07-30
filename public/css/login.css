@@ -1,0 +1,283 @@
+* {
+    box-sizing: border-box;
+}
+
+:root {
+    font-family:
+        Inter,
+        Arial,
+        Helvetica,
+        sans-serif;
+
+    color: #172554;
+    background: #eef3fb;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+}
+
+button,
+input {
+    font: inherit;
+}
+
+button {
+    cursor: pointer;
+}
+
+button:disabled {
+    cursor: wait;
+    opacity: 0.7;
+}
+
+.escondido {
+    display: none !important;
+}
+
+.pagina-login {
+    display: grid;
+    min-height: 100vh;
+    padding: 32px 20px;
+    place-items: center;
+}
+
+.cartao-login {
+    width: min(460px, 100%);
+    overflow: hidden;
+    border: 1px solid #dbe4f0;
+    border-radius: 24px;
+    background: #ffffff;
+    box-shadow:
+        0 22px 60px rgba(15, 23, 42, 0.13);
+}
+
+.cabecalho-login {
+    padding: 34px 34px 26px;
+    text-align: center;
+}
+
+.marca {
+    display: inline-block;
+    margin-bottom: 20px;
+    color: #2563eb;
+    font-size: 15px;
+    font-weight: 900;
+    letter-spacing: 0.08em;
+    text-decoration: none;
+    text-transform: uppercase;
+}
+
+.cabecalho-login h1 {
+    margin: 0 0 12px;
+    color: #0f2f82;
+    font-size: clamp(28px, 7vw, 36px);
+    line-height: 1.12;
+}
+
+.cabecalho-login p {
+    margin: 0;
+    color: #64748b;
+    line-height: 1.6;
+}
+
+.etapa-login {
+    padding: 6px 34px 28px;
+}
+
+label {
+    display: block;
+    margin-bottom: 8px;
+    color: #1e293b;
+    font-size: 14px;
+    font-weight: 800;
+}
+
+.campo-telefone {
+    display: flex;
+    overflow: hidden;
+    border: 1px solid #cbd5e1;
+    border-radius: 13px;
+    background: #ffffff;
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.campo-telefone:focus-within {
+    border-color: #2563eb;
+    box-shadow:
+        0 0 0 4px rgba(37, 99, 235, 0.12);
+}
+
+.campo-telefone span {
+    display: grid;
+    padding: 0 14px;
+    place-items: center;
+    border-right: 1px solid #e2e8f0;
+    color: #475569;
+    background: #f8fafc;
+    font-weight: 800;
+}
+
+.campo-telefone input {
+    width: 100%;
+    min-width: 0;
+    padding: 15px;
+    border: 0;
+    outline: 0;
+    color: #0f172a;
+    background: transparent;
+}
+
+.campo-codigo {
+    width: 100%;
+    padding: 17px;
+    border: 1px solid #cbd5e1;
+    border-radius: 13px;
+    outline: 0;
+    color: #0f172a;
+    font-size: 25px;
+    font-weight: 800;
+    letter-spacing: 0.3em;
+    text-align: center;
+}
+
+.campo-codigo:focus {
+    border-color: #2563eb;
+    box-shadow:
+        0 0 0 4px rgba(37, 99, 235, 0.12);
+}
+
+.ajuda-campo {
+    margin: 10px 0 22px;
+    color: #64748b;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.botao-principal {
+    width: 100%;
+    min-height: 52px;
+    margin-top: 20px;
+    border: 0;
+    border-radius: 13px;
+    color: #ffffff;
+    background: #2563eb;
+    font-weight: 800;
+    transition:
+        transform 0.2s ease,
+        background 0.2s ease;
+}
+
+.botao-principal:hover:not(:disabled) {
+    background: #1d4ed8;
+    transform: translateY(-1px);
+}
+
+.botao-secundario,
+.botao-alterar {
+    border: 0;
+    color: #2563eb;
+    background: transparent;
+    font-weight: 800;
+}
+
+.botao-secundario {
+    width: 100%;
+    margin-top: 18px;
+    padding: 10px;
+}
+
+.botao-alterar {
+    padding: 0;
+    margin-bottom: 24px;
+}
+
+.titulo-etapa {
+    margin-bottom: 22px;
+}
+
+.titulo-etapa h2 {
+    margin: 0 0 8px;
+    color: #0f2f82;
+    font-size: 27px;
+}
+
+.titulo-etapa p {
+    margin: 0;
+    color: #64748b;
+    line-height: 1.5;
+}
+
+.mensagem-sistema {
+    margin: 0 34px 25px;
+    padding: 14px 16px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1.5;
+    text-align: center;
+}
+
+.mensagem-sistema.erro {
+    border: 1px solid #fecaca;
+    color: #991b1b;
+    background: #fef2f2;
+}
+
+.mensagem-sistema.sucesso {
+    border: 1px solid #bbf7d0;
+    color: #166534;
+    background: #f0fdf4;
+}
+
+.rodape-login {
+    padding: 20px 34px;
+    border-top: 1px solid #e2e8f0;
+    background: #f8fafc;
+    text-align: center;
+}
+
+.rodape-login p {
+    margin: 0;
+    color: #64748b;
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+@media (max-width: 520px) {
+    .pagina-login {
+        padding: 0;
+    }
+
+    .cartao-login {
+        min-height: 100vh;
+        border: 0;
+        border-radius: 0;
+    }
+
+    .cabecalho-login {
+        padding:
+            42px 22px
+            26px;
+    }
+
+    .etapa-login {
+        padding:
+            6px 22px
+            28px;
+    }
+
+    .mensagem-sistema {
+        margin:
+            0 22px
+            25px;
+    }
+
+    .rodape-login {
+        padding:
+            20px 22px;
+    }
+}
