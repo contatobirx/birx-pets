@@ -1713,3 +1713,50 @@ body.modal-aberto {
 
 /* Sprint 14.1 — Dashboard Premium */
 .painel-premium{gap:20px}.dashboard-hero{position:relative;overflow:hidden;display:grid;grid-template-columns:minmax(0,1.5fr) minmax(250px,.6fr);gap:24px;padding:28px;border-radius:28px;background:linear-gradient(135deg,#24164f 0%,#6c4cf1 58%,#8e72ff 100%);color:#fff;box-shadow:0 22px 55px rgba(69,45,170,.24)}.dashboard-hero:before{content:"";position:absolute;width:280px;height:280px;border-radius:50%;right:-90px;top:-130px;background:rgba(255,255,255,.1)}.dashboard-hero:after{content:"";position:absolute;width:180px;height:180px;border-radius:50%;left:42%;bottom:-135px;background:rgba(255,255,255,.08)}.dashboard-hero-conteudo,.dashboard-protecao{position:relative;z-index:1}.dashboard-hero-topo{display:flex;align-items:center;justify-content:space-between;gap:15px}.dashboard-selo{display:inline-flex;padding:7px 11px;border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.12);border-radius:999px;font-size:.74rem;font-weight:850;letter-spacing:.08em;text-transform:uppercase}.dashboard-hero .botao-atualizar{background:rgba(255,255,255,.14);color:#fff;border:1px solid rgba(255,255,255,.2)}.dashboard-pet{display:flex;align-items:center;gap:18px;margin-top:25px}.dashboard-hero .pet-destaque-foto{width:106px;height:106px;border:4px solid rgba(255,255,255,.28);background:rgba(255,255,255,.15);box-shadow:0 14px 28px rgba(20,12,52,.2)}.dashboard-hero .pet-destaque-info h2{font-size:2rem;color:#fff}.dashboard-hero .pet-destaque-info p,.dashboard-hero .pet-destaque-info small{color:rgba(255,255,255,.78)}.dashboard-hero .status-tag-ativa{display:inline-flex;padding:6px 10px;border-radius:999px;background:rgba(26,198,115,.18);color:#b9ffd9}.dashboard-hero .status-tag-ativa.perdido{background:rgba(255,82,100,.2);color:#ffd2d8}.dashboard-hero-acoes{display:flex;flex-wrap:wrap;gap:10px;margin-top:24px}.botao-hero{border:0;border-radius:14px;padding:12px 15px;font:inherit;font-weight:850;cursor:pointer;transition:transform .16s ease,box-shadow .16s ease}.botao-hero:hover{transform:translateY(-2px)}.botao-hero-principal{background:#fff;color:#5135c9}.botao-hero-claro{background:rgba(255,255,255,.14);color:#fff;border:1px solid rgba(255,255,255,.2)}.botao-hero-alerta{background:#ffecf0;color:#b4233e}.botao-hero-alerta.ativo{background:#ff5264;color:#fff}.dashboard-protecao{align-self:stretch;display:flex;flex-direction:column;justify-content:center;padding:24px;border-radius:22px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18);backdrop-filter:blur(10px)}.protecao-icone{font-size:2.2rem;margin-bottom:12px}.dashboard-protecao span{font-size:.75rem;text-transform:uppercase;letter-spacing:.08em;font-weight:850;color:#d9d0ff}.dashboard-protecao strong{font-size:1.2rem;margin-top:6px}.dashboard-protecao p{margin-top:8px;color:rgba(255,255,255,.75);line-height:1.5;font-size:.9rem}.metricas-premium{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}.metrica-card{display:flex;align-items:center;gap:12px;padding:17px;background:#fff;border:1px solid var(--cor-borda);border-radius:19px;box-shadow:0 8px 24px rgba(41,34,82,.07)}.metrica-icone{width:44px;height:44px;display:grid;place-items:center;border-radius:14px;background:#f1edff;font-size:1.2rem}.metrica-card small{display:block;color:var(--cor-texto-claro);font-weight:700}.metrica-card strong{display:block;margin-top:4px;font-size:.96rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:170px}.dashboard-corpo-premium{display:grid;grid-template-columns:minmax(260px,.75fr) minmax(0,1.35fr);gap:18px}.acoes-premium{padding:22px;background:#fff;border:1px solid var(--cor-borda);border-radius:24px;box-shadow:var(--sombra)}.acoes-premium .modulos-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.acoes-premium .modulo-card{min-height:86px}.painel-premium+.resumo{margin-top:0}@media(max-width:900px){.dashboard-hero{grid-template-columns:1fr}.dashboard-protecao{display:none}.metricas-premium{grid-template-columns:repeat(2,minmax(0,1fr))}.dashboard-corpo-premium{grid-template-columns:1fr}}@media(max-width:620px){.dashboard-hero{padding:20px;border-radius:22px}.dashboard-pet{align-items:flex-start}.dashboard-hero .pet-destaque-foto{width:82px;height:82px;border-radius:22px}.dashboard-hero .pet-destaque-info h2{font-size:1.5rem}.dashboard-hero-acoes{display:grid;grid-template-columns:1fr 1fr}.botao-hero-alerta{grid-column:1/-1}.metricas-premium{grid-template-columns:1fr 1fr;gap:10px}.metrica-card{padding:13px;align-items:flex-start}.metrica-icone{width:38px;height:38px}.metrica-card strong{max-width:110px;font-size:.87rem}.acoes-premium .modulos-grid{grid-template-columns:1fr}.dashboard-corpo-premium{gap:14px}}@media(max-width:420px){.dashboard-hero-acoes{grid-template-columns:1fr}.botao-hero-alerta{grid-column:auto}.metricas-premium{grid-template-columns:1fr}}
+
+
+/* Sprint 14.2.1 — card de alerta e checklist acionável */
+.dashboard-protecao {
+  transition: background .25s ease, border-color .25s ease, box-shadow .25s ease, transform .25s ease;
+}
+.dashboard-protecao.pet-perdido {
+  background: linear-gradient(145deg, rgba(190, 30, 60, .92), rgba(255, 72, 92, .78));
+  border-color: rgba(255, 220, 225, .45);
+  box-shadow: 0 18px 42px rgba(120, 12, 35, .28);
+}
+.dashboard-protecao.pet-perdido .protecao-icone {
+  animation: orbitek-alerta-pulso 1.25s ease-in-out infinite;
+}
+.dashboard-protecao.pet-perdido span { color: #ffe3e8; }
+.dashboard-protecao.pet-perdido p { color: rgba(255,255,255,.9); }
+@keyframes orbitek-alerta-pulso {
+  0%, 100% { transform: scale(1); filter: drop-shadow(0 0 0 rgba(255,255,255,0)); }
+  50% { transform: scale(1.13); filter: drop-shadow(0 0 10px rgba(255,255,255,.5)); }
+}
+.progresso-mensagem {
+  margin: -2px 0 13px;
+  color: var(--cor-texto-claro);
+  font-size: .84rem;
+  line-height: 1.45;
+}
+.checklist-item {
+  border: 0;
+  font: inherit;
+  cursor: pointer;
+  transition: transform .16s ease, box-shadow .16s ease, background .16s ease;
+}
+.checklist-item:hover,
+.checklist-item:focus-visible {
+  transform: translateY(-2px);
+  box-shadow: 0 7px 16px rgba(41,34,82,.12);
+  outline: none;
+}
+.checklist-item.pendente {
+  background: #fff7e8;
+  color: #8c5c0a;
+  box-shadow: inset 0 0 0 1px #f1d59b;
+}
+.checklist-item.pendente:hover,
+.checklist-item.pendente:focus-visible {
+  background: #ffefca;
+}

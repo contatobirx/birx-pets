@@ -1,6 +1,10 @@
 const elementos = {
   painel2: document.getElementById("painel2"),
   boasVindasTitulo: document.getElementById("boasVindasTitulo"),
+  dashboardProtecao: document.getElementById("dashboardProtecao"),
+  protecaoIcone: document.getElementById("protecaoIcone"),
+  protecaoRotulo: document.getElementById("protecaoRotulo"),
+  textoProtecao: document.getElementById("textoProtecao"),
   petDestaqueFoto: document.getElementById("petDestaqueFoto"),
   petDestaqueNome: document.getElementById("petDestaqueNome"),
   petDestaquePerfil: document.getElementById("petDestaquePerfil"),
@@ -17,6 +21,7 @@ const elementos = {
   progressoTrilho: document.getElementById("progressoTrilho"),
   progressoBarra: document.getElementById("progressoBarra"),
   checklistPerfil: document.getElementById("checklistPerfil"),
+  progressoMensagem: document.getElementById("progressoMensagem"),
   menuInferior: document.getElementById("menuInferior"),
   tituloSaudacao: document.getElementById("tituloSaudacao"),
   textoSaudacao: document.getElementById("textoSaudacao"),
@@ -282,7 +287,20 @@ function renderizarPainel2(pets, nomeTutor) {
   const nomePet = formatarTexto(pet.nome, "Seu pet");
   const perfil = [pet.especie, pet.raca].filter(Boolean).join(" • ") || "Complete o perfil do pet";
 
-  elementos.boasVindasTitulo.textContent = `${nomePet} está protegido 🐾`;
+  const estaPerdido = Boolean(pet.perdido);
+
+  elementos.boasVindasTitulo.textContent = estaPerdido
+    ? `${nomePet} está perdido`
+    : `${nomePet} está protegido 🐾`;
+  if (elementos.protecaoRotulo) elementos.protecaoRotulo.textContent = estaPerdido ? "Pet desaparecido" : "Proteção Orbitek";
+  if (elementos.protecaoIcone) elementos.protecaoIcone.textContent = estaPerdido ? "🚨" : "🛡️";
+  if (elementos.textoProtecao) {
+    elementos.textoProtecao.textContent = estaPerdido
+      ? "Caso alguém encontre este pet, o perfil público mostrará o contato do tutor em destaque."
+      : "Mantenha os dados atualizados para facilitar o contato em uma emergência.";
+  }
+  elementos.dashboardProtecao?.classList.toggle("pet-perdido", estaPerdido);
+
   elementos.petDestaqueNome.textContent = nomePet;
   elementos.petDestaquePerfil.textContent = perfil;
   elementos.petDestaqueTag.textContent = `Tag ${formatarTexto(pet.tagCodigo, "não informada")}`;
@@ -307,29 +325,69 @@ function renderizarPainel2(pets, nomeTutor) {
     : "🐶";
 
   const itens = [
-    { nome: "Tag ativada", ok: Boolean(pet.tagCodigo) },
-    { nome: "Dados básicos", ok: Boolean(pet.nome && pet.especie) },
-    { nome: "Foto", ok: Boolean(pet.fotoUrl) },
-    { nome: "Contato", ok: Boolean(pet.whatsapp || pet.email) },
-    { nome: "Localização", ok: Boolean(pet.cidade || pet.cep) },
-    { nome: "Raça", ok: Boolean(pet.raca) },
+    { nome: "Tag ativada", ok: Boolean(pet.tagCodigo), acao: "perfil", campo: "" },
+    { nome: "Dados básicos", ok: Boolean(pet.nome && pet.especie), acao: "editar", campo: "editarNome" },
+    { nome: "Foto", ok: Boolean(pet.fotoUrl), acao: "foto", campo: "" },
+    { nome: "Contato", ok: Boolean(pet.whatsapp || pet.email), acao: "editar", campo: "editarWhatsapp" },
+    { nome: "Localização", ok: Boolean(pet.cidade || pet.cep), acao: "editar", campo: "editarCep" },
+    { nome: "Raça", ok: Boolean(pet.raca), acao: "editar", campo: "editarRaca" },
   ];
 
   const concluidos = itens.filter((item) => item.ok).length;
   const percentual = Math.round((concluidos / itens.length) * 100);
-  elementos.progressoTexto.textContent = `${concluidos} de ${itens.length} itens concluídos`;
+  elementos.progressoTexto.textContent = `${percentual}% completo`;
   elementos.progressoNumero.textContent = `${percentual}%`;
   elementos.progressoBarra.style.width = `${percentual}%`;
   elementos.progressoTrilho.setAttribute("aria-valuenow", String(percentual));
+
+  const faltantes = itens.length - concluidos;
+  if (elementos.progressoMensagem) {
+    elementos.progressoMensagem.textContent = faltantes === 0
+      ? "Perfil completo! Os dados essenciais estão prontos para uma emergência."
+      : faltantes === 1
+        ? "Falta apenas 1 etapa. Clique no item pendente para completar agora."
+        : `Faltam ${faltantes} etapas. Clique nos itens para agilizar o preenchimento.`;
+  }
+
   elementos.checklistPerfil.innerHTML = itens.map((item) => `
-    <span class="checklist-item ${item.ok ? "concluido" : ""}">
+    <button class="checklist-item ${item.ok ? "concluido" : "pendente"}" type="button"
+      data-checklist-acao="${item.acao}" data-checklist-campo="${item.campo}" data-tag="${escaparHtml(pet.tagCodigo)}"
+      aria-label="${item.ok ? "Revisar" : "Completar"} ${escaparHtml(item.nome)}">
       ${item.ok ? "✓" : "○"} ${escaparHtml(item.nome)}
-    </span>
+    </button>
   `).join("");
 
   elementos.editarPetDestaque.dataset.tag = pet.tagCodigo;
   elementos.painel2.hidden = false;
   if (elementos.menuInferior) elementos.menuInferior.hidden = false;
+}
+
+
+function acionarItemChecklist(evento) {
+  const botao = evento.target.closest("[data-checklist-acao]");
+  if (!botao) return;
+
+  const acao = botao.dataset.checklistAcao;
+  const tag = botao.dataset.tag;
+
+  if (acao === "foto") {
+    abrirModalFoto({ currentTarget: { dataset: { tag } } });
+    return;
+  }
+
+  if (acao === "perfil") {
+    abrirPerfilTutor({ currentTarget: { dataset: { tag } } });
+    return;
+  }
+
+  abrirModalEdicao({ currentTarget: { dataset: { tag } } });
+  const campo = botao.dataset.checklistCampo;
+  if (campo && elementos[campo]) {
+    setTimeout(() => {
+      elementos[campo].focus();
+      elementos[campo].scrollIntoView({ behavior: "smooth", block: "center" });
+    }, 90);
+  }
 }
 
 function acionarModulo(modulo) {
@@ -1904,6 +1962,7 @@ function configurarEventos() {
     abrirPerfilTutor({ currentTarget: elementos.verPerfilPublico });
   });
   elementos.modoPerdidoDestaque?.addEventListener("click", alterarModoPerdido);
+  elementos.checklistPerfil?.addEventListener("click", acionarItemChecklist);
 
   document.querySelectorAll("[data-modulo]").forEach((botao) => {
     botao.addEventListener("click", () => acionarModulo(botao.dataset.modulo));
