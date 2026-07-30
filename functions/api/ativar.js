@@ -234,6 +234,15 @@ export async function onRequestPost(context) {
       .bind(codigoNormalizado)
       .run();
 
+    await registrarEventoTimelineSeguro(
+      db,
+      codigoNormalizado,
+      "cadastro",
+      "Pet cadastrado",
+      `O perfil de ${String(nomePet).trim()} foi criado e a tag foi ativada.`,
+      emailNormalizado
+    );
+
     return Response.json(
       {
         sucesso: true,
@@ -327,5 +336,17 @@ function validarFotoUrl(valor) {
     return endereco.toString();
   } catch {
     return null;
+  }
+}
+
+async function registrarEventoTimelineSeguro(db, tagCodigo, tipo, titulo, descricao, criadoPor) {
+  try {
+    await db.prepare(`
+      INSERT INTO pet_timeline (
+        tag_codigo, tipo, titulo, descricao, data_evento, automatico, criado_por
+      ) VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP, 1, ?)
+    `).bind(tagCodigo, tipo, titulo, descricao, criadoPor).run();
+  } catch (erro) {
+    console.error("Não foi possível registrar evento automático na timeline:", erro);
   }
 }

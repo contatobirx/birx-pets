@@ -322,6 +322,10 @@ function criarCardPet(petOriginal) {
             Histórico
           </button>
 
+          <button class="botao botao-timeline" type="button" data-acao="timeline" data-tag="${escaparHtml(pet.tagCodigo)}">
+            Timeline
+          </button>
+
           <button class="botao botao-saude" type="button" data-acao="saude" data-tag="${escaparHtml(pet.tagCodigo)}">
             Saúde
           </button>

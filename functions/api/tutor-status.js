@@ -278,6 +278,26 @@ export async function onRequestPost(
       )
       .run();
 
+    try {
+      await env.DB.prepare(`
+        INSERT INTO pet_timeline (
+          tag_codigo, tipo, titulo, descricao, data_evento, automatico, criado_por
+        ) VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP, 1, ?)
+      `)
+        .bind(
+          tagCodigo,
+          perdido ? "perdido" : "encontrado",
+          perdido ? "Modo perdido ativado" : "Pet marcado como encontrado",
+          perdido
+            ? `${pet.nome} foi marcado como desaparecido pelo tutor.`
+            : `${pet.nome} foi marcado como encontrado e está seguro.`,
+          sessao.email
+        )
+        .run();
+    } catch (erroTimeline) {
+      console.error("Não foi possível registrar o status na timeline:", erroTimeline);
+    }
+
     return respostaJson({
       sucesso: true,
       autenticado: true,

@@ -825,9 +825,38 @@
     </div>
   </div>
 
+
+
+  <!-- Modal da timeline do pet -->
+  <div id="modalTimeline" class="modal" hidden>
+    <div class="modal-overlay"></div>
+    <div class="modal-caixa modal-caixa-timeline">
+      <div class="modal-topo">
+        <div><h2>Timeline de <span id="timelineNomePet">Pet</span></h2><p class="modal-subtitulo">Histórico de acontecimentos importantes deste pet.</p></div>
+        <button id="fecharModalTimeline" class="modal-fechar" type="button" aria-label="Fechar">✕</button>
+      </div>
+      <input type="hidden" id="timelineTag">
+      <div class="timeline-barra"><div><strong>Histórico do pet</strong><p>Eventos mais recentes aparecem primeiro.</p></div><button id="novoEventoTimeline" class="botao botao-principal" type="button">+ Novo evento</button></div>
+      <div id="timelineCarregando" class="timeline-carregando" hidden>Carregando timeline...</div>
+      <div id="listaTimeline" class="lista-timeline"></div>
+      <div id="timelineVazio" class="timeline-vazio" hidden><div class="timeline-vazio-icone">📅</div><strong>Nenhum evento ainda</strong><p>Adicione o primeiro acontecimento importante deste pet.</p></div>
+      <form id="formTimeline" class="form-timeline" hidden>
+        <div class="form-timeline-topo"><h3>Novo evento</h3><button id="cancelarFormTimeline" class="botao-link" type="button">Cancelar</button></div>
+        <div class="grid-2">
+          <div class="campo"><label for="timelineTipo">Tipo</label><select id="timelineTipo" required><option value="">Selecione</option><option value="vacina">💉 Vacina</option><option value="consulta">🩺 Consulta</option><option value="medicamento">💊 Medicamento</option><option value="peso">⚖️ Peso</option><option value="foto">📷 Foto</option><option value="observacao">📝 Observação</option><option value="outro">🐾 Outro</option></select></div>
+          <div class="campo"><label for="timelineDataEvento">Data e hora</label><input id="timelineDataEvento" type="datetime-local"></div>
+        </div>
+        <div class="campo"><label for="timelineTitulo">Título</label><input id="timelineTitulo" type="text" maxlength="120" placeholder="Ex.: Vacina V10 aplicada" required></div>
+        <div class="campo"><label for="timelineDescricao">Descrição</label><textarea id="timelineDescricao" rows="3" maxlength="1000" placeholder="Clínica, profissional, observações ou outros detalhes..."></textarea></div>
+        <div class="modal-botoes"><button class="botao botao-secundario" id="fecharFormTimeline" type="button">Cancelar</button><button class="botao botao-principal" id="salvarTimeline" type="submit">Salvar evento</button></div>
+      </form>
+    </div>
+  </div>
+
   <script src="/js/core/navigation.js?v=1"></script>
   <script src="/js/core/notifications.js?v=1"></script>
-  <script src="/js/tutor.js?v=10"></script>
+  <script src="/js/tutor.js?v=11"></script>
+  <script src="/js/timeline.js?v=1"></script>
   <script src="/js/core/ux.js?v=1"></script>
 </body>
 </html>

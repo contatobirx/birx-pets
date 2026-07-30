@@ -295,6 +295,18 @@ export async function onRequestPost(context) {
       throw new Error("O banco de dados não confirmou a atualização.");
     }
 
+    try {
+      await env.DB.prepare(`
+        INSERT INTO pet_timeline (
+          tag_codigo, tipo, titulo, descricao, data_evento, automatico, criado_por
+        ) VALUES (?, 'observacao', 'Cadastro atualizado', ?, CURRENT_TIMESTAMP, 1, ?)
+      `)
+        .bind(dados.tagCodigo, `As informações de ${dados.nome} foram atualizadas.`, sessao.email)
+        .run();
+    } catch (erroTimeline) {
+      console.error("Não foi possível registrar a atualização na timeline:", erroTimeline);
+    }
+
     return responder({
       sucesso: true,
       mensagem: "Informações atualizadas com sucesso.",
