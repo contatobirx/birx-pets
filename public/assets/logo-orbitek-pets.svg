@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 300" role="img" aria-labelledby="title desc">
+  <title id="title">Orbitek Pets</title>
+  <desc id="desc">Símbolo com cachorro e gato, seguido do nome Orbitek Pets.</desc>
+  <defs>
+    <linearGradient id="orbita" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#2563eb"/>
+      <stop offset="1" stop-color="#4f46e5"/>
+    </linearGradient>
+  </defs>
+  <g transform="translate(150 8)">
+    <path d="M36 121c-8-39 9-79 43-98 10-6 23-6 32 1l15 12 28 2c12 1 22 9 25 20l2 8-29 9c-7 2-13 8-16 14l-8 19v47H67v-46l-17 12-14 0z" fill="#0b2a68"/>
+    <path d="M92 33c-8 18-4 35 7 48" fill="none" stroke="#fff" stroke-width="7" stroke-linecap="round" opacity=".9"/>
+    <path d="M167 91l16-13 17 13 10-21 10 22 17-12 0 74h-70z" fill="#0b2a68"/>
+    <path d="M183 116c8 0 14 6 14 14M220 130c0-8 6-14 14-14" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" opacity=".8"/>
+    <path d="M29 142c40 25 137 31 213-2 25-11 43-25 49-38" fill="none" stroke="url(#orbita)" stroke-width="15" stroke-linecap="round"/>
+    <path d="M286 92l9 11 14 1-10 9 3 14-12-7-12 7 3-14-10-9 14-1z" fill="#2563eb"/>
+    <circle cx="21" cy="89" r="5" fill="#2563eb"/>
+    <circle cx="265" cy="48" r="4" fill="#4f46e5"/>
+  </g>
+  <text x="260" y="225" text-anchor="middle" fill="#0b2a68" font-family="Arial, Helvetica, sans-serif" font-size="70" font-weight="800" letter-spacing="8">ORBITEK</text>
+  <path d="M88 251h92M340 251h92" stroke="#2563eb" stroke-width="5" stroke-linecap="round"/>
+  <text x="260" y="270" text-anchor="middle" fill="#2563eb" font-family="Arial, Helvetica, sans-serif" font-size="42" font-weight="800" letter-spacing="5">PETS</text>
+  <g transform="translate(248 280)" fill="#2563eb">
+    <circle cx="4" cy="4" r="4"/><circle cx="14" cy="2" r="4"/><circle cx="22" cy="6" r="4"/>
+    <path d="M5 15c0-6 6-10 11-10s10 5 10 10c0 6-5 10-11 10S5 21 5 15z"/>
+  </g>
+</svg>

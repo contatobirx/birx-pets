@@ -2,100 +2,72 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0b2a68">
     <title>Entrar | Orbitek Pets</title>
-
-    <link
-        rel="stylesheet"
-        href="/css/login.css"
-    >
-  <link rel="stylesheet" href="/css/ux.css?v=1" />
+    <link rel="stylesheet" href="/css/login.css?v=4">
+    <link rel="stylesheet" href="/css/ux.css?v=1">
 </head>
-
 <body>
     <main class="pagina-login">
-        <section class="cartao-login">
+        <div class="decoracao decoracao-esquerda" aria-hidden="true">
+            <span class="pata pata-grande">🐾</span>
+            <p>Amor, cuidado<br>e proteção em<br><strong>cada detalhe.</strong></p>
+        </div>
+
+        <section class="cartao-login" aria-labelledby="tituloLogin">
             <header class="cabecalho-login">
-                <a
-                    href="/"
-                    class="marca"
-                >
-                    Orbitek Pets
+                <a href="/" class="marca" aria-label="Voltar ao início">
+                    <img src="/assets/logo-orbitek-pets.svg" alt="Orbitek Pets">
                 </a>
 
-                <h1>
-                    Acesse o perfil do seu pet
-                </h1>
-
-                <p>
-                    Entre usando o mesmo e-mail
-                    cadastrado na tag.
-                </p>
+                <h1 id="tituloLogin">Acesse o perfil<br>do seu pet</h1>
+                <p>Entre usando o mesmo e-mail cadastrado na tag.</p>
             </header>
 
-            <section
-                id="etapaEmail"
-                class="etapa-login"
-            >
+            <section id="etapaEmail" class="etapa-login">
                 <form id="formEmail">
-                    <label for="email">
+                    <label for="email" class="rotulo-com-icone">
+                        <span aria-hidden="true">✉</span>
                         E-mail cadastrado
                     </label>
 
-                    <input
-                        id="email"
-                        name="email"
-                        type="email"
-                        inputmode="email"
-                        autocomplete="email"
-                        placeholder="seuemail@exemplo.com"
-                        required
-                    >
+                    <div class="campo-com-icone">
+                        <input
+                            id="email"
+                            name="email"
+                            type="email"
+                            inputmode="email"
+                            autocomplete="email"
+                            placeholder="seuemail@exemplo.com"
+                            required
+                        >
+                        <span class="icone-campo" aria-hidden="true">●</span>
+                    </div>
 
                     <p class="ajuda-campo">
-                        Enviaremos um código para confirmar
-                        que este e-mail pertence a você.
+                        <span aria-hidden="true">◆</span>
+                        Enviaremos um código para confirmar que este e-mail pertence a você.
                     </p>
 
-                    <button
-                        id="botaoEnviarCodigo"
-                        type="submit"
-                        class="botao-principal"
-                    >
+                    <button id="botaoEnviarCodigo" type="submit" class="botao-principal">
+                        <span aria-hidden="true">➤</span>
                         Receber código
                     </button>
                 </form>
             </section>
 
-            <section
-                id="etapaCodigo"
-                class="etapa-login escondido"
-            >
-                <button
-                    id="botaoAlterarEmail"
-                    type="button"
-                    class="botao-alterar"
-                >
-                    ← Alterar e-mail
-                </button>
+            <section id="etapaCodigo" class="etapa-login escondido">
+                <button id="botaoAlterarEmail" type="button" class="botao-alterar">← Alterar e-mail</button>
 
                 <div class="titulo-etapa">
-                    <h2>
-                        Digite o código
-                    </h2>
-
-                    <p id="descricaoCodigo">
-                        Enviamos um código para o seu e-mail.
-                    </p>
+                    <h2>Digite o código</h2>
+                    <p id="descricaoCodigo">Enviamos um código para o seu e-mail.</p>
                 </div>
 
                 <form id="formCodigo">
-                    <label for="codigo">
+                    <label for="codigo" class="rotulo-com-icone">
+                        <span aria-hidden="true">🔐</span>
                         Código de verificação
                     </label>
 
@@ -111,41 +83,31 @@
                         required
                     >
 
-                    <button
-                        id="botaoEntrar"
-                        type="submit"
-                        class="botao-principal"
-                    >
+                    <button id="botaoEntrar" type="submit" class="botao-principal">
+                        <span aria-hidden="true">✓</span>
                         Entrar
                     </button>
                 </form>
 
-                <button
-                    id="botaoReenviar"
-                    type="button"
-                    class="botao-secundario"
-                >
-                    Reenviar código
-                </button>
+                <button id="botaoReenviar" type="button" class="botao-secundario">Reenviar código</button>
             </section>
 
-            <div
-                id="mensagemSistema"
-                class="mensagem-sistema escondido"
-                role="alert"
-            ></div>
+            <div id="mensagemSistema" class="mensagem-sistema escondido" role="alert"></div>
 
             <footer class="rodape-login">
-                <p>
-                    Seu e-mail será utilizado somente para
-                    identificar e proteger sua conta.
-                </p>
+                <p><span aria-hidden="true">🔒</span> Seu e-mail será utilizado somente para identificar e proteger sua conta.</p>
             </footer>
         </section>
+
+        <div class="decoracao decoracao-direita" aria-hidden="true">
+            <span class="pet-outline pet-cachorro">🐕</span>
+            <span class="pet-outline pet-gato">🐈</span>
+            <span class="pata pata-pequena">🐾</span>
+        </div>
     </main>
 
     <script src="/js/login.js?v=3"></script>
-  <script src="/js/core/notifications.js?v=2"></script>
-  <script src="/js/core/ux.js?v=1"></script>
+    <script src="/js/core/notifications.js?v=2"></script>
+    <script src="/js/core/ux.js?v=1"></script>
 </body>
 </html>
