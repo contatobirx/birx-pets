@@ -15,7 +15,7 @@
 
   <title>Painel do Tutor | Orbitek Pets</title>
 
-  <link rel="stylesheet" href="/css/tutor.css" />
+  <link rel="stylesheet" href="/css/tutor.css?v=14.1" />
   <link rel="stylesheet" href="/css/ux.css?v=1" />
 </head>
 
@@ -45,68 +45,89 @@
   </header>
 
   <main class="conteudo">
-    <section class="painel-2" id="painel2" hidden aria-label="Visão principal do pet">
-      <article class="boas-vindas-card">
-        <div>
-          <span class="painel-sobretitulo">Bem-vindo ao Orbitek Pets</span>
-          <h2 id="boasVindasTitulo">Seu pet está protegido 🐾</h2>
-          <p>Complete as informações para aproveitar todos os recursos da tag.</p>
-        </div>
-        <button class="botao-atualizar" id="atualizarPainel" type="button">Atualizar</button>
-      </article>
-
-      <article class="pet-destaque">
-        <div class="pet-destaque-foto" id="petDestaqueFoto" aria-hidden="true">🐶</div>
-        <div class="pet-destaque-info">
-          <span class="status-tag-ativa">● Tag ativa</span>
-          <h2 id="petDestaqueNome">Seu pet</h2>
-          <p id="petDestaquePerfil">Carregando informações...</p>
-          <small id="petDestaqueTag">Tag</small>
-        </div>
-        <button class="botao-editar-destaque" id="editarPetDestaque" type="button">Editar perfil</button>
-      </article>
-
-      <article class="progresso-card">
-        <div class="progresso-topo">
-          <div>
-            <span class="painel-sobretitulo">Perfil do pet</span>
-            <strong id="progressoTexto">0% completo</strong>
+    <section class="painel-2 painel-premium" id="painel2" hidden aria-label="Visão principal do pet">
+      <article class="dashboard-hero" id="dashboardHero">
+        <div class="dashboard-hero-conteudo">
+          <div class="dashboard-hero-topo">
+            <span class="dashboard-selo">Painel do tutor</span>
+            <button class="botao-atualizar" id="atualizarPainel" type="button" aria-label="Atualizar painel">↻ Atualizar</button>
           </div>
-          <span id="progressoNumero">0%</span>
-        </div>
-        <div class="progresso-trilho" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="progressoTrilho">
-          <span id="progressoBarra"></span>
-        </div>
-        <div class="checklist" id="checklistPerfil"></div>
-      </article>
 
-      <section class="modulos-painel" aria-label="Recursos do pet">
-        <div class="modulos-cabecalho">
-          <div>
-            <span class="painel-sobretitulo">Central do tutor</span>
-            <h2>O que você deseja fazer?</h2>
+          <div class="dashboard-pet">
+            <div class="pet-destaque-foto" id="petDestaqueFoto" aria-hidden="true">🐶</div>
+            <div class="pet-destaque-info">
+              <span class="status-tag-ativa" id="statusPetPrincipal">● Tag ativa</span>
+              <h2 id="petDestaqueNome">Seu pet</h2>
+              <p id="petDestaquePerfil">Carregando informações...</p>
+              <small id="petDestaqueTag">Tag</small>
+            </div>
+          </div>
+
+          <div class="dashboard-hero-acoes">
+            <button class="botao-hero botao-hero-principal" id="editarPetDestaque" type="button">✏️ Editar perfil</button>
+            <button class="botao-hero botao-hero-claro" id="verPerfilPublico" type="button">👁️ Ver perfil público</button>
+            <button class="botao-hero botao-hero-alerta" id="modoPerdidoDestaque" type="button">🚨 Ativar modo perdido</button>
           </div>
         </div>
-        <div class="modulos-grid">
-          <button class="modulo-card" type="button" data-modulo="saude">
-            <span class="modulo-icone">❤️</span><span><strong>Saúde</strong><small>Informações importantes</small></span><b>›</b>
-          </button>
-          <button class="modulo-card" type="button" data-modulo="vacinas">
-            <span class="modulo-icone">💉</span><span><strong>Vacinas</strong><small>Carteira de vacinação</small></span><b>›</b>
-          </button>
-          <button class="modulo-card" type="button" data-modulo="medicamentos">
-            <span class="modulo-icone">💊</span><span><strong>Medicamentos</strong><small>Em desenvolvimento</small></span><b>›</b>
-          </button>
-          <button class="modulo-card" type="button" data-modulo="documentos">
-            <span class="modulo-icone">📄</span><span><strong>Documentos</strong><small>Arquivos do pet</small></span><b>›</b>
-          </button>
-          <button class="modulo-card" type="button" data-modulo="historico">
-            <span class="modulo-icone">📍</span><span><strong>Histórico</strong><small>Acessos e localização</small></span><b>›</b>
-          </button>
-          <button class="modulo-card" type="button" data-modulo="timeline">
-            <span class="modulo-icone">🕒</span><span><strong>Timeline</strong><small>Eventos do pet</small></span><b>›</b>
-          </button>
-        </div>
+
+        <aside class="dashboard-protecao">
+          <div class="protecao-icone" aria-hidden="true">🛡️</div>
+          <span>Proteção Orbitek</span>
+          <strong id="boasVindasTitulo">Seu pet está protegido</strong>
+          <p id="textoProtecao">Mantenha os dados atualizados para facilitar o contato em uma emergência.</p>
+        </aside>
+      </article>
+
+      <section class="metricas-premium" aria-label="Resumo do pet">
+        <article class="metrica-card">
+          <span class="metrica-icone">🏷️</span>
+          <div><small>Status da tag</small><strong id="metricaStatusTag">Ativa</strong></div>
+        </article>
+        <article class="metrica-card">
+          <span class="metrica-icone">✅</span>
+          <div><small>Perfil completo</small><strong id="progressoNumero">0%</strong></div>
+        </article>
+        <article class="metrica-card">
+          <span class="metrica-icone">📍</span>
+          <div><small>Localização</small><strong id="metricaLocalizacao">Não informada</strong></div>
+        </article>
+        <article class="metrica-card">
+          <span class="metrica-icone">🕒</span>
+          <div><small>Última atualização</small><strong id="metricaAtualizacao">Agora</strong></div>
+        </article>
+      </section>
+
+      <section class="dashboard-corpo-premium">
+        <article class="progresso-card">
+          <div class="progresso-topo">
+            <div>
+              <span class="painel-sobretitulo">Qualidade do perfil</span>
+              <strong id="progressoTexto">0% completo</strong>
+            </div>
+            <span>Dados essenciais</span>
+          </div>
+          <div class="progresso-trilho" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="progressoTrilho">
+            <span id="progressoBarra"></span>
+          </div>
+          <div class="checklist" id="checklistPerfil"></div>
+        </article>
+
+        <article class="acoes-premium">
+          <div class="modulos-cabecalho">
+            <div>
+              <span class="painel-sobretitulo">Ações rápidas</span>
+              <h2>Cuide de tudo em um só lugar</h2>
+            </div>
+          </div>
+          <div class="modulos-grid">
+            <button class="modulo-card" type="button" data-modulo="saude"><span class="modulo-icone">❤️</span><span><strong>Saúde</strong><small>Informações importantes</small></span><b>›</b></button>
+            <button class="modulo-card" type="button" data-modulo="vacinas"><span class="modulo-icone">💉</span><span><strong>Vacinas</strong><small>Carteira de vacinação</small></span><b>›</b></button>
+            <button class="modulo-card" type="button" data-modulo="documentos"><span class="modulo-icone">📄</span><span><strong>Documentos</strong><small>Receitas, exames e PDFs</small></span><b>›</b></button>
+            <button class="modulo-card" type="button" data-modulo="timeline"><span class="modulo-icone">🕒</span><span><strong>Timeline</strong><small>Histórico do pet</small></span><b>›</b></button>
+            <button class="modulo-card" type="button" data-modulo="historico"><span class="modulo-icone">📍</span><span><strong>Acessos</strong><small>Leituras e localização</small></span><b>›</b></button>
+            <button class="modulo-card" type="button" data-modulo="medicamentos"><span class="modulo-icone">💊</span><span><strong>Medicamentos</strong><small>Em desenvolvimento</small></span><b>›</b></button>
+          </div>
+        </article>
       </section>
     </section>
     <section class="resumo" id="resumo" hidden aria-label="Resumo da conta">
@@ -798,7 +819,7 @@
 
   <script src="/js/core/navigation.js?v=1"></script>
   <script src="/js/core/notifications.js?v=1"></script>
-  <script src="/js/tutor.js?v=12"></script>
+  <script src="/js/tutor.js?v=14.1"></script>
   <script src="/js/timeline.js?v=1"></script>
   <script src="/js/core/ux.js?v=1"></script>
 </body>

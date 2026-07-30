@@ -6,6 +6,12 @@ const elementos = {
   petDestaquePerfil: document.getElementById("petDestaquePerfil"),
   petDestaqueTag: document.getElementById("petDestaqueTag"),
   editarPetDestaque: document.getElementById("editarPetDestaque"),
+  verPerfilPublico: document.getElementById("verPerfilPublico"),
+  modoPerdidoDestaque: document.getElementById("modoPerdidoDestaque"),
+  statusPetPrincipal: document.getElementById("statusPetPrincipal"),
+  metricaStatusTag: document.getElementById("metricaStatusTag"),
+  metricaLocalizacao: document.getElementById("metricaLocalizacao"),
+  metricaAtualizacao: document.getElementById("metricaAtualizacao"),
   progressoTexto: document.getElementById("progressoTexto"),
   progressoNumero: document.getElementById("progressoNumero"),
   progressoTrilho: document.getElementById("progressoTrilho"),
@@ -280,6 +286,21 @@ function renderizarPainel2(pets, nomeTutor) {
   elementos.petDestaqueNome.textContent = nomePet;
   elementos.petDestaquePerfil.textContent = perfil;
   elementos.petDestaqueTag.textContent = `Tag ${formatarTexto(pet.tagCodigo, "não informada")}`;
+
+  if (elementos.statusPetPrincipal) {
+    elementos.statusPetPrincipal.textContent = pet.perdido ? "● Pet perdido" : "● Tag ativa";
+    elementos.statusPetPrincipal.classList.toggle("perdido", pet.perdido);
+  }
+  if (elementos.metricaStatusTag) elementos.metricaStatusTag.textContent = pet.perdido ? "Em alerta" : "Ativa";
+  if (elementos.metricaLocalizacao) elementos.metricaLocalizacao.textContent = montarLocalizacao(original);
+  if (elementos.metricaAtualizacao) elementos.metricaAtualizacao.textContent = "Agora";
+  if (elementos.modoPerdidoDestaque) {
+    elementos.modoPerdidoDestaque.dataset.tag = pet.tagCodigo;
+    elementos.modoPerdidoDestaque.dataset.perdido = pet.perdido ? "1" : "0";
+    elementos.modoPerdidoDestaque.textContent = pet.perdido ? "✅ Marcar como encontrado" : "🚨 Ativar modo perdido";
+    elementos.modoPerdidoDestaque.classList.toggle("ativo", pet.perdido);
+  }
+  if (elementos.verPerfilPublico) elementos.verPerfilPublico.dataset.tag = pet.tagCodigo;
 
   elementos.petDestaqueFoto.innerHTML = pet.fotoUrl
     ? `<img src="${escaparHtml(pet.fotoUrl)}" alt="Foto de ${escaparHtml(nomePet)}">`
@@ -1879,6 +1900,10 @@ async function sair() {
 function configurarEventos() {
   elementos.botaoTentarNovamente?.addEventListener("click", carregarPainel);
   elementos.editarPetDestaque?.addEventListener("click", abrirModalEdicao);
+  elementos.verPerfilPublico?.addEventListener("click", () => {
+    abrirPerfilTutor({ currentTarget: elementos.verPerfilPublico });
+  });
+  elementos.modoPerdidoDestaque?.addEventListener("click", alterarModoPerdido);
 
   document.querySelectorAll("[data-modulo]").forEach((botao) => {
     botao.addEventListener("click", () => acionarModulo(botao.dataset.modulo));
