@@ -22,6 +22,8 @@ const elementos = {
   progressoBarra: document.getElementById("progressoBarra"),
   checklistPerfil: document.getElementById("checklistPerfil"),
   progressoMensagem: document.getElementById("progressoMensagem"),
+  proximasAcoesCard: document.getElementById("proximasAcoesCard"),
+  proximasAcoesLista: document.getElementById("proximasAcoesLista"),
   menuInferior: document.getElementById("menuInferior"),
   tituloSaudacao: document.getElementById("tituloSaudacao"),
   textoSaudacao: document.getElementById("textoSaudacao"),
@@ -363,6 +365,21 @@ function renderizarPainel2(pets, nomeTutor) {
     </button>
   `).join("");
 
+  if (elementos.proximasAcoesLista && elementos.proximasAcoesCard) {
+    const pendentes = itens.filter((item) => !item.ok);
+    elementos.proximasAcoesCard.hidden = false;
+    elementos.proximasAcoesLista.innerHTML = pendentes.length
+      ? pendentes.slice(0, 4).map((item) => `
+          <button class="proxima-acao-item" type="button"
+            data-checklist-acao="${item.acao}" data-checklist-campo="${item.campo}" data-tag="${escaparHtml(pet.tagCodigo)}">
+            <span class="proxima-acao-alerta" aria-hidden="true">!</span>
+            <span><strong>${escaparHtml(item.nome)}</strong><small>Toque para completar esta informação</small></span>
+            <b>Resolver agora</b>
+          </button>
+        `).join("")
+      : `<div class="proximas-acoes-concluidas"><span aria-hidden="true">✓</span><div><strong>Tudo certo!</strong><small>Os dados essenciais do perfil estão completos.</small></div></div>`;
+  }
+
   elementos.editarPetDestaque.dataset.tag = pet.tagCodigo;
   elementos.painel2.hidden = false;
   if (elementos.menuInferior) elementos.menuInferior.hidden = false;
@@ -419,7 +436,7 @@ function acionarModulo(modulo) {
     return;
   }
   if (modulo === "timeline") {
-    window.location.href = `/historico.html?tag=${encodeURIComponent(pet.tagCodigo)}#timeline`;
+    window.location.href = `/historico.html?tag=${encodeURIComponent(pet.tagCodigo)}&origem=tutor&secao=timeline`;
     return;
   }
   if (modulo === "medicamentos") {
@@ -691,7 +708,11 @@ function atualizarStatusSecoes() {
 }
 
 function selecionarAbaEdicao(nome) {
-  document.querySelectorAll("[data-edicao-aba]").forEach((botao) => botao.classList.toggle("ativa", botao.dataset.edicaoAba === nome));
+  document.querySelectorAll("[data-edicao-aba]").forEach((botao) => {
+    const ativa = botao.dataset.edicaoAba === nome;
+    botao.classList.toggle("ativa", ativa);
+    botao.setAttribute("aria-selected", String(ativa));
+  });
   document.querySelectorAll("[data-edicao-painel]").forEach((painel) => {
     const ativo = painel.dataset.edicaoPainel === nome;
     painel.hidden = !ativo;
@@ -2023,6 +2044,7 @@ function configurarEventos() {
   });
   elementos.modoPerdidoDestaque?.addEventListener("click", alterarModoPerdido);
   elementos.checklistPerfil?.addEventListener("click", acionarItemChecklist);
+  elementos.proximasAcoesLista?.addEventListener("click", acionarItemChecklist);
 
   document.querySelectorAll("[data-modulo]").forEach((botao) => {
     botao.addEventListener("click", () => acionarModulo(botao.dataset.modulo));
@@ -2072,14 +2094,6 @@ elementos.listaPetsRecentes?.addEventListener("click", (evento) => {
   elementos.formEditarPet?.addEventListener("input", marcarAlteracaoFormulario);
   elementos.formEditarPet?.addEventListener("change", marcarAlteracaoFormulario);
   document.querySelectorAll("[data-edicao-aba]").forEach((botao) => botao.addEventListener("click", () => selecionarAbaEdicao(botao.dataset.edicaoAba)));
-  document.querySelectorAll("[data-edicao-acao]").forEach((botao) => botao.addEventListener("click", () => {
-    const pet = estado.petEmEdicao;
-    if (!pet) return;
-    fecharModalEdicao(true);
-    const acao = botao.dataset.edicaoAcao;
-    if (acao === "saude") abrirModalSaude({ currentTarget: { dataset: { tag: dadosPet(pet).tagCodigo } } });
-    if (acao === "documentos") abrirModalDocumentos({ currentTarget: { dataset: { tag: dadosPet(pet).tagCodigo } } });
-  }));
   elementos.formEditarPet?.addEventListener("submit", salvarEdicao);
   elementos.editarCep?.addEventListener("blur", buscarCep);
 

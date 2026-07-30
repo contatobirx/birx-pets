@@ -89,30 +89,17 @@ async function iniciar() {
 function configurarBotaoVoltar() {
   if (!botaoVoltar) return;
 
-  botaoVoltar.href = "#";
+  const origem = parametros.get("origem");
+  const destino = origem === "tutor"
+    ? "/tutor.html"
+    : codigoTag
+      ? `/t.html?tag=${encodeURIComponent(codigoTag)}`
+      : "/";
 
+  botaoVoltar.href = destino;
   botaoVoltar.addEventListener("click", function (evento) {
     evento.preventDefault();
-
-    if (window.OrbitekNavigation?.voltarDoHistorico) {
-      window.OrbitekNavigation.voltarDoHistorico(codigoTag);
-      return;
-    }
-
-    const origem = parametros.get("origem");
-
-    if (origem === "tutor") {
-      window.location.href = "/tutor.html";
-      return;
-    }
-
-    if (codigoTag) {
-      window.location.href =
-        `/t.html?tag=${encodeURIComponent(codigoTag)}`;
-      return;
-    }
-
-    window.location.href = "/";
+    window.location.assign(destino);
   });
 }
 

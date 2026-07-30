@@ -15,7 +15,7 @@
 
   <title>Painel do Tutor | Orbitek Pets</title>
 
-  <link rel="stylesheet" href="/css/tutor.css?v=14.2.2" />
+  <link rel="stylesheet" href="/css/tutor.css?v=14.3" />
   <link rel="stylesheet" href="/css/ux.css?v=1" />
 </head>
 
@@ -111,6 +111,16 @@
           </div>
           <p class="progresso-mensagem" id="progressoMensagem">Complete os dados essenciais para deixar o perfil pronto.</p>
           <div class="checklist" id="checklistPerfil"></div>
+        </article>
+
+        <article class="proximas-acoes-card" id="proximasAcoesCard">
+          <div class="modulos-cabecalho">
+            <div>
+              <span class="painel-sobretitulo">Próximas ações</span>
+              <h2>Complete o que está pendente</h2>
+            </div>
+          </div>
+          <div class="proximas-acoes-lista" id="proximasAcoesLista"></div>
         </article>
 
         <article class="acoes-premium">
@@ -307,16 +317,23 @@
       <button id="fecharModal" class="modal-fechar" type="button" aria-label="Fechar">✕</button>
     </div>
     <nav class="edicao-abas" aria-label="Seções de edição">
-      <button class="edicao-aba ativa" type="button" data-edicao-aba="pet">🐶 Pet</button>
-      <button class="edicao-aba" type="button" data-edicao-aba="tutor">👤 Tutor</button>
-      <button class="edicao-aba" type="button" data-edicao-aba="endereco">📍 Endereço</button>
-      <button class="edicao-aba" type="button" data-edicao-acao="saude">❤️ Saúde</button>
-      <button class="edicao-aba" type="button" data-edicao-acao="documentos">📄 Documentos</button>
+      <button class="edicao-aba ativa" type="button" data-edicao-aba="pet" aria-selected="true">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8.4 10.2c1.1 0 2-1.2 2-2.7s-.9-2.7-2-2.7-2 1.2-2 2.7.9 2.7 2 2.7Zm7.2 0c1.1 0 2-1.2 2-2.7s-.9-2.7-2-2.7-2 1.2-2 2.7.9 2.7 2 2.7ZM5.5 14.1c1 0 1.8-1 1.8-2.3s-.8-2.3-1.8-2.3-1.8 1-1.8 2.3.8 2.3 1.8 2.3Zm13 0c1 0 1.8-1 1.8-2.3s-.8-2.3-1.8-2.3-1.8 1-1.8 2.3.8 2.3 1.8 2.3ZM12 11.2c-2.8 0-5.6 2.2-5.6 5 0 1.9 1.5 3 3.2 3 .9 0 1.7-.4 2.4-.4s1.5.4 2.4.4c1.7 0 3.2-1.1 3.2-3 0-2.8-2.8-5-5.6-5Z"/></svg>
+        <span>Pet</span>
+      </button>
+      <button class="edicao-aba" type="button" data-edicao-aba="tutor" aria-selected="false">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 12a4.5 4.5 0 1 0 0-9 4.5 4.5 0 0 0 0 9Zm0 2c-4.4 0-8 2.4-8 5.3 0 .9.8 1.7 1.7 1.7h12.6c.9 0 1.7-.8 1.7-1.7 0-2.9-3.6-5.3-8-5.3Z"/></svg>
+        <span>Tutor</span>
+      </button>
+      <button class="edicao-aba" type="button" data-edicao-aba="endereco" aria-selected="false">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a7 7 0 0 0-7 7c0 5.1 7 13 7 13s7-7.9 7-13a7 7 0 0 0-7-7Zm0 9.5A2.5 2.5 0 1 1 12 6a2.5 2.5 0 0 1 0 5.5Z"/></svg>
+        <span>Endereço</span>
+      </button>
     </nav>
     <form id="formEditarPet">
       <input type="hidden" id="editarTag">
       <section class="edicao-painel ativo" data-edicao-painel="pet">
-        <div class="edicao-secao-topo"><div><h3>🐶 Informações do Pet</h3><p>Dados principais exibidos no perfil.</p></div><span class="status-secao" id="statusSecaoPet">Pendente</span></div>
+        <div class="edicao-secao-topo"><div><h3>Informações do Pet</h3><p>Dados principais exibidos no perfil.</p></div><span class="status-secao" id="statusSecaoPet">Pendente</span></div>
         <div class="grid-2">
           <div class="campo"><label for="editarNome">Nome</label><input id="editarNome" type="text"></div>
           <div class="campo"><label for="editarEspecie">Espécie</label><input id="editarEspecie" type="text"></div>
@@ -327,7 +344,7 @@
         <div class="campo"><label for="editarComportamento">Comportamento</label><textarea id="editarComportamento" rows="3"></textarea></div>
       </section>
       <section class="edicao-painel" data-edicao-painel="tutor" hidden>
-        <div class="edicao-secao-topo"><div><h3>👤 Tutor</h3><p>Contato responsável pelo pet.</p></div><span class="status-secao" id="statusSecaoTutor">Pendente</span></div>
+        <div class="edicao-secao-topo"><div><h3>Dados do Tutor</h3><p>Contato responsável pelo pet.</p></div><span class="status-secao" id="statusSecaoTutor">Pendente</span></div>
         <div class="grid-2">
           <div class="campo"><label for="editarTutor">Nome</label><input id="editarTutor" type="text"></div>
           <div class="campo"><label for="editarWhatsapp">WhatsApp</label><input id="editarWhatsapp" type="tel" inputmode="tel"></div>
@@ -335,7 +352,7 @@
         </div>
       </section>
       <section class="edicao-painel" data-edicao-painel="endereco" hidden>
-        <div class="edicao-secao-topo"><div><h3>📍 Endereço</h3><p>Localização usada para identificação e emergência.</p></div><span class="status-secao" id="statusSecaoEndereco">Pendente</span></div>
+        <div class="edicao-secao-topo"><div><h3>Endereço</h3><p>Localização usada para identificação e emergência.</p></div><span class="status-secao" id="statusSecaoEndereco">Pendente</span></div>
         <div class="grid-2">
           <div class="campo"><label for="editarCep">CEP</label><input id="editarCep" type="text" inputmode="numeric"></div>
           <div class="campo"><label for="editarCidade">Cidade</label><input id="editarCidade" type="text"></div>
@@ -676,7 +693,7 @@
 
   <script src="/js/core/navigation.js?v=1"></script>
   <script src="/js/core/notifications.js?v=1"></script>
-  <script src="/js/tutor.js?v=14.2.2"></script>
+  <script src="/js/tutor.js?v=14.3"></script>
   <script src="/js/timeline.js?v=1"></script>
   <script src="/js/core/ux.js?v=1"></script>
 </body>
