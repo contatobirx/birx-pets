@@ -8,6 +8,8 @@ const elementos = {
   quantidadeCadastrosMes: document.getElementById("quantidadeCadastrosMes"),
   dashboardDetalhes: document.getElementById("dashboardDetalhes"),
   listaPetsRecentes: document.getElementById("listaPetsRecentes"),
+  painelAtualizado: document.getElementById("painelAtualizado"),
+  atualizarPainel: document.getElementById("atualizarPainel"),
   verTodosPets: document.getElementById("verTodosPets"),
   atalhoMeusPets: document.getElementById("atalhoMeusPets"),
   atalhoPerdidos: document.getElementById("atalhoPerdidos"),
@@ -187,6 +189,22 @@ function rolarAtePets() {
   elementos.secaoMeusPets?.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
+function formatarDataCurta(valor) {
+  if (!valor) return "Cadastro recente";
+
+  const normalizado = String(valor).includes("T")
+    ? String(valor)
+    : `${String(valor).replace(" ", "T")}Z`;
+  const data = new Date(normalizado);
+
+  if (Number.isNaN(data.getTime())) return "Cadastro recente";
+
+  return new Intl.DateTimeFormat("pt-BR", {
+    day: "2-digit",
+    month: "short",
+  }).format(data);
+}
+
 function renderizarPetsRecentes(pets) {
   if (!elementos.listaPetsRecentes) return;
 
@@ -210,17 +228,26 @@ function renderizarPetsRecentes(pets) {
       ? `<img class="pet-recente-foto" src="${escaparHtml(pet.fotoUrl)}" alt="Foto de ${escaparHtml(formatarTexto(pet.nome, "Pet"))}" loading="lazy">`
       : `<div class="pet-recente-sem-foto" aria-hidden="true">🐶</div>`;
 
+    const dataCadastro = petOriginal.dataCadastro ?? petOriginal.data_cadastro;
+
     return `
-      <div class="pet-recente">
+      <button
+        class="pet-recente"
+        type="button"
+        data-acao="ver-perfil-recente"
+        data-tag="${escaparHtml(pet.tagCodigo)}"
+        aria-label="Abrir perfil de ${escaparHtml(formatarTexto(pet.nome, "Pet"))}"
+      >
         ${foto}
         <div class="pet-recente-info">
           <strong>${escaparHtml(formatarTexto(pet.nome, "Pet"))}</strong>
-          <small>${escaparHtml(perfil)}</small>
+          <small>${escaparHtml(perfil)} · ${escaparHtml(formatarDataCurta(dataCadastro))}</small>
         </div>
         <span class="pet-recente-status ${pet.perdido ? "perdido" : "seguro"}">
           ${pet.perdido ? "● Perdido" : "● Seguro"}
         </span>
-      </div>
+        <span class="pet-recente-seta" aria-hidden="true">›</span>
+      </button>
     `;
   }).join("");
 }
@@ -1659,6 +1686,12 @@ async function carregarPainel() {
     elementos.quantidadeCadastrosMes.textContent = String(resumoDashboard.cadastrosMes ?? 0);
 
     renderizarPetsRecentes(petsRecentes);
+    if (elementos.painelAtualizado) {
+      elementos.painelAtualizado.textContent = `Atualizado às ${new Intl.DateTimeFormat("pt-BR", {
+        hour: "2-digit",
+        minute: "2-digit",
+      }).format(new Date())}`;
+    }
     elementos.resumo.hidden = false;
     if (elementos.dashboardDetalhes) elementos.dashboardDetalhes.hidden = false;
     elementos.topoPets.hidden = false;
@@ -1761,6 +1794,20 @@ async function sair() {
 
 function configurarEventos() {
   elementos.botaoTentarNovamente?.addEventListener("click", carregarPainel);
+
+elementos.atualizarPainel?.addEventListener("click", async () => {
+  elementos.atualizarPainel.disabled = true;
+  elementos.atualizarPainel.textContent = "Atualizando...";
+  await carregarPainel();
+  elementos.atualizarPainel.disabled = false;
+  elementos.atualizarPainel.textContent = "Atualizar";
+});
+
+elementos.listaPetsRecentes?.addEventListener("click", (evento) => {
+  const botao = evento.target.closest('[data-acao="ver-perfil-recente"]');
+  if (!botao) return;
+  abrirPerfilTutor({ currentTarget: botao });
+});
   elementos.botaoSair?.addEventListener("click", sair);
   elementos.verTodosPets?.addEventListener("click", rolarAtePets);
   elementos.atalhoMeusPets?.addEventListener("click", rolarAtePets);

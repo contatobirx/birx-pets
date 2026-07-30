@@ -56,8 +56,8 @@ export async function onRequestGet({ request, env }) {
       env.DB.prepare(`
         SELECT
           COUNT(*) AS total_pets,
-          SUM(CASE WHEN COALESCE(p.perdido, 0) = 1 THEN 1 ELSE 0 END) AS pets_perdidos,
-          SUM(CASE WHEN COALESCE(t.ativada, 0) = 1 THEN 1 ELSE 0 END) AS tags_ativas,
+          COALESCE(SUM(CASE WHEN COALESCE(p.perdido, 0) = 1 THEN 1 ELSE 0 END), 0) AS pets_perdidos,
+          COALESCE(SUM(CASE WHEN COALESCE(t.ativada, 0) = 1 THEN 1 ELSE 0 END), 0) AS tags_ativas,
           SUM(CASE
             WHEN strftime('%Y-%m', p.data_cadastro) = strftime('%Y-%m', 'now') THEN 1
             ELSE 0
@@ -85,6 +85,7 @@ export async function onRequestGet({ request, env }) {
         petsPerdidos: Number(resumo?.pets_perdidos || 0),
         cadastrosMes: Number(resumo?.cadastros_mes || 0),
       },
+      atualizadoEm: new Date().toISOString(),
       ultimosPets: (recentes.results || []).map((pet) => ({
         tagCodigo: pet.tag_codigo,
         nome: pet.nome,

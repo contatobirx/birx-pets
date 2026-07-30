@@ -1635,3 +1635,66 @@ body.modal-aberto {
 
   .orbitek-toast-progresso { animation: none; }
 }
+
+
+/* Sprint 7 — refinamentos do dashboard */
+.painel-card-acoes {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.painel-atualizado {
+  color: var(--cor-texto-claro);
+  font-size: .74rem;
+  white-space: nowrap;
+}
+
+.link-botao:disabled {
+  cursor: wait;
+  opacity: .55;
+}
+
+.pet-recente {
+  width: 100%;
+  border: 0;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: transform .18s ease, background .18s ease;
+}
+
+.pet-recente:hover {
+  transform: translateY(-1px);
+  background: #f2efff;
+}
+
+.pet-recente:focus-visible {
+  outline: 3px solid rgba(108, 76, 241, .24);
+  outline-offset: 2px;
+}
+
+.pet-recente-seta {
+  color: var(--cor-principal);
+  font-size: 1.5rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+@media (max-width: 620px) {
+  .painel-card-topo {
+    align-items: flex-start;
+  }
+
+  .painel-card-acoes {
+    gap: 8px;
+  }
+
+  .painel-atualizado {
+    width: 100%;
+    text-align: right;
+  }
+}
