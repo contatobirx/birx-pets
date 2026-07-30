@@ -164,18 +164,17 @@ function dadosPet(pet) {
 }
 
 function exibirMensagem(texto, tipo = "sucesso") {
-  if (!elementos.mensagem) return;
+  if (window.OrbitekUI?.notificar) {
+    window.OrbitekUI.notificar(texto, tipo === "erro" ? "erro" : "sucesso");
+    return;
+  }
 
+  if (!elementos.mensagem) return;
   elementos.mensagem.textContent = texto;
   elementos.mensagem.className =
     tipo === "erro"
       ? "mensagem mensagem-erro"
       : "mensagem mensagem-sucesso";
-
-  clearTimeout(exibirMensagem.temporizador);
-  exibirMensagem.temporizador = setTimeout(() => {
-    elementos.mensagem.className = "mensagem";
-  }, 3500);
 }
 
 function definirCarregamento(ativo) {
@@ -1093,9 +1092,13 @@ async function excluirRegistroSaude(evento) {
 
   if (!id || !tagCodigo) return;
 
-  const confirmar = window.confirm(
-    "Deseja realmente excluir este registro de saúde?"
-  );
+  const confirmar = window.OrbitekUI?.confirmar
+    ? await window.OrbitekUI.confirmar({
+        titulo: "Excluir registro de saúde?",
+        mensagem: "Esta ação não poderá ser desfeita.",
+        textoConfirmar: "Excluir registro",
+      })
+    : window.confirm("Deseja realmente excluir este registro de saúde?");
 
   if (!confirmar) return;
 
@@ -1539,7 +1542,15 @@ async function excluirDocumento(evento) {
 
   if (!id || !tagCodigo) return;
 
-  if (!window.confirm("Deseja realmente excluir este documento?")) return;
+  const confirmar = window.OrbitekUI?.confirmar
+    ? await window.OrbitekUI.confirmar({
+        titulo: "Excluir documento?",
+        mensagem: "O arquivo será removido permanentemente.",
+        textoConfirmar: "Excluir documento",
+      })
+    : window.confirm("Deseja realmente excluir este documento?");
+
+  if (!confirmar) return;
 
   const botao = evento.currentTarget;
   botao.disabled = true;
@@ -1672,11 +1683,19 @@ async function alterarModoPerdido(evento) {
   const tagCodigo = botao.dataset.tag;
   const novoEstado = botao.dataset.perdido !== "1";
 
-  const confirmar = window.confirm(
-    novoEstado
-      ? "Deseja ativar o modo perdido para este pet?"
-      : "Deseja marcar este pet como encontrado?"
-  );
+  const confirmar = window.OrbitekUI?.confirmar
+    ? await window.OrbitekUI.confirmar({
+        titulo: novoEstado ? "Ativar modo perdido?" : "Pet encontrado?",
+        mensagem: novoEstado
+          ? "O perfil público destacará que este pet está perdido."
+          : "O alerta de pet perdido será removido do perfil público.",
+        textoConfirmar: novoEstado ? "Ativar modo perdido" : "Marcar como encontrado",
+      })
+    : window.confirm(
+        novoEstado
+          ? "Deseja ativar o modo perdido para este pet?"
+          : "Deseja marcar este pet como encontrado?"
+      );
 
   if (!confirmar) return;
 

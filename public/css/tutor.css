@@ -1423,3 +1423,215 @@ body.modal-aberto {
   .painel-card { padding: 17px; border-radius: 20px; }
   .pet-recente-status { display: none; }
 }
+
+/* =========================================================
+   ORBITEK UI — NOTIFICAÇÕES E CONFIRMAÇÕES
+   ========================================================= */
+.orbitek-notificacoes {
+  position: fixed;
+  z-index: 3000;
+  top: 20px;
+  right: 20px;
+  width: min(390px, calc(100vw - 32px));
+  display: grid;
+  gap: 12px;
+  pointer-events: none;
+}
+
+.orbitek-toast {
+  position: relative;
+  display: grid;
+  grid-template-columns: 38px 1fr 30px;
+  align-items: center;
+  gap: 12px;
+  min-height: 76px;
+  padding: 14px 12px 14px 14px;
+  overflow: hidden;
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.97);
+  box-shadow: 0 18px 45px rgba(15, 23, 42, 0.18);
+  opacity: 0;
+  transform: translateX(28px) scale(0.98);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  pointer-events: auto;
+  backdrop-filter: blur(12px);
+}
+
+.orbitek-toast.visivel {
+  opacity: 1;
+  transform: translateX(0) scale(1);
+}
+
+.orbitek-toast-icone {
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  color: #fff;
+  font-size: 20px;
+  font-weight: 800;
+}
+
+.orbitek-toast-sucesso .orbitek-toast-icone { background: #16a34a; }
+.orbitek-toast-erro .orbitek-toast-icone { background: #dc2626; }
+.orbitek-toast-aviso .orbitek-toast-icone { background: #d97706; }
+.orbitek-toast-info .orbitek-toast-icone { background: #2563eb; }
+
+.orbitek-toast-conteudo {
+  min-width: 0;
+  display: grid;
+  gap: 3px;
+}
+
+.orbitek-toast-conteudo strong {
+  color: #0f172a;
+  font-size: 14px;
+}
+
+.orbitek-toast-conteudo span {
+  color: #475569;
+  font-size: 14px;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.orbitek-toast-fechar {
+  width: 30px;
+  height: 30px;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: #64748b;
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.orbitek-toast-fechar:hover { background: #f1f5f9; color: #0f172a; }
+
+.orbitek-toast-progresso {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 3px;
+  background: currentColor;
+  transform-origin: left;
+  animation: orbitekToastTempo linear forwards;
+}
+
+.orbitek-toast-sucesso { color: #16a34a; }
+.orbitek-toast-erro { color: #dc2626; }
+.orbitek-toast-aviso { color: #d97706; }
+.orbitek-toast-info { color: #2563eb; }
+
+@keyframes orbitekToastTempo { to { transform: scaleX(0); } }
+
+.orbitek-confirmacao-fundo {
+  position: fixed;
+  z-index: 3100;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(15, 23, 42, 0.56);
+  opacity: 0;
+  transition: opacity 0.18s ease;
+  backdrop-filter: blur(5px);
+}
+
+.orbitek-confirmacao-fundo.visivel { opacity: 1; }
+
+.orbitek-confirmacao {
+  width: min(430px, 100%);
+  padding: 28px;
+  text-align: center;
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  border-radius: 24px;
+  background: #fff;
+  box-shadow: 0 28px 70px rgba(15, 23, 42, 0.28);
+  transform: translateY(16px) scale(0.97);
+  transition: transform 0.18s ease;
+}
+
+.orbitek-confirmacao-fundo.visivel .orbitek-confirmacao {
+  transform: translateY(0) scale(1);
+}
+
+.orbitek-confirmacao-icone {
+  width: 54px;
+  height: 54px;
+  margin: 0 auto 16px;
+  display: grid;
+  place-items: center;
+  border-radius: 18px;
+  background: #fef3c7;
+  color: #b45309;
+  font-size: 26px;
+  font-weight: 900;
+}
+
+.orbitek-confirmacao h2 {
+  margin: 0 0 10px;
+  color: #0f172a;
+  font-size: 22px;
+}
+
+.orbitek-confirmacao p {
+  margin: 0;
+  color: #64748b;
+  line-height: 1.55;
+}
+
+.orbitek-confirmacao-acoes {
+  margin-top: 24px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.orbitek-confirmacao-acoes button {
+  min-height: 46px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.orbitek-confirmacao-cancelar {
+  border: 1px solid #cbd5e1;
+  background: #fff;
+  color: #334155;
+}
+
+.orbitek-confirmacao-confirmar {
+  border: 1px solid #dc2626;
+  background: #dc2626;
+  color: #fff;
+}
+
+.orbitek-modal-aberto { overflow: hidden; }
+
+@media (max-width: 600px) {
+  .orbitek-notificacoes {
+    top: 12px;
+    right: 16px;
+    left: 16px;
+    width: auto;
+  }
+
+  .orbitek-toast { min-height: 70px; }
+  .orbitek-confirmacao { padding: 24px 20px 20px; }
+  .orbitek-confirmacao-acoes { grid-template-columns: 1fr; }
+  .orbitek-confirmacao-confirmar { order: -1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .orbitek-toast,
+  .orbitek-confirmacao-fundo,
+  .orbitek-confirmacao { transition: none; }
+
+  .orbitek-toast-progresso { animation: none; }
+}
