@@ -1,3 +1,37 @@
+function respostaJson(dados, status = 200, cookie = null) {
+  const headers = new Headers({
+    "Content-Type": "application/json; charset=UTF-8",
+    "Cache-Control": "no-store",
+  });
+
+  if (cookie) {
+    headers.append("Set-Cookie", cookie);
+  }
+
+  return new Response(JSON.stringify(dados), {
+    status,
+    headers,
+  });
+}
+
+async function gerarHash(texto) {
+  const dados = new TextEncoder().encode(texto);
+  const hash = await crypto.subtle.digest("SHA-256", dados);
+
+  return Array.from(new Uint8Array(hash))
+    .map((byte) => byte.toString(16).padStart(2, "0"))
+    .join("");
+}
+
+function gerarTokenSeguro() {
+  const bytes = new Uint8Array(32);
+  crypto.getRandomValues(bytes);
+
+  return Array.from(bytes)
+    .map((byte) => byte.toString(16).padStart(2, "0"))
+    .join("");
+}
+
 export async function onRequestPost(context) {
   try {
     const db = context.env.DB;
@@ -243,15 +277,70 @@ export async function onRequestPost(context) {
       emailNormalizado
     );
 
-    return Response.json(
+    const agora = new Date();
+    const token = gerarTokenSeguro();
+    const tokenHash = await gerarHash(token);
+    const sessaoExpiraEm = new Date(
+      agora.getTime() + 30 * 24 * 60 * 60 * 1000
+    );
+
+    const ip =
+      context.request.headers.get("CF-Connecting-IP") ||
+      context.request.headers.get("X-Forwarded-For") ||
+      null;
+
+    const userAgent =
+      context.request.headers.get("User-Agent") || null;
+
+    await db.batch([
+      db.prepare(`
+        DELETE FROM sessoes_tutor
+        WHERE email = ?
+          AND expira_em <= ?
+      `).bind(emailNormalizado, agora.toISOString()),
+
+      db.prepare(`
+        INSERT INTO sessoes_tutor (
+          email,
+          token_hash,
+          criado_em,
+          expira_em,
+          ultimo_acesso,
+          ip,
+          user_agent
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+      `).bind(
+        emailNormalizado,
+        tokenHash,
+        agora.toISOString(),
+        sessaoExpiraEm.toISOString(),
+        agora.toISOString(),
+        ip,
+        userAgent
+      ),
+    ]);
+
+    const cookie = [
+      `orbitek_sessao=${token}`,
+      "Path=/",
+      "HttpOnly",
+      "SameSite=Lax",
+      `Max-Age=${30 * 24 * 60 * 60}`,
+    ];
+
+    if (new URL(context.request.url).protocol === "https:") {
+      cookie.push("Secure");
+    }
+
+    return respostaJson(
       {
         sucesso: true,
-        mensagem:
-          "Tag ativada com sucesso."
+        mensagem: "Tag ativada com sucesso.",
+        redirecionarPara: "/tutor.html",
       },
-      {
-        status: 201
-      }
+      201,
+      cookie.join("; ")
     );
   } catch (erro) {
     console.error(

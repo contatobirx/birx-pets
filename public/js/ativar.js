@@ -883,7 +883,7 @@ function mostrarSucesso(mensagem) {
     "Tag ativada com sucesso!";
 
   descricaoEtapa.textContent =
-    "O perfil do seu pet já está vinculado a esta tag.";
+    "Seu pet foi cadastrado e sua tag já está funcionando.";
 
   formulario.replaceChildren();
 
@@ -910,12 +910,10 @@ function mostrarSucesso(mensagem) {
   link.className =
     "botao-principal";
 
-  link.href =
-    "/t.html?tag=" +
-    encodeURIComponent(codigoTag);
+  link.href = "/tutor.html";
 
   link.textContent =
-    "Ver perfil do pet";
+    "Ir para meu painel";
 
   caixa.append(
     titulo,
