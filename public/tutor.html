@@ -511,175 +511,46 @@
   </div>
 
 
-  <!-- Modal de saúde do pet -->
+  <!-- Modal de vacinas do pet -->
 
-  <div
-    id="modalSaude"
-    class="modal"
-    hidden
-  >
+  <div id="modalSaude" class="modal" hidden>
     <div class="modal-overlay"></div>
-
     <div class="modal-caixa modal-caixa-saude">
       <div class="modal-topo">
         <div>
-          <h2>Saúde de <span id="saudeNomePet">Pet</span></h2>
-          <p class="modal-subtitulo">
-            Registre vacinas, medicamentos, consultas e outros cuidados.
-          </p>
+          <h2>Vacinas de <span id="saudeNomePet">Pet</span></h2>
+          <p class="modal-subtitulo">Controle aplicações, reforços, fabricante, lote e veterinário.</p>
         </div>
-
-        <button
-          id="fecharModalSaude"
-          class="modal-fechar"
-          type="button"
-          aria-label="Fechar"
-        >
-          ✕
-        </button>
+        <button id="fecharModalSaude" class="modal-fechar" type="button" aria-label="Fechar">✕</button>
       </div>
-
       <div class="saude-conteudo">
-        <input
-          type="hidden"
-          id="saudeTag"
-        >
-
+        <input type="hidden" id="saudeTag">
         <div class="saude-barra">
-          <div>
-            <strong>Histórico de saúde</strong>
-            <p id="saudeResumo">Carregando registros...</p>
-          </div>
-
-          <button
-            id="novoRegistroSaude"
-            class="botao botao-principal"
-            type="button"
-          >
-            + Adicionar registro
-          </button>
+          <div><strong>Carteira de vacinação</strong><p id="saudeResumo">Carregando vacinas...</p></div>
+          <button id="novoRegistroSaude" class="botao botao-principal" type="button">+ Adicionar vacina</button>
         </div>
-
-        <div
-          id="saudeCarregando"
-          class="saude-carregando"
-          hidden
-        >
-          Carregando...
+        <div id="saudeCarregando" class="saude-carregando" hidden>Carregando...</div>
+        <div id="listaSaude" class="lista-saude"></div>
+        <div id="saudeVazio" class="saude-vazio" hidden>
+          <div class="saude-vazio-icone">💉</div><strong>Nenhuma vacina cadastrada</strong><p>Adicione a primeira vacina deste pet.</p>
         </div>
-
-        <div
-          id="listaSaude"
-          class="lista-saude"
-        ></div>
-
-        <div
-          id="saudeVazio"
-          class="saude-vazio"
-          hidden
-        >
-          <div class="saude-vazio-icone">🩺</div>
-          <strong>Nenhum registro ainda</strong>
-          <p>Adicione a primeira vacina, consulta ou cuidado deste pet.</p>
-        </div>
-
-        <form
-          id="formSaude"
-          class="form-saude"
-          hidden
-        >
-          <div class="form-saude-topo">
-            <h3 id="tituloFormSaude">Novo registro</h3>
-
-            <button
-              id="cancelarFormSaude"
-              class="botao-link"
-              type="button"
-            >
-              Cancelar
-            </button>
-          </div>
-
-          <input
-            type="hidden"
-            id="saudeId"
-          >
-
+        <form id="formSaude" class="form-saude" hidden>
+          <div class="form-saude-topo"><h3 id="tituloFormSaude">Nova vacina</h3><button id="cancelarFormSaude" class="botao-link" type="button">Cancelar</button></div>
+          <input type="hidden" id="saudeId"><input type="hidden" id="saudeTipo" value="Vacina">
           <div class="grid-2">
             <div class="campo">
-              <label for="saudeTipo">Tipo</label>
-
-              <select id="saudeTipo" required>
-                <option value="">Selecione</option>
-                <option value="Vacina">💉 Vacina</option>
-                <option value="Vermífugo">🐛 Vermífugo</option>
-                <option value="Antipulgas">🦟 Antipulgas</option>
-                <option value="Medicamento">💊 Medicamento</option>
-                <option value="Consulta">🏥 Consulta</option>
-                <option value="Exame">📄 Exame</option>
-                <option value="Outro">❤️ Outro cuidado</option>
-              </select>
+              <label for="saudeNome">Nome da vacina *</label>
+              <input id="saudeNome" type="text" maxlength="120" list="listaVacinasComuns" placeholder="Ex.: Antirrábica ou V10" required>
+              <datalist id="listaVacinasComuns"><option value="Antirrábica"><option value="V8"><option value="V10"><option value="Giárdia"><option value="Gripe Canina"><option value="Leishmaniose"><option value="Quádrupla Felina"><option value="Quíntupla Felina"></datalist>
             </div>
-
-            <div class="campo">
-              <label for="saudeNome">Nome ou descrição</label>
-
-              <input
-                id="saudeNome"
-                type="text"
-                maxlength="120"
-                placeholder="Ex.: Vacina V10"
-                required
-              >
-            </div>
-
-            <div class="campo">
-              <label for="saudeDataAplicacao">Data</label>
-
-              <input
-                id="saudeDataAplicacao"
-                type="date"
-              >
-            </div>
-
-            <div class="campo">
-              <label for="saudeProximaData">Próxima data</label>
-
-              <input
-                id="saudeProximaData"
-                type="date"
-              >
-            </div>
+            <div class="campo"><label for="saudeFabricante">Fabricante</label><input id="saudeFabricante" type="text" maxlength="120" placeholder="Ex.: Zoetis"></div>
+            <div class="campo"><label for="saudeLote">Lote</label><input id="saudeLote" type="text" maxlength="80" placeholder="Número do lote"></div>
+            <div class="campo"><label for="saudeVeterinario">Veterinário</label><input id="saudeVeterinario" type="text" maxlength="120" placeholder="Nome do profissional"></div>
+            <div class="campo"><label for="saudeDataAplicacao">Data da aplicação *</label><input id="saudeDataAplicacao" type="date" required></div>
+            <div class="campo"><label for="saudeProximaData">Próxima dose</label><input id="saudeProximaData" type="date"></div>
           </div>
-
-          <div class="campo">
-            <label for="saudeObservacoes">Observações</label>
-
-            <textarea
-              id="saudeObservacoes"
-              rows="3"
-              maxlength="1000"
-              placeholder="Informações adicionais, clínica, dosagem, reação..."
-            ></textarea>
-          </div>
-
-          <div class="modal-botoes">
-            <button
-              id="fecharFormSaude"
-              class="botao botao-secundario"
-              type="button"
-            >
-              Cancelar
-            </button>
-
-            <button
-              id="salvarSaude"
-              class="botao botao-principal"
-              type="submit"
-            >
-              Salvar registro
-            </button>
-          </div>
+          <div class="campo"><label for="saudeObservacoes">Observações</label><textarea id="saudeObservacoes" rows="3" maxlength="1000" placeholder="Clínica, reações, orientações ou outras informações..."></textarea></div>
+          <div class="modal-botoes"><button id="fecharFormSaude" class="botao botao-secundario" type="button">Cancelar</button><button id="salvarSaude" class="botao botao-principal" type="submit">Salvar vacina</button></div>
         </form>
       </div>
     </div>
@@ -855,7 +726,7 @@
 
   <script src="/js/core/navigation.js?v=1"></script>
   <script src="/js/core/notifications.js?v=1"></script>
-  <script src="/js/tutor.js?v=11"></script>
+  <script src="/js/tutor.js?v=12"></script>
   <script src="/js/timeline.js?v=1"></script>
   <script src="/js/core/ux.js?v=1"></script>
 </body>

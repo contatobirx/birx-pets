@@ -75,6 +75,9 @@ const elementos = {
   saudeId: document.getElementById("saudeId"),
   saudeTipo: document.getElementById("saudeTipo"),
   saudeNome: document.getElementById("saudeNome"),
+  saudeFabricante: document.getElementById("saudeFabricante"),
+  saudeLote: document.getElementById("saudeLote"),
+  saudeVeterinario: document.getElementById("saudeVeterinario"),
   saudeDataAplicacao: document.getElementById("saudeDataAplicacao"),
   saudeProximaData: document.getElementById("saudeProximaData"),
   saudeObservacoes: document.getElementById("saudeObservacoes"),
@@ -327,7 +330,7 @@ function criarCardPet(petOriginal) {
           </button>
 
           <button class="botao botao-saude" type="button" data-acao="saude" data-tag="${escaparHtml(pet.tagCodigo)}">
-            Saúde
+            Vacinas
           </button>
 
           <button class="botao botao-documentos" type="button" data-acao="documentos" data-tag="${escaparHtml(pet.tagCodigo)}">
@@ -824,6 +827,9 @@ function limparFormSaude() {
   definirValor(elementos.saudeId, "");
   definirValor(elementos.saudeTipo, "");
   definirValor(elementos.saudeNome, "");
+  definirValor(elementos.saudeFabricante, "");
+  definirValor(elementos.saudeLote, "");
+  definirValor(elementos.saudeVeterinario, "");
   definirValor(elementos.saudeDataAplicacao, "");
   definirValor(elementos.saudeProximaData, "");
   definirValor(elementos.saudeObservacoes, "");
@@ -840,17 +846,20 @@ function mostrarFormSaude(registro = null) {
     definirValor(elementos.saudeId, registro.id);
     definirValor(elementos.saudeTipo, registro.tipo);
     definirValor(elementos.saudeNome, registro.nome);
+    definirValor(elementos.saudeFabricante, registro.fabricante);
+    definirValor(elementos.saudeLote, registro.lote);
+    definirValor(elementos.saudeVeterinario, registro.veterinario);
     definirValor(elementos.saudeDataAplicacao, registro.dataAplicacao || registro.data_aplicacao);
     definirValor(elementos.saudeProximaData, registro.proximaData || registro.proxima_data);
     definirValor(elementos.saudeObservacoes, registro.observacoes);
 
     if (elementos.tituloFormSaude) {
-      elementos.tituloFormSaude.textContent = "Editar registro";
+      elementos.tituloFormSaude.textContent = "Editar vacina";
     }
   }
 
   if (elementos.formSaude) elementos.formSaude.hidden = false;
-  setTimeout(() => elementos.saudeTipo?.focus(), 40);
+  setTimeout(() => elementos.saudeNome?.focus(), 40);
 }
 
 function esconderFormSaude() {
@@ -859,60 +868,38 @@ function esconderFormSaude() {
   limparFormSaude();
 }
 
+function statusVacina(proximaData) {
+  if (!proximaData) return { texto: "Sem próxima dose", classe: "neutro" };
+  const hoje = new Date(); hoje.setHours(0, 0, 0, 0);
+  const alvo = new Date(`${proximaData}T00:00:00`);
+  const dias = Math.ceil((alvo - hoje) / 86400000);
+  if (dias < 0) return { texto: `Atrasada há ${Math.abs(dias)} dia${Math.abs(dias) === 1 ? "" : "s"}`, classe: "atrasada" };
+  if (dias === 0) return { texto: "Vence hoje", classe: "vencendo" };
+  if (dias <= 30) return { texto: `Vence em ${dias} dia${dias === 1 ? "" : "s"}`, classe: "vencendo" };
+  return { texto: "Em dia", classe: "emdia" };
+}
+
 function criarCardSaude(registro) {
   const dataAplicacao = registro.dataAplicacao || registro.data_aplicacao || "";
   const proximaData = registro.proximaData || registro.proxima_data || "";
   const observacoes = String(registro.observacoes || "").trim();
-
-  const datas = [
-    dataAplicacao
-      ? `<span><strong>Data:</strong> ${escaparHtml(formatarDataSaude(dataAplicacao))}</span>`
-      : "",
-    proximaData
-      ? `<span><strong>Próxima:</strong> ${escaparHtml(formatarDataSaude(proximaData))}</span>`
-      : "",
+  const status = statusVacina(proximaData);
+  const detalhes = [
+    registro.fabricante ? `<span><strong>Fabricante:</strong> ${escaparHtml(registro.fabricante)}</span>` : "",
+    registro.lote ? `<span><strong>Lote:</strong> ${escaparHtml(registro.lote)}</span>` : "",
+    registro.veterinario ? `<span><strong>Veterinário:</strong> ${escaparHtml(registro.veterinario)}</span>` : "",
   ].filter(Boolean).join("");
-
   return `
     <article class="saude-card">
-      <div class="saude-card-icone" aria-hidden="true">${iconeTipoSaude(registro.tipo)}</div>
-
+      <div class="saude-card-icone" aria-hidden="true">💉</div>
       <div class="saude-card-corpo">
-        <div class="saude-card-tipo">${escaparHtml(formatarTexto(registro.tipo, "Cuidado"))}</div>
-        <div class="saude-card-nome">${escaparHtml(formatarTexto(registro.nome, "Registro"))}</div>
-
-        ${datas ? `<div class="saude-card-datas">${datas}</div>` : ""}
-
-        ${observacoes
-          ? `<div class="saude-card-observacoes">${escaparHtml(observacoes)}</div>`
-          : ""}
+        <div class="saude-card-cabecalho"><div><div class="saude-card-tipo">Vacina</div><div class="saude-card-nome">${escaparHtml(formatarTexto(registro.nome, "Vacina"))}</div></div><span class="vacina-status vacina-status-${status.classe}">${escaparHtml(status.texto)}</span></div>
+        <div class="saude-card-datas"><span><strong>Aplicada:</strong> ${escaparHtml(formatarDataSaude(dataAplicacao))}</span>${proximaData ? `<span><strong>Próxima dose:</strong> ${escaparHtml(formatarDataSaude(proximaData))}</span>` : ""}</div>
+        ${detalhes ? `<div class="saude-card-detalhes">${detalhes}</div>` : ""}
+        ${observacoes ? `<div class="saude-card-observacoes">${escaparHtml(observacoes)}</div>` : ""}
       </div>
-
-      <div class="saude-card-acoes">
-        <button
-          class="saude-acao"
-          type="button"
-          title="Editar"
-          aria-label="Editar"
-          data-saude-acao="editar"
-          data-id="${escaparHtml(registro.id)}"
-        >
-          ✏️
-        </button>
-
-        <button
-          class="saude-acao saude-acao-excluir"
-          type="button"
-          title="Excluir"
-          aria-label="Excluir"
-          data-saude-acao="excluir"
-          data-id="${escaparHtml(registro.id)}"
-        >
-          🗑️
-        </button>
-      </div>
-    </article>
-  `;
+      <div class="saude-card-acoes"><button class="saude-acao" type="button" title="Editar vacina" aria-label="Editar vacina" data-saude-acao="editar" data-id="${escaparHtml(registro.id)}">✏️</button><button class="saude-acao saude-acao-excluir" type="button" title="Excluir vacina" aria-label="Excluir vacina" data-saude-acao="excluir" data-id="${escaparHtml(registro.id)}">🗑️</button></div>
+    </article>`;
 }
 
 function renderizarSaude() {
@@ -921,8 +908,8 @@ function renderizarSaude() {
   if (elementos.saudeResumo) {
     elementos.saudeResumo.textContent =
       registros.length === 1
-        ? "1 registro cadastrado."
-        : `${registros.length} registros cadastrados.`;
+        ? "1 vacina cadastrada."
+        : `${registros.length} vacinas cadastradas.`;
   }
 
   if (elementos.saudeVazio) elementos.saudeVazio.hidden = registros.length > 0;
@@ -975,7 +962,7 @@ async function carregarSaude() {
     }
 
     if (!resposta.ok || !dados.sucesso) {
-      throw new Error(dados.mensagem || "Não foi possível carregar os registros.");
+      throw new Error(dados.mensagem || "Não foi possível carregar as vacinas.");
     }
 
     estado.registrosSaude = Array.isArray(dados.registros) ? dados.registros : [];
@@ -983,7 +970,7 @@ async function carregarSaude() {
   } catch (erro) {
     estado.registrosSaude = [];
     renderizarSaude();
-    exibirMensagem(erro.message || "Não foi possível carregar a saúde do pet.", "erro");
+    exibirMensagem(erro.message || "Não foi possível carregar as vacinas do pet.", "erro");
   } finally {
     estado.carregandoSaude = false;
     if (elementos.saudeCarregando) elementos.saudeCarregando.hidden = true;
@@ -997,7 +984,7 @@ function abrirModalSaude(evento) {
   );
 
   if (!pet || !elementos.modalSaude) {
-    exibirMensagem("Não foi possível abrir a saúde deste pet.", "erro");
+    exibirMensagem("Não foi possível abrir as vacinas deste pet.", "erro");
     return;
   }
 
@@ -1012,7 +999,7 @@ function abrirModalSaude(evento) {
   }
 
   if (elementos.saudeResumo) {
-    elementos.saudeResumo.textContent = "Carregando registros...";
+    elementos.saudeResumo.textContent = "Carregando vacinas...";
   }
 
   esconderFormSaude();
@@ -1046,15 +1033,18 @@ async function salvarRegistroSaude(evento) {
   const dados = {
     id: elementos.saudeId?.value.trim() || null,
     tagCodigo: elementos.saudeTag?.value.trim() || "",
-    tipo: elementos.saudeTipo?.value.trim() || "",
+    tipo: "Vacina",
     nome: elementos.saudeNome?.value.trim() || "",
+    fabricante: elementos.saudeFabricante?.value.trim() || "",
+    lote: elementos.saudeLote?.value.trim() || "",
+    veterinario: elementos.saudeVeterinario?.value.trim() || "",
     dataAplicacao: elementos.saudeDataAplicacao?.value || "",
     proximaData: elementos.saudeProximaData?.value || "",
     observacoes: elementos.saudeObservacoes?.value.trim() || "",
   };
 
-  if (!dados.tagCodigo || !dados.tipo || !dados.nome) {
-    exibirMensagem("Preencha o tipo e o nome do registro.", "erro");
+  if (!dados.tagCodigo || !dados.nome || !dados.dataAplicacao) {
+    exibirMensagem("Preencha o nome da vacina e a data de aplicação.", "erro");
     return;
   }
 
@@ -1068,7 +1058,7 @@ async function salvarRegistroSaude(evento) {
   }
 
   estado.salvandoSaude = true;
-  const textoOriginal = elementos.salvarSaude?.textContent || "Salvar registro";
+  const textoOriginal = elementos.salvarSaude?.textContent || "Salvar vacina";
 
   if (elementos.salvarSaude) {
     elementos.salvarSaude.disabled = true;
@@ -1125,11 +1115,11 @@ async function excluirRegistroSaude(evento) {
 
   const confirmar = window.OrbitekUI?.confirmar
     ? await window.OrbitekUI.confirmar({
-        titulo: "Excluir registro de saúde?",
+        titulo: "Excluir vacina?",
         mensagem: "Esta ação não poderá ser desfeita.",
-        textoConfirmar: "Excluir registro",
+        textoConfirmar: "Excluir vacina",
       })
-    : window.confirm("Deseja realmente excluir este registro de saúde?");
+    : window.confirm("Deseja realmente excluir esta vacina?");
 
   if (!confirmar) return;
 

@@ -157,10 +157,14 @@ export async function onRequestGet(context) {
         nome,
         data_aplicacao AS dataAplicacao,
         proxima_data AS proximaData,
+        fabricante,
+        lote,
+        veterinario,
         observacoes,
         criado_em AS criadoEm
       FROM saude_pet
       WHERE UPPER(tag_codigo) = UPPER(?)
+        AND tipo = 'Vacina'
       ORDER BY
         COALESCE(data_aplicacao, criado_em) DESC,
         id DESC

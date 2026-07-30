@@ -147,6 +147,7 @@ export async function onRequestPost(context) {
       INNER JOIN pets p
         ON UPPER(p.tag_codigo) = UPPER(s.tag_codigo)
       WHERE s.id = ?
+        AND s.tipo = 'Vacina'
         AND UPPER(s.tag_codigo) = UPPER(?)
         AND LOWER(p.email) = LOWER(?)
       LIMIT 1
@@ -171,7 +172,7 @@ export async function onRequestPost(context) {
 
     return responder({
       sucesso: true,
-      mensagem: "Registro excluído com sucesso.",
+      mensagem: "Vacina excluída com sucesso.",
     });
   } catch (erro) {
     console.error("Erro em /api/saude-excluir:", erro);
