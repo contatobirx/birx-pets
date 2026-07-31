@@ -7,6 +7,7 @@
     <title>Entrar | Orbitek Pets</title>
     <link rel="stylesheet" href="/css/login.css?v=5">
     <link rel="stylesheet" href="/css/ux.css?v=1">
+    <link rel="stylesheet" href="/css/login-social.css?v=2.6">
 </head>
 <body>
     <main class="pagina-login">
@@ -21,6 +22,8 @@
             </header>
 
             <section id="etapaEmail" class="etapa-login">
+                <a class="botao-google" href="/api/auth-google-start"><span aria-hidden="true">G</span> Continuar com Google</a>
+                <div class="divisor-login"><span>ou use seu e-mail</span></div>
                 <form id="formEmail">
                     <label for="email" class="rotulo-com-icone">
                         <span aria-hidden="true">✉</span>
@@ -91,6 +94,7 @@
 
             <footer class="rodape-login">
                 <p><span aria-hidden="true">🔒</span> Seu e-mail será utilizado somente para identificar e proteger sua conta.</p>
+                <a href="/privacidade">Política de Privacidade</a>
             </footer>
         </section>
 
