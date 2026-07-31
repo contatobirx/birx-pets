@@ -20,7 +20,7 @@
 
   <title>Painel do Tutor | Orbitek Pets</title>
 
-  <link rel="stylesheet" href="/css/tutor.css?v=2.20" />
+  <link rel="stylesheet" href="/css/tutor.css?v=3.1" />
   <link rel="stylesheet" href="/css/ux.css?v=1" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
   <link rel="stylesheet" href="/css/tutor-lost-location.css?v=2.10.2" />
@@ -58,7 +58,7 @@
         <div class="dashboard-hero-conteudo">
           <div class="dashboard-hero-topo">
             <span class="dashboard-selo">Painel do tutor</span>
-            <button class="botao-atualizar" id="atualizarPainel" type="button" aria-label="Atualizar painel">↻ Atualizar</button>
+            <div class="pet-ativo-controle"><label for="seletorPetAtivo">Pet ativo</label><select id="seletorPetAtivo" aria-label="Escolha o pet ativo"></select><button class="botao-atualizar" id="atualizarPainel" type="button" aria-label="Atualizar painel">↻ Atualizar</button></div>
           </div>
 
           <div class="dashboard-pet">
@@ -807,7 +807,7 @@
   <script src="/js/tutor-lost.js?v=2.5"></script>
   <script src="/js/tutor-notificacoes.js?v=2.9"></script>
   <script src="/js/core/notifications.js?v=1"></script>
-  <script src="/js/tutor.js?v=2.20"></script>
+  <script src="/js/tutor.js?v=3.1"></script>
   <script src="/js/tutor-medicamentos.js?v=2.14"></script>
   <script src="/js/tutor-agendamentos.js?v=2.18"></script>
   <script src="/js/tutor-carteirinha.js?v=2.19"></script>

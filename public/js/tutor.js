@@ -37,6 +37,7 @@ const elementos = {
   listaPetsRecentes: document.getElementById("listaPetsRecentes"),
   painelAtualizado: document.getElementById("painelAtualizado"),
   atualizarPainel: document.getElementById("atualizarPainel"),
+  seletorPetAtivo: document.getElementById("seletorPetAtivo"),
   verTodosPets: document.getElementById("verTodosPets"),
   atalhoMeusPets: document.getElementById("atalhoMeusPets"),
   atalhoPerdidos: document.getElementById("atalhoPerdidos"),
@@ -149,6 +150,7 @@ const elementos = {
 
 const estado = {
   pets: [],
+  petAtivoTag: localStorage.getItem("orbitek_pet_ativo") || "",
   petEmEdicao: null,
   salvando: false,
   buscandoCep: false,
@@ -209,6 +211,22 @@ function dadosPet(pet) {
     publicoPerdidos: Boolean(pet?.publicoPerdidos ?? pet?.publico_perdidos),
     fotoUrl: valorPet(pet, "fotoUrl", "foto_url"),
   };
+}
+
+function petAtivo() {
+  return estado.pets.find((item) => String(dadosPet(item).tagCodigo) === String(estado.petAtivoTag)) || estado.pets[0] || null;
+}
+
+function prepararSeletorPetAtivo(pets) {
+  if (!pets.length) return;
+  if (!pets.some((item) => String(dadosPet(item).tagCodigo) === String(estado.petAtivoTag))) estado.petAtivoTag = dadosPet(pets[0]).tagCodigo;
+  localStorage.setItem("orbitek_pet_ativo", estado.petAtivoTag);
+  if (!elementos.seletorPetAtivo) return;
+  elementos.seletorPetAtivo.innerHTML = pets.map((item) => {
+    const pet = dadosPet(item);
+    return `<option value="${escaparHtml(pet.tagCodigo)}" ${String(pet.tagCodigo) === String(estado.petAtivoTag) ? "selected" : ""}>${escaparHtml(formatarTexto(pet.nome, "Pet"))} • ${escaparHtml(pet.tagCodigo)}</option>`;
+  }).join("");
+  elementos.seletorPetAtivo.closest(".pet-ativo-controle")?.classList.toggle("unico", pets.length === 1);
 }
 
 function exibirMensagem(texto, tipo = "sucesso") {
@@ -301,7 +319,8 @@ function renderizarPetsRecentes(pets) {
 function renderizarPainel2(pets, nomeTutor) {
   if (!elementos.painel2 || !pets.length) return;
 
-  const original = pets[0];
+  prepararSeletorPetAtivo(pets);
+  const original = petAtivo();
   const pet = dadosPet(original);
   const nomePet = formatarTexto(pet.nome, "Seu pet");
   const perfil = [pet.especie, pet.raca].filter(Boolean).join(" • ") || "Complete o perfil do pet";
@@ -432,7 +451,7 @@ function acionarItemChecklist(evento) {
 }
 
 function acionarModulo(modulo) {
-  const petOriginal = estado.pets[0];
+  const petOriginal = petAtivo();
   if (!petOriginal) {
     exibirMensagem("Cadastre um pet para acessar este recurso.", "erro");
     return;
@@ -1998,6 +2017,7 @@ async function carregarPainel() {
 
     const pets = Array.isArray(dados.pets) ? dados.pets : [];
     estado.pets = pets;
+    prepararSeletorPetAtivo(pets);
 
     const resumoDashboard = respostaDashboard.ok && dashboard.sucesso
       ? dashboard.resumo || {}
@@ -2153,6 +2173,13 @@ function configurarEventos() {
   elementos.modoPerdidoDestaque?.addEventListener("click", alterarModoPerdido);
   elementos.checklistPerfil?.addEventListener("click", acionarItemChecklist);
   elementos.proximasAcoesLista?.addEventListener("click", acionarItemChecklist);
+  elementos.seletorPetAtivo?.addEventListener("change", () => {
+    estado.petAtivoTag = elementos.seletorPetAtivo.value;
+    localStorage.setItem("orbitek_pet_ativo", estado.petAtivoTag);
+    renderizarPainel2(estado.pets, "Tutor");
+    const escolhido = dadosPet(petAtivo());
+    exibirMensagem(`${formatarTexto(escolhido.nome, "Pet")} selecionado para as ações do app.`);
+  });
 
   document.querySelectorAll("[data-modulo]").forEach((botao) => {
     botao.addEventListener("click", () => acionarModulo(botao.dataset.modulo));
