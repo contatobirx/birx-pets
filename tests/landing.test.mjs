@@ -35,3 +35,22 @@ test("a landing page não mantém destinos sociais incompletos", async () => {
   assert.doesNotMatch(pagina, /https:\/\/wa\.me\/55(?:\D|$)/);
   assert.doesNotMatch(pagina, />Instagram<\/a>/);
 });
+
+test("a Sprint 2.3 disponibiliza produtos e catálogo com a logo oficial", async () => {
+  const [landing, produtos, catalogo] = await Promise.all([
+    readFile(new URL("../public/index.html", import.meta.url), "utf8"),
+    readFile(new URL("../public/produtos.html", import.meta.url), "utf8"),
+    readFile(new URL("../public/catalogo.html", import.meta.url), "utf8")
+  ]);
+
+  assert.match(landing, /href="\/produtos"/);
+  assert.match(landing, /href="\/catalogo"/);
+
+  for (const pagina of [produtos, catalogo]) {
+    assert.match(pagina, /src="\/assets\/login\.png"/);
+    assert.doesNotMatch(pagina, /logo-orbitek-pets\.svg/);
+    assert.match(pagina, /ESSENTIAL/);
+    assert.match(pagina, /NFC CONNECT/);
+    assert.match(pagina, /SMART NFC/);
+  }
+});
