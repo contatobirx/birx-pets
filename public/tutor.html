@@ -23,7 +23,7 @@
   <link rel="stylesheet" href="/css/tutor-notificacoes.css?v=2.9" />
   <link rel="stylesheet" href="/css/pet-gallery.css?v=2.11" />
   <link rel="stylesheet" href="/css/medicamentos.css?v=2.13" />
-  <link rel="stylesheet" href="/css/onde-comprar.css?v=2.16" />
+  <link rel="stylesheet" href="/css/onde-comprar.css?v=2.17" />
 </head>
 
 <body>
@@ -138,6 +138,7 @@
             <button class="modulo-card" type="button" data-modulo="timeline"><span class="modulo-icone">🕒</span><span><strong>Timeline</strong><small>Histórico do pet</small></span><b>›</b></button>
             <button class="modulo-card" type="button" data-modulo="historico"><span class="modulo-icone">📍</span><span><strong>Acessos</strong><small>Leituras e localização</small></span><b>›</b></button>
             <button class="modulo-card" type="button" data-modulo="medicamentos"><span class="modulo-icone">💊</span><span><strong>Medicamentos</strong><small>Tratamentos e horários</small></span><b>›</b></button>
+            <button class="modulo-card" type="button" data-modulo="clinicas"><span class="modulo-icone">🏥</span><span><strong>Clínicas próximas</strong><small>Encontre atendimento veterinário</small></span><b>›</b></button>
           </div>
         </article>
       </section>
@@ -729,7 +730,7 @@
     <div class="modal-overlay" data-fechar-onde-comprar></div>
     <div class="modal-caixa modal-caixa-onde-comprar" role="dialog" aria-modal="true" aria-labelledby="tituloOndeComprar">
       <div class="modal-topo"><div><span class="onde-comprar-kicker">ONDE COMPRAR</span><h2 id="tituloOndeComprar">Encontre <span id="nomeMedicamentoBusca">o medicamento</span> perto de você</h2><p class="modal-subtitulo">Pet shops, clínicas e farmácias veterinárias em um raio de até 10 km.</p></div><button class="modal-fechar" data-fechar-onde-comprar type="button" aria-label="Fechar">✕</button></div>
-      <div id="ondeComprarPermissao" class="onde-comprar-permissao"><span>📍</span><div><strong>Use sua localização atual</strong><p>Ela não será salva. O serviço externo recebe apenas uma área aproximada, nunca seu ponto exato.</p></div><button id="buscarOndeComprar" class="botao botao-principal" type="button">Mostrar locais próximos</button></div>
+      <form id="formOndeComprar" class="onde-comprar-endereco"><label for="enderecoOndeComprar"><strong>Digite o endereço de referência</strong><small>Rua, número, bairro, cidade e estado</small></label><div class="onde-comprar-busca"><input id="enderecoOndeComprar" type="text" maxlength="240" autocomplete="street-address" placeholder="Ex.: Rua XV de Novembro, 100, Curitiba - PR" required><select id="raioOndeComprar" aria-label="Raio da busca"><option value="5000">5 km</option><option value="10000" selected>10 km</option><option value="20000">20 km</option></select><button id="buscarOndeComprar" class="botao botao-principal" type="submit">Buscar</button></div><p>O endereço não será salvo. Ao buscar, ele será enviado ao OpenStreetMap/Nominatim exclusivamente para localizar o ponto no mapa.</p></form>
       <div id="ondeComprarCarregando" class="onde-comprar-carregando" hidden><span class="saude-spinner"></span><div><strong>Buscando estabelecimentos próximos...</strong><small>Isso pode levar alguns segundos.</small></div></div>
       <div id="ondeComprarConteudo" class="onde-comprar-conteudo" hidden><div id="mapaOndeComprar" aria-label="Mapa de estabelecimentos próximos"></div><div class="onde-comprar-resultados"><div class="onde-comprar-resumo"><strong id="ondeComprarQuantidade">Locais encontrados</strong><small>Ordenados pela distância</small></div><div id="listaOndeComprar" class="lista-onde-comprar"></div></div></div>
       <div id="ondeComprarVazio" class="saude-vazio" hidden><div class="saude-vazio-icone">🔎</div><strong>Nenhum estabelecimento encontrado</strong><p>Tente novamente em outro local ou abra a pesquisa ampliada.</p></div>
@@ -754,9 +755,9 @@
   <script src="/js/tutor-lost.js?v=2.5"></script>
   <script src="/js/tutor-notificacoes.js?v=2.9"></script>
   <script src="/js/core/notifications.js?v=1"></script>
-  <script src="/js/tutor.js?v=14.5"></script>
+  <script src="/js/tutor.js?v=14.6"></script>
   <script src="/js/tutor-medicamentos.js?v=2.14"></script>
-  <script src="/js/tutor-onde-comprar.js?v=2.16"></script>
+  <script src="/js/tutor-onde-comprar.js?v=2.17"></script>
   <script src="/js/tutor-push.js?v=2.14.1"></script>
   <script src="/js/timeline.js?v=1"></script>
   <script src="/js/core/ux.js?v=1"></script>

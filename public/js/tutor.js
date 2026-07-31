@@ -458,6 +458,10 @@ function acionarModulo(modulo) {
     }));
     return;
   }
+  if (modulo === "clinicas") {
+    window.dispatchEvent(new CustomEvent("orbitek:clinicas-proximas"));
+    return;
+  }
 }
 
 function montarLocalizacao(petOriginal) {

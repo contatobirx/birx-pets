@@ -14,13 +14,14 @@ const serviceWorker = await readFile(new URL("../public/sw.js", import.meta.url)
 const pushWorker = await readFile(new URL("../workers/medication-push.js", import.meta.url), "utf8");
 const ondeComprarApi = await readFile(new URL("../functions/api/onde-comprar.js", import.meta.url), "utf8");
 const ondeComprarJs = await readFile(new URL("../public/js/tutor-onde-comprar.js", import.meta.url), "utf8");
+const tutorJs = await readFile(new URL("../public/js/tutor.js", import.meta.url), "utf8");
 
 test("a aba Medicamentos oferece cadastro completo por pet", () => {
   assert.doesNotMatch(html, /Medicamentos<\/strong><small>Em desenvolvimento/);
   for (const id of ["modalMedicamentos", "medicamentoNome", "medicamentoDosagem", "medicamentoFrequencia", "medicamentoHorarios", "medicamentoInicio", "medicamentoFim", "medicamentoVeterinario", "medicamentoObservacoes"]) assert.match(html, new RegExp(`id="${id}"`));
   assert.match(js, /orbitek:abrir-medicamentos/);
   assert.match(js, /method: "DELETE"/);
-  assert.match(html, /\/js\/tutor\.js\?v=14\.5/);
+  assert.match(html, /\/js\/tutor\.js\?v=14\.6/);
 });
 
 test("a Sprint 2.14 registra doses e cria lembretes na central", () => {
@@ -45,17 +46,28 @@ test("a Sprint 2.14.1 oferece notificações push com consentimento", () => {
   assert.match(pushWorker, /sendNotification/);
 });
 
-test("a busca Onde Comprar usa localização e exibe resultados dentro do app", () => {
+test("a busca Onde Comprar usa endereço e exibe resultados dentro do app", () => {
   assert.match(html, /id="modalOndeComprar"/);
-  assert.match(html, /Mostrar locais próximos/);
+  assert.match(html, /id="enderecoOndeComprar"/);
   assert.match(js, /data-onde-comprar/);
-  assert.match(ondeComprarJs, /navigator\.geolocation/);
+  assert.match(ondeComprarJs, /enderecoOndeComprar/);
   assert.match(ondeComprarJs, /api\/onde-comprar/);
   assert.match(ondeComprarJs, /L\.marker/);
   assert.match(ondeComprarApi, /shop=pet/);
   assert.match(ondeComprarApi, /amenity=veterinary_pharmacy/);
   assert.match(ondeComprarApi, /sessoes_tutor/);
-  assert.match(ondeComprarApi, /Math\.round\(lat\*100\)\/100/);
+  assert.match(ondeComprarApi, /nominatim\.openstreetmap\.org\/search/);
+  assert.match(html, /O endereço não será salvo/);
+});
+
+test("a Sprint 2.17 oferece Clínicas próximas por endereço", () => {
+  assert.match(html, /data-modulo="clinicas"/);
+  assert.match(html, /Clínicas próximas/);
+  assert.match(tutorJs, /orbitek:clinicas-proximas/);
+  assert.match(ondeComprarJs, /tipo:mode==="clinicas"/);
+  assert.match(ondeComprarApi, /tipo==="clinicas"/);
+  assert.match(ondeComprarApi, /emergency/);
+  assert.match(html, /\/js\/tutor\.js\?v=14\.6/);
 });
 
 test("medicamentos são protegidos por sessão, tutor e tag", () => {
