@@ -23,6 +23,7 @@
   <link rel="stylesheet" href="/css/tutor-notificacoes.css?v=2.9" />
   <link rel="stylesheet" href="/css/pet-gallery.css?v=2.11" />
   <link rel="stylesheet" href="/css/medicamentos.css?v=2.13" />
+  <link rel="stylesheet" href="/css/agendamentos.css?v=2.18" />
   <link rel="stylesheet" href="/css/onde-comprar.css?v=2.17" />
 </head>
 
@@ -138,6 +139,7 @@
             <button class="modulo-card" type="button" data-modulo="timeline"><span class="modulo-icone">🕒</span><span><strong>Timeline</strong><small>Histórico do pet</small></span><b>›</b></button>
             <button class="modulo-card" type="button" data-modulo="historico"><span class="modulo-icone">📍</span><span><strong>Acessos</strong><small>Leituras e localização</small></span><b>›</b></button>
             <button class="modulo-card" type="button" data-modulo="medicamentos"><span class="modulo-icone">💊</span><span><strong>Medicamentos</strong><small>Tratamentos e horários</small></span><b>›</b></button>
+            <button class="modulo-card" type="button" data-modulo="agendamentos"><span class="modulo-icone">📅</span><span><strong>Agendamentos</strong><small>Consultas, exames e vacinas</small></span><b>›</b></button>
             <button class="modulo-card" type="button" data-modulo="clinicas"><span class="modulo-icone">🏥</span><span><strong>Clínicas próximas</strong><small>Encontre atendimento veterinário</small></span><b>›</b></button>
           </div>
         </article>
@@ -738,6 +740,28 @@
     </div>
   </div>
 
+  <div id="modalAgendamentos" class="modal" hidden>
+    <div class="modal-overlay" data-fechar-agendamentos></div>
+    <div class="modal-caixa modal-caixa-agendamentos" role="dialog" aria-modal="true" aria-labelledby="tituloAgendamentos">
+      <div class="modal-topo"><div><h2 id="tituloAgendamentos">Agenda de <span id="agendamentoNomePet">Pet</span></h2><p class="modal-subtitulo">Organize consultas, retornos, exames e vacinas.</p></div><button class="modal-fechar" data-fechar-agendamentos type="button" aria-label="Fechar">✕</button></div>
+      <input id="agendamentoTag" type="hidden">
+      <div class="agendamentos-barra"><div><strong>Próximos compromissos</strong><p id="agendamentosResumo">Carregando agenda...</p></div><div class="agendamentos-atalhos"><button id="buscarClinicaAgendamento" class="botao botao-secundario" type="button">🏥 Encontrar clínica</button><button id="novoAgendamento" class="botao botao-principal" type="button">+ Novo agendamento</button></div></div>
+      <div id="agendamentosCarregando" class="saude-carregando" hidden><span class="saude-spinner"></span> Carregando...</div>
+      <div id="listaAgendamentos" class="lista-agendamentos"></div>
+      <div id="agendamentosVazio" class="saude-vazio" hidden><div class="saude-vazio-icone">📅</div><strong>Nenhum agendamento</strong><p>Cadastre o próximo compromisso deste pet.</p></div>
+      <form id="formAgendamento" class="form-saude" hidden>
+        <div class="form-saude-topo"><h3 id="tituloFormAgendamento">Novo agendamento</h3><button id="cancelarFormAgendamento" class="botao-link" type="button">Cancelar</button></div>
+        <input id="agendamentoId" type="hidden">
+        <div class="grid-2"><div class="campo"><label for="agendamentoTipo">Tipo *</label><select id="agendamentoTipo" required><option value="">Selecione</option><option value="consulta">Consulta</option><option value="retorno">Retorno</option><option value="exame">Exame</option><option value="vacina">Vacina</option><option value="outro">Outro</option></select></div><div class="campo"><label for="agendamentoDataHora">Data e horário *</label><input id="agendamentoDataHora" type="datetime-local" required></div></div>
+        <div class="campo"><label for="agendamentoTitulo">Título *</label><input id="agendamentoTitulo" maxlength="120" placeholder="Ex.: Consulta anual" required></div>
+        <div class="grid-2"><div class="campo"><label for="agendamentoClinica">Clínica</label><input id="agendamentoClinica" maxlength="160" placeholder="Nome da clínica"></div><div class="campo"><label for="agendamentoVeterinario">Veterinário</label><input id="agendamentoVeterinario" maxlength="120" placeholder="Nome do profissional"></div></div>
+        <div class="campo"><label for="agendamentoEndereco">Endereço</label><input id="agendamentoEndereco" maxlength="240" placeholder="Rua, número, cidade"></div>
+        <div class="grid-2"><div class="campo"><label for="agendamentoStatus">Situação</label><select id="agendamentoStatus"><option value="agendado">Agendado</option><option value="concluido">Concluído</option><option value="cancelado">Cancelado</option></select></div><div class="campo"><label for="agendamentoObservacoes">Observações</label><textarea id="agendamentoObservacoes" rows="2" maxlength="1000" placeholder="Preparo, documentos ou orientações"></textarea></div></div>
+        <div class="modal-botoes"><button id="fecharFormAgendamento" class="botao botao-secundario" type="button">Cancelar</button><button id="salvarAgendamento" class="botao botao-principal" type="submit">Salvar agendamento</button></div>
+      </form>
+    </div>
+  </div>
+
   <div id="modalLocalPerdido" class="modal" hidden>
     <div class="modal-overlay" id="fecharLocalPerdidoOverlay"></div>
     <div class="modal-caixa modal-caixa-local-perdido" role="dialog" aria-modal="true" aria-labelledby="tituloLocalPerdido">
@@ -757,6 +781,7 @@
   <script src="/js/core/notifications.js?v=1"></script>
   <script src="/js/tutor.js?v=14.6"></script>
   <script src="/js/tutor-medicamentos.js?v=2.14"></script>
+  <script src="/js/tutor-agendamentos.js?v=2.18"></script>
   <script src="/js/tutor-onde-comprar.js?v=2.17.1"></script>
   <script src="/js/tutor-push.js?v=2.14.1"></script>
   <script src="/js/timeline.js?v=1"></script>

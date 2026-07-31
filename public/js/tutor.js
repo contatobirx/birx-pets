@@ -458,6 +458,12 @@ function acionarModulo(modulo) {
     }));
     return;
   }
+  if (modulo === "agendamentos") {
+    window.dispatchEvent(new CustomEvent("orbitek:abrir-agendamentos", {
+      detail: { tagCodigo: pet.tagCodigo, nome: pet.nome }
+    }));
+    return;
+  }
   if (modulo === "clinicas") {
     window.dispatchEvent(new CustomEvent("orbitek:clinicas-proximas"));
     return;
