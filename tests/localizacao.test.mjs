@@ -22,7 +22,7 @@ test("uma localização válida só é salva para tag ativa", async () => {
       return {
         bind(...valores) {
           return {
-            first: async () => sql.includes("FROM tags") ? { codigo: "ORB-1" } : null,
+            first: async () => sql.includes("FROM tags") ? { codigo: "ORB-1" } : sql.includes("FROM pets") ? { tag_codigo: "ORB-1", nome: "Thor", email: "tutor@example.com", perdido: 1 } : null,
             run: async () => { insercao = valores; return { success: true }; }
           };
         }

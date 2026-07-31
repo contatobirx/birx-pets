@@ -1,3 +1,5 @@
+import { enviarAlerta } from "../_shared/notificacoes.js";
+
 export async function onRequestGet(context) {
     try {
         const db = context.env.DB;
@@ -96,11 +98,16 @@ export async function onRequestGet(context) {
             });
         }
 
-        await registrarLeitura(
+        const novaLeitura = await registrarLeitura(
             db,
             context.request,
             codigo
         );
+
+        if (novaLeitura && !(await acessoDoProprioTutor(db, context.request, pet.email))) {
+            const alerta = enviarAlerta({ env: context.env, pet, tipo: "leitura", cidade: context.request.cf?.city || "", estado: context.request.cf?.region || "" });
+            if (context.waitUntil) context.waitUntil(alerta); else await alerta;
+        }
 
         const perdido =
             Number(pet.perdido) === 1;
@@ -192,7 +199,7 @@ async function registrarLeitura(
                 .first();
 
         if (ultimaLeitura) {
-            return;
+            return false;
         }
 
         await db
@@ -219,12 +226,28 @@ async function registrarLeitura(
             )
             .run();
 
+        return true;
+
     } catch (erro) {
 
         console.error(
             "Erro ao registrar leitura:",
             erro
         );
+        return false;
+    }
+}
 
+async function acessoDoProprioTutor(db, request, emailTutor) {
+    try {
+        const cookies = request.headers.get("Cookie") || "";
+        const token = cookies.split(";").map((item) => item.trim()).find((item) => item.startsWith("orbitek_sessao="))?.slice("orbitek_sessao=".length);
+        if (!token || !emailTutor) return false;
+        const buffer = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(decodeURIComponent(token)));
+        const tokenHash = [...new Uint8Array(buffer)].map((byte) => byte.toString(16).padStart(2, "0")).join("");
+        const sessao = await db.prepare(`SELECT email FROM sessoes_tutor WHERE token_hash = ? LIMIT 1`).bind(tokenHash).first();
+        return String(sessao?.email || "").trim().toLowerCase() === String(emailTutor).trim().toLowerCase();
+    } catch {
+        return false;
     }
 }

@@ -1,3 +1,5 @@
+import { enviarAlerta } from "../_shared/notificacoes.js";
+
 function json(dados, status = 200) {
   return Response.json(dados, { status, headers: { "Cache-Control": "no-store" } });
 }
@@ -25,8 +27,9 @@ async function obterSessao(request, env) {
   return sessao && Date.now() <= Number(sessao.expira_em) ? sessao : null;
 }
 
-export async function onRequestPost({ request, env }) {
+export async function onRequestPost(context) {
   try {
+    const { request, env } = context;
     const corpo = await request.json();
     const tag = String(corpo.tag || "").trim().toUpperCase();
     const latitude = Number(corpo.latitude);
@@ -40,10 +43,16 @@ export async function onRequestPost({ request, env }) {
     const tagAtiva = await env.DB.prepare(`SELECT codigo FROM tags WHERE codigo = ? AND ativada = 1 AND bloqueada = 0`).bind(tag).first();
     if (!tagAtiva) return json({ sucesso: false, mensagem: "Tag ativa não encontrada." }, 404);
 
+    const pet = await env.DB.prepare(`SELECT tag_codigo, nome, email, perdido FROM pets WHERE tag_codigo = ? LIMIT 1`).bind(tag).first();
+    if (!pet) return json({ sucesso: false, mensagem: "Pet não encontrado." }, 404);
+
     await env.DB.prepare(`
       INSERT INTO localizacoes_pet (tag_codigo, latitude, longitude, precisao_metros, origem)
       VALUES (?, ?, ?, ?, 'perfil_publico')
     `).bind(tag, latitude, longitude, Number.isFinite(precisao) && precisao >= 0 ? precisao : null).run();
+
+    const alerta = enviarAlerta({ env, pet, tipo: "localizacao", latitude, longitude });
+    if (context.waitUntil) context.waitUntil(alerta); else await alerta;
 
     return json({ sucesso: true, mensagem: "Localização compartilhada com o tutor." }, 201);
   } catch (erro) {
