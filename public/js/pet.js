@@ -65,6 +65,7 @@ function preencherPerfil(pet, statusApi) {
   configurarModoPerdido(estaPerdido);
   configurarCompartilhamento(nome);
   atualizarMetadados(nome, estaPerdido);
+  window.dispatchEvent(new CustomEvent("orbitek:pet-carregado", { detail: { pet, perdido: estaPerdido } }));
 }
 
 function textoSeguro(valor, fallback = "Não informado") { const texto = String(valor ?? "").trim(); return texto || fallback; }

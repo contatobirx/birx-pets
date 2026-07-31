@@ -112,6 +112,12 @@ export async function onRequestGet(context) {
         const perdido =
             Number(pet.perdido) === 1;
 
+        let fotos = [];
+        if (perdido) {
+            const galeria = await db.prepare(`SELECT url FROM pet_fotos WHERE tag_codigo = ? ORDER BY ordem, id LIMIT 4`).bind(codigo).all();
+            fotos = [pet.foto_url, ...(galeria.results || []).map((foto) => foto.url)].filter((url, indice, lista) => url && lista.indexOf(url) === indice).slice(0, 5);
+        }
+
         return Response.json({
             sucesso: true,
             status: perdido
@@ -120,6 +126,7 @@ export async function onRequestGet(context) {
             perdido,
             pet: {
                 ...pet,
+                fotos,
                 perdido: perdido
                     ? 1
                     : 0
