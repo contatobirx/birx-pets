@@ -11,7 +11,6 @@
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/perdidos.css?v=2.5">
   <link rel="stylesheet" href="/css/perdidos-filters.css?v=2.5.1">
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
   <link rel="stylesheet" href="/css/perdidos-map.css?v=2.10">
 </head>
 <body>
@@ -20,11 +19,9 @@
   <main id="conteudo">
     <section class="lost-hero"><div class="lost-container"><span>REDE DE AJUDA ORBITEK</span><h1>Ajude um pet a voltar para casa</h1><p>Estes animais foram publicados voluntariamente por seus tutores. Reconheceu algum? Abra o perfil para entrar em contato ou compartilhar onde ele foi visto.</p></div></section>
     <section class="lost-tools"><div class="lost-container"><p class="lost-filter-intro"><strong>Todos os animais aparecem automaticamente.</strong> Use os filtros somente se quiser buscar em uma região específica.</p><form id="filtrosPerdidos"><label>Cidade ou região (opcional)<input id="filtroCidade" name="cidade" placeholder="Todas as regiões"></label><label>Espécie (opcional)<select id="filtroEspecie" name="especie"><option value="">Todas as espécies</option><option value="Cachorro">Cachorros</option><option value="Gato">Gatos</option></select></label><button type="submit">Aplicar filtros</button><button type="button" id="limparFiltros">Mostrar todos</button><button type="button" id="buscarPerto">📍 Perto de mim</button></form><p id="avisoPrivacidade">As posições exibidas são aproximadas para proteger tutores e animais.</p></div></section>
-    <section class="lost-map-section"><div class="lost-container"><div class="lost-result-top"><h2>Últimos locais informados</h2><span>Posições aproximadas</span></div><div id="mapaPerdidos" aria-label="Mapa dos últimos locais informados pelos tutores"></div><p id="mapaPerdidosVazio" hidden>Nenhum tutor informou uma última localização para estes animais.</p></div></section>
     <section class="lost-list"><div class="lost-container"><div class="lost-result-top"><h2>Animais desaparecidos</h2><span id="quantidadePerdidos">Carregando...</span></div><div id="listaPerdidos" class="lost-grid" aria-live="polite"></div><div id="estadoPerdidos" class="lost-state" hidden></div></div></section>
   </main>
   <footer class="lost-footer"><div class="lost-container"><img src="/assets/login.png" alt="Orbitek Pets"><p>Tecnologia que protege quem você ama.</p><a href="mailto:contato@orbitekoficial.com.br">contato@orbitekoficial.com.br</a></div></footer>
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
   <script src="/js/perdidos.js?v=2.10"></script>
 </body>
 </html>

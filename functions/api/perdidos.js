@@ -27,6 +27,7 @@ export async function onRequestGet({ request, env }) {
     const url = new URL(request.url);
     const cidade = String(url.searchParams.get("cidade") || "").trim();
     const especie = String(url.searchParams.get("especie") || "").trim();
+    const tag = String(url.searchParams.get("tag") || "").trim().toUpperCase();
     const resultado = await env.DB.prepare(`
       SELECT p.tag_codigo, p.nome, p.especie, p.raca, p.sexo, p.foto_url,
              p.bairro, p.cidade, p.estado, p.comportamento,
@@ -40,11 +41,12 @@ export async function onRequestGet({ request, env }) {
         ORDER BY datetime(criado_em) DESC, id DESC LIMIT 1
       )
       WHERE p.perdido = 1 AND p.publico_perdidos = 1
+        AND (? = '' OR p.tag_codigo = ?)
         AND (? = '' OR LOWER(p.cidade) = LOWER(?))
         AND (? = '' OR LOWER(p.especie) = LOWER(?))
       ORDER BY COALESCE(l.criado_em, p.data_cadastro) DESC
       LIMIT 100
-    `).bind(cidade, cidade, especie, especie).all();
+    `).bind(tag, tag, cidade, cidade, especie, especie).all();
 
     return json({ sucesso: true, pets: (resultado.results || []).map((pet) => ({
       tag: pet.tag_codigo, nome: pet.nome, especie: pet.especie, raca: pet.raca,

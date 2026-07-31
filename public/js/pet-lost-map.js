@@ -1,0 +1,6 @@
+(function(){
+  const secao=document.getElementById("localizacaoPetPerdido"),elemento=document.getElementById("mapaPetPerdido");
+  const tag=new URLSearchParams(location.search).get("tag")?.trim().toUpperCase();
+  if(!secao||!elemento||!tag||!window.L)return;
+  fetch(`/api/perdidos?tag=${encodeURIComponent(tag)}`,{headers:{Accept:"application/json"}}).then(async resposta=>{const dados=await resposta.json();if(!resposta.ok)throw new Error(dados.mensagem);const pet=(dados.pets||[])[0];const latitude=Number(pet?.latitudeAproximada),longitude=Number(pet?.longitudeAproximada);if(!Number.isFinite(latitude)||!Number.isFinite(longitude))return;secao.classList.remove("escondido");const mapa=L.map(elemento,{scrollWheelZoom:false}).setView([latitude,longitude],13);L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:18,attribution:"&copy; OpenStreetMap"}).addTo(mapa);L.marker([latitude,longitude]).addTo(mapa).bindPopup(`Último local informado para ${pet.nome||"este pet"}`).openPopup();if(pet.localizadoEm){const data=new Date(pet.localizadoEm);if(!Number.isNaN(data.getTime()))document.getElementById("textoMapaPetPerdido").textContent=`Localização aproximada informada em ${data.toLocaleString("pt-BR")}.`;}setTimeout(()=>mapa.invalidateSize(),0)}).catch(()=>{});
+})();

@@ -61,5 +61,6 @@ test("perfil público e painel incluem compartilhamento e mapa", async () => {
   assert.match(painel, /mapaUltimaLocalizacao/);
   assert.match(painel, /leaflet@1\.9\.4/);
   assert.match(perfil, /voltarPerdidos/);
-  assert.match(perdidos, /mapaPerdidos/);
+  assert.match(perfil, /mapaPetPerdido/);
+  assert.doesNotMatch(perdidos, /mapaPerdidos/);
 });
