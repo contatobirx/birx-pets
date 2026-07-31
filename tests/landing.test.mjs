@@ -74,3 +74,16 @@ test("a galeria principal representa cães e gatos com a tag Orbitek", async () 
   assert.match(pagina, /\/assets\/gato\.png/);
   assert.match(pagina, /PARA GATOS/);
 });
+
+test("a Sprint 2.15 apresenta as funcionalidades do app", async () => {
+  const [pagina, interacao] = await Promise.all([
+    readFile(new URL("../public/index.html", import.meta.url), "utf8"),
+    readFile(new URL("../public/js/app-showcase.js", import.meta.url), "utf8")
+  ]);
+  assert.match(pagina, /id="app"/);
+  for (const recurso of ["Perfil completo", "Modo perdido e mapa", "Saúde e medicamentos", "Avisos no celular", "Galeria com 5 fotos", "Documentos do pet", "Login seguro com Google", "Diretório de animais perdidos"]) assert.match(pagina, new RegExp(recurso));
+  assert.match(pagina, /href="\/t\.html\?tag=DEMO">Testar um perfil/);
+  assert.match(pagina, /href="\/ativar">Já tenho uma tag/);
+  assert.match(interacao, /data-app-tab/);
+  assert.match(interacao, /aria-selected/);
+});

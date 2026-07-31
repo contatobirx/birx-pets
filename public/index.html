@@ -12,6 +12,7 @@
   <link rel="stylesheet" href="/css/geral.css?v=2.0">
   <link rel="stylesheet" href="/css/landing-gallery.css?v=2.2">
   <link rel="stylesheet" href="/css/sprint-2-2.css?v=2.2">
+  <link rel="stylesheet" href="/css/app-showcase.css?v=2.15">
 </head>
 <body>
   <a class="skip-link" href="#conteudo">Ir para o conteúdo</a>
@@ -27,6 +28,7 @@
         <a href="#inicio">Início</a>
         <a href="/produtos">Produtos</a>
         <a href="#como-funciona">Como funciona</a>
+        <a href="#app">O app</a>
         <a href="/catalogo">Catálogo</a>
         <a href="/perdidos">Pets perdidos</a>
         <a href="#contato">Contato</a>
@@ -90,6 +92,47 @@
           <article class="step-card reveal"><span class="step-number">01</span><div class="step-icon">🏷️</div><h3>Escolha sua tag</h3><p>Encontre o modelo e a cor que combinam com seu pet.</p></article>
           <article class="step-card featured reveal"><span class="step-number">02</span><div class="step-icon">📱</div><h3>Ative pelo celular</h3><p>Cadastre o perfil do pet e seus contatos em poucos minutos.</p></article>
           <article class="step-card reveal"><span class="step-number">03</span><div class="step-icon">💛</div><h3>Pronto, está protegido</h3><p>Quem encontrar usa os dados gravados ou aproxima o celular nos modelos NFC.</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section app-showcase" id="app" aria-labelledby="app-title">
+      <div class="container app-showcase-grid">
+        <div class="app-phone-wrap reveal" aria-label="Demonstração do painel Orbitek Pets">
+          <div class="app-orbit app-orbit-one"></div><div class="app-orbit app-orbit-two"></div>
+          <div class="app-phone">
+            <div class="app-phone-bar"><span>9:41</span><i></i><span>● ● ●</span></div>
+            <div class="app-phone-brand"><img src="/assets/login.png" alt="Orbitek Pets"><span>Painel do tutor</span></div>
+            <div class="app-screen is-active" data-app-panel="perfil">
+              <div class="app-greeting"><div><small>Olá, tutor!</small><strong>Thor está protegido 💙</strong></div><span>🔔</span></div>
+              <div class="app-pet-card"><div class="app-pet-avatar">🐶</div><div><strong>Thor</strong><small>Tag NFC ativa</small></div><b>ATIVO</b></div>
+              <div class="app-stats"><div><strong>5</strong><small>Fotos</small></div><div><strong>3</strong><small>Documentos</small></div><div><strong>8</strong><small>Eventos</small></div></div>
+              <div class="app-mini-title">Acesso rápido</div><div class="app-shortcuts"><span>💉<small>Vacinas</small></span><span>💊<small>Remédios</small></span><span>📍<small>Localização</small></span><span>📁<small>Documentos</small></span></div>
+            </div>
+            <div class="app-screen" data-app-panel="perdido" hidden>
+              <span class="app-alert-pill">MODO PERDIDO</span><h3>Ajude Thor a voltar para casa</h3><p>Marque no mapa onde ele foi visto pela última vez.</p><div class="app-map"><span>📍</span><i></i><i></i><i></i></div><div class="app-lost-actions"><b>Última localização salva</b><button type="button">Compartilhar perfil</button></div>
+            </div>
+            <div class="app-screen" data-app-panel="saude" hidden>
+              <span class="app-section-label">SAÚDE DO PET</span><h3>Cuidados em um só lugar</h3><div class="app-health-row"><span>💉</span><div><strong>Vacina V10</strong><small>Próxima dose em 12 dias</small></div><b>EM DIA</b></div><div class="app-health-row"><span>💊</span><div><strong>Apoquel</strong><small>Próxima dose às 20:00</small></div><b class="app-next">PRÓXIMA</b></div><div class="app-dose-button">✓ Dose administrada</div><div class="app-progress"><span style="width:72%"></span></div><small>Tratamento: 72% concluído</small>
+            </div>
+            <div class="app-screen" data-app-panel="avisos" hidden>
+              <span class="app-section-label">CENTRAL DE AVISOS</span><h3>Nada passa despercebido</h3><div class="app-notice new"><span>💊</span><div><strong>Hora do medicamento</strong><small>Apoquel — 1 comprimido</small></div><b>agora</b></div><div class="app-notice"><span>📡</span><div><strong>Tag acessada</strong><small>A tag de Thor foi aproximada</small></div><b>10:42</b></div><div class="app-notice"><span>💉</span><div><strong>Vacina próxima</strong><small>Reforço da V10 em 12 dias</small></div><b>ontem</b></div>
+            </div>
+            <div class="app-phone-home"></div>
+          </div>
+        </div>
+        <div class="app-showcase-copy reveal">
+          <span class="kicker">CONHEÇA O APP ORBITEK PETS</span>
+          <h2 id="app-title">Muito mais que uma tag.<br>Um cuidado completo.</h2>
+          <p>Controle a proteção, a saúde e as informações do seu pet pelo celular. Tudo fica organizado e disponível quando você mais precisa.</p>
+          <div class="app-feature-tabs" role="tablist" aria-label="Funcionalidades do app">
+            <button class="is-active" type="button" role="tab" aria-selected="true" data-app-tab="perfil"><span>🐾</span><div><strong>Perfil completo</strong><small>Contatos, fotos e informações sempre atualizados.</small></div></button>
+            <button type="button" role="tab" aria-selected="false" data-app-tab="perdido"><span>📍</span><div><strong>Modo perdido e mapa</strong><small>Divulgue o pet e mostre sua última localização.</small></div></button>
+            <button type="button" role="tab" aria-selected="false" data-app-tab="saude"><span>❤️</span><div><strong>Saúde e medicamentos</strong><small>Vacinas, tratamentos, doses e histórico.</small></div></button>
+            <button type="button" role="tab" aria-selected="false" data-app-tab="avisos"><span>🔔</span><div><strong>Avisos no celular</strong><small>Receba lembretes e alertas importantes.</small></div></button>
+          </div>
+          <div class="app-more-features"><span>✓ Galeria com 5 fotos</span><span>✓ Documentos do pet</span><span>✓ Login seguro com Google</span><span>✓ Diretório de animais perdidos</span></div>
+          <div class="app-showcase-actions"><a class="button button-primary" href="/t.html?tag=DEMO">Testar um perfil →</a><a class="button button-ghost" href="/ativar">Já tenho uma tag</a></div>
         </div>
       </div>
     </section>
@@ -190,5 +233,6 @@
     <div class="container footer-bottom"><span>© 2026 Orbitek Pets. Todos os direitos reservados.</span><div><a href="/privacidade">Privacidade</a><a href="/termos">Termos de uso</a></div></div>
   </footer>
   <script src="/js/index.js?v=2.0"></script>
+  <script src="/js/app-showcase.js?v=2.15"></script>
 </body>
 </html>
