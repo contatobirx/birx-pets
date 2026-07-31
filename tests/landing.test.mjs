@@ -54,3 +54,15 @@ test("a Sprint 2.3 disponibiliza produtos e catálogo com a logo oficial", async
     assert.match(pagina, /SMART NFC/);
   }
 });
+
+test("o catálogo descreve corretamente os três modelos físicos", async () => {
+  const catalogo = await readFile(new URL("../public/catalogo.html", import.meta.url), "utf8");
+
+  assert.match(catalogo, /tag-essential\.png/);
+  assert.match(catalogo, /Tag Essential com nome e telefone gravados/);
+  assert.match(catalogo, /tag-nfc\.png/);
+  assert.match(catalogo, /Sem nome, telefone ou QR Code/);
+  assert.match(catalogo, /tag-nfc-identificacao\.png/);
+  assert.match(catalogo, /Nome e telefone gravados/);
+  assert.match(catalogo, /Leitura por aproximação/);
+});
