@@ -357,6 +357,8 @@ function renderizarPainel2(pets, nomeTutor) {
     elementos.modoPerdidoDestaque.classList.toggle("ativo", pet.perdido);
   }
   if (elementos.verPerfilPublico) elementos.verPerfilPublico.dataset.tag = pet.tagCodigo;
+  const transferir = document.getElementById("transferirPetDestaque");
+  if (transferir) { transferir.dataset.tag = pet.tagCodigo; transferir.dataset.nome = nomePet; }
   if (elementos.publicarPerdidoDestaque) {
     elementos.publicarPerdidoDestaque.hidden = !pet.perdido;
     elementos.publicarPerdidoDestaque.dataset.tag = pet.tagCodigo;

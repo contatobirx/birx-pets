@@ -21,7 +21,7 @@ test("a aba Medicamentos oferece cadastro completo por pet", () => {
   for (const id of ["modalMedicamentos", "medicamentoNome", "medicamentoDosagem", "medicamentoFrequencia", "medicamentoHorarios", "medicamentoInicio", "medicamentoFim", "medicamentoVeterinario", "medicamentoObservacoes"]) assert.match(html, new RegExp(`id="${id}"`));
   assert.match(js, /orbitek:abrir-medicamentos/);
   assert.match(js, /method: "DELETE"/);
-  assert.match(html, /\/js\/tutor\.js\?v=3\.1/);
+  assert.match(html, /\/js\/tutor\.js\?v=3\.2/);
 });
 
 test("a Sprint 2.14 registra doses e cria lembretes na central", () => {
@@ -67,7 +67,7 @@ test("a Sprint 2.17 oferece Clínicas próximas por endereço", () => {
   assert.match(ondeComprarJs, /tipo:mode==="clinicas"/);
   assert.match(ondeComprarApi, /tipo==="clinicas"/);
   assert.match(ondeComprarApi, /emergency/);
-  assert.match(html, /\/js\/tutor\.js\?v=3\.1/);
+  assert.match(html, /\/js\/tutor\.js\?v=3\.2/);
 });
 
 test("a busca de clínicas e compras também aceita CEP", () => {
