@@ -20,7 +20,7 @@
 
   <title>Painel do Tutor | Orbitek Pets</title>
 
-  <link rel="stylesheet" href="/css/tutor.css?v=3.2" />
+  <link rel="stylesheet" href="/css/tutor.css?v=3.4" />
   <link rel="stylesheet" href="/css/ux.css?v=1" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
   <link rel="stylesheet" href="/css/tutor-lost-location.css?v=2.10.2" />
@@ -794,8 +794,9 @@
   <div id="modalTransferirPet" class="modal" hidden>
     <div class="modal-overlay" data-fechar-transferencia></div>
     <div class="modal-caixa modal-caixa-transferencia" role="dialog" aria-modal="true" aria-labelledby="tituloTransferencia">
-      <div class="modal-topo"><div><h2 id="tituloTransferencia">Transferir <span id="transferenciaNomePet">pet</span></h2><p class="modal-subtitulo">O perfil, a tag e todo o histórico passarão para a conta do novo tutor.</p></div><button class="modal-fechar" data-fechar-transferencia type="button" aria-label="Fechar">✕</button></div>
-      <form id="formTransferirPet" class="form-saude"><input id="transferenciaTag" type="hidden"><div class="campo"><label for="transferenciaEmail">E-mail da nova conta *</label><input id="transferenciaEmail" type="email" maxlength="254" autocomplete="email" placeholder="novo.tutor@email.com" required></div><div class="grid-2"><div class="campo"><label for="transferenciaTutor">Nome do novo tutor *</label><input id="transferenciaTutor" maxlength="120" required></div><div class="campo"><label for="transferenciaWhatsapp">WhatsApp do novo tutor *</label><input id="transferenciaWhatsapp" inputmode="tel" maxlength="30" placeholder="(41) 99999-9999" required></div></div><div class="transferencia-alerta"><strong>Atenção</strong><p>Após confirmar, este pet desaparecerá da sua conta. A tag não precisa ser regravada.</p></div><div class="campo"><label for="transferenciaConfirmacao">Confirme o nome do pet *</label><input id="transferenciaConfirmacao" maxlength="120" required><small id="transferenciaConfirmacaoTexto"></small></div><div class="modal-botoes"><button class="botao botao-secundario" data-fechar-transferencia type="button">Cancelar</button><button id="confirmarTransferencia" class="botao botao-principal" type="submit">Transferir pet</button></div></form>
+      <div class="modal-topo"><div><h2 id="tituloTransferencia">Transferir <span id="transferenciaNomePet">pet</span></h2><p class="modal-subtitulo">O novo tutor receberá um convite seguro por e-mail.</p></div><button class="modal-fechar" data-fechar-transferencia type="button" aria-label="Fechar">✕</button></div>
+      <div id="transferenciasPendentes" class="transferencias-pendentes" hidden></div>
+      <form id="formTransferirPet" class="form-saude"><input id="transferenciaTag" type="hidden"><div class="campo"><label for="transferenciaEmail">E-mail da nova conta *</label><input id="transferenciaEmail" type="email" maxlength="254" autocomplete="email" placeholder="novo.tutor@email.com" required></div><div class="grid-2"><div class="campo"><label for="transferenciaTutor">Nome do novo tutor *</label><input id="transferenciaTutor" maxlength="120" required></div><div class="campo"><label for="transferenciaWhatsapp">WhatsApp do novo tutor *</label><input id="transferenciaWhatsapp" inputmode="tel" maxlength="30" placeholder="(41) 99999-9999" required></div></div><div class="transferencia-alerta"><strong>Transferência protegida</strong><p>O pet continuará na sua conta até o novo tutor aceitar pelo e-mail. O convite expira em 7 dias e pode ser cancelado.</p></div><div class="campo"><label for="transferenciaConfirmacao">Confirme o nome do pet *</label><input id="transferenciaConfirmacao" maxlength="120" required><small id="transferenciaConfirmacaoTexto"></small></div><div class="modal-botoes"><button class="botao botao-secundario" data-fechar-transferencia type="button">Cancelar</button><button id="confirmarTransferencia" class="botao botao-principal" type="submit">Enviar convite</button></div></form>
     </div>
   </div>
 
@@ -820,7 +821,7 @@
   <script src="/js/tutor-medicamentos.js?v=2.14"></script>
   <script src="/js/tutor-agendamentos.js?v=2.18"></script>
   <script src="/js/tutor-carteirinha.js?v=2.19"></script>
-  <script src="/js/tutor-transferencia.js?v=3.2"></script>
+  <script src="/js/tutor-transferencia.js?v=3.4"></script>
   <script src="/js/tutor-onde-comprar.js?v=2.17.1"></script>
   <script src="/js/tutor-push.js?v=2.14.1"></script>
   <script src="/js/timeline.js?v=1"></script>
