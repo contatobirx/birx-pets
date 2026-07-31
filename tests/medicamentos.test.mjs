@@ -57,7 +57,7 @@ test("a busca Onde Comprar usa endereço e exibe resultados dentro do app", () =
   assert.match(ondeComprarApi, /amenity=veterinary_pharmacy/);
   assert.match(ondeComprarApi, /sessoes_tutor/);
   assert.match(ondeComprarApi, /nominatim\.openstreetmap\.org\/search/);
-  assert.match(html, /O endereço não será salvo/);
+  assert.match(html, /O CEP ou endereço não será salvo/);
 });
 
 test("a Sprint 2.17 oferece Clínicas próximas por endereço", () => {
@@ -68,6 +68,15 @@ test("a Sprint 2.17 oferece Clínicas próximas por endereço", () => {
   assert.match(ondeComprarApi, /tipo==="clinicas"/);
   assert.match(ondeComprarApi, /emergency/);
   assert.match(html, /\/js\/tutor\.js\?v=14\.6/);
+});
+
+test("a busca de clínicas e compras também aceita CEP", () => {
+  assert.match(html, /Digite o CEP ou endereço/);
+  assert.match(html, /ViaCEP/);
+  assert.match(ondeComprarApi, /viacep\.com\.br\/ws/);
+  assert.match(ondeComprarApi, /buscaPorCep/);
+  assert.match(ondeComprarJs, /CEP com 8 números/);
+  assert.match(html, /tutor-onde-comprar\.js\?v=2\.17\.1/);
 });
 
 test("medicamentos são protegidos por sessão, tutor e tag", () => {
