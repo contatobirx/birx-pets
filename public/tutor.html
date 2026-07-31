@@ -18,7 +18,7 @@
   <link rel="stylesheet" href="/css/tutor.css?v=14.3" />
   <link rel="stylesheet" href="/css/ux.css?v=1" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
-  <link rel="stylesheet" href="/css/tutor-location.css?v=2.4" />
+  <link rel="stylesheet" href="/css/tutor-lost-location.css?v=2.10.2" />
   <link rel="stylesheet" href="/css/tutor-lost.css?v=2.5" />
   <link rel="stylesheet" href="/css/tutor-notificacoes.css?v=2.9" />
 </head>
@@ -93,12 +93,6 @@
           <span class="metrica-icone">🕒</span>
           <div><small>Última atualização</small><strong id="metricaAtualizacao">Agora</strong></div>
         </article>
-      </section>
-
-      <section class="localizacao-painel" id="localizacaoPainel" hidden aria-labelledby="localizacaoTitulo">
-        <div class="localizacao-cabecalho"><div><span class="painel-sobretitulo">Localização compartilhada</span><h2 id="localizacaoTitulo">Último local informado</h2><p id="localizacaoResumo">Aguardando uma localização.</p></div><button type="button" id="atualizarLocalizacao">Atualizar mapa</button></div>
-        <div id="mapaUltimaLocalizacao" aria-label="Mapa da última localização compartilhada"></div>
-        <div id="historicoLocalizacoes" class="historico-localizacoes"></div>
       </section>
 
       <section class="dashboard-corpo-premium">
@@ -704,9 +698,19 @@
     </div>
   </div>
 
+  <div id="modalLocalPerdido" class="modal" hidden>
+    <div class="modal-overlay" id="fecharLocalPerdidoOverlay"></div>
+    <div class="modal-caixa modal-caixa-local-perdido" role="dialog" aria-modal="true" aria-labelledby="tituloLocalPerdido">
+      <div class="modal-topo"><div><h2 id="tituloLocalPerdido">Onde o pet foi visto por último?</h2><p class="modal-subtitulo">Toque no mapa para marcar o local. A posição será aproximada para o público.</p></div><button id="fecharLocalPerdido" class="modal-fechar" type="button" aria-label="Fechar">✕</button></div>
+      <div id="mapaSelecionarLocalPerdido" aria-label="Selecione a última localização do pet no mapa"></div>
+      <p class="local-selecionado" id="textoLocalSelecionado">Nenhum ponto selecionado.</p>
+      <div class="modal-botoes local-botoes"><button id="usarLocalAtual" class="botao botao-secundario" type="button">📍 Usar minha localização</button><button id="cancelarLocalPerdido" class="botao botao-secundario" type="button">Cancelar</button><button id="confirmarLocalPerdido" class="botao botao-principal" type="button" disabled>Confirmar local</button></div>
+    </div>
+  </div>
+
   <script src="/js/core/navigation.js?v=1"></script>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
-  <script src="/js/tutor-location.js?v=2.4"></script>
+  <script src="/js/tutor-lost-location.js?v=2.10.2"></script>
   <script src="/js/tutor-lost.js?v=2.5"></script>
   <script src="/js/tutor-notificacoes.js?v=2.9"></script>
   <script src="/js/core/notifications.js?v=1"></script>

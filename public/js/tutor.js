@@ -1422,6 +1422,13 @@ async function excluirRegistroSaude(evento) {
 
   if (!confirmar) return;
 
+  let localPerdido = null;
+  if (novoEstado) {
+    if (!window.OrbitekSelecionarLocalizacao?.abrir) return exibirMensagem("O seletor de localização não foi carregado.", "erro");
+    localPerdido = await window.OrbitekSelecionarLocalizacao.abrir();
+    if (!localPerdido) return;
+  }
+
   const botao = evento.currentTarget;
   botao.disabled = true;
   botao.textContent = "…";
@@ -2041,7 +2048,7 @@ async function alterarModoPerdido(evento) {
         "Content-Type": "application/json",
         Accept: "application/json",
       },
-      body: JSON.stringify({ tagCodigo, perdido: novoEstado }),
+      body: JSON.stringify({ tagCodigo, perdido: novoEstado, latitude: localPerdido?.latitude, longitude: localPerdido?.longitude }),
     });
 
     const dados = await resposta.json().catch(() => ({}));
@@ -2056,30 +2063,12 @@ async function alterarModoPerdido(evento) {
     }
 
     exibirMensagem(dados.mensagem || "Status atualizado com sucesso.");
-    if (novoEstado) await oferecerUltimaLocalizacao(tagCodigo);
     await carregarPainel();
   } catch (erro) {
     exibirMensagem(erro.message || "Não foi possível atualizar o modo perdido.", "erro");
     botao.disabled = false;
     botao.textContent = textoOriginal;
   }
-}
-
-async function oferecerUltimaLocalizacao(tagCodigo) {
-  const confirmar = window.OrbitekUI?.confirmar
-    ? await window.OrbitekUI.confirmar({ titulo: "Informar o último local visto?", mensagem: "Usaremos a localização atual deste aparelho como referência aproximada no mapa de animais perdidos.", textoConfirmar: "Compartilhar localização" })
-    : window.confirm("Deseja usar a localização atual como último local onde o pet foi visto?");
-  if (!confirmar) return;
-  if (!navigator.geolocation) return exibirMensagem("Este aparelho não oferece localização.", "erro");
-  await new Promise((resolver) => navigator.geolocation.getCurrentPosition(async (posicao) => {
-    try {
-      const resposta = await fetch("/api/localizacoes", { method: "POST", credentials: "same-origin", headers: { "Content-Type": "application/json", Accept: "application/json" }, body: JSON.stringify({ tag: tagCodigo, latitude: posicao.coords.latitude, longitude: posicao.coords.longitude, precisao: posicao.coords.accuracy, origem: "tutor_ultimo_avistamento" }) });
-      const dados = await resposta.json().catch(() => ({}));
-      if (!resposta.ok) throw new Error(dados.mensagem || "Não foi possível salvar a localização.");
-      exibirMensagem("Última localização registrada. Ao publicar o pet perdido, ela aparecerá de forma aproximada no mapa.");
-    } catch (erro) { exibirMensagem(erro.message, "erro"); }
-    resolver();
-  }, (erro) => { exibirMensagem(erro.code === 1 ? "Permissão de localização não concedida." : "Não foi possível obter a localização atual.", "erro"); resolver(); }, { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }));
 }
 
 async function sair() {

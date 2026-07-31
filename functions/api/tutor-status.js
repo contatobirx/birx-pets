@@ -208,6 +208,9 @@ export async function onRequestPost(
     const perdido =
       corpo.perdido;
 
+    const latitude = Number(corpo.latitude);
+    const longitude = Number(corpo.longitude);
+
     if (!tagCodigo) {
       return respostaJson(
         {
@@ -230,6 +233,10 @@ export async function onRequestPost(
         },
         400
       );
+    }
+
+    if (perdido && (!Number.isFinite(latitude) || latitude < -90 || latitude > 90 || !Number.isFinite(longitude) || longitude < -180 || longitude > 180)) {
+      return respostaJson({ sucesso: false, mensagem: "Selecione no mapa o último local onde o pet foi visto." }, 400);
     }
 
     const pet =
@@ -263,22 +270,27 @@ export async function onRequestPost(
       );
     }
 
-    await env.DB.prepare(
-      `
+    const atualizarStatus = env.DB.prepare(`
         UPDATE pets
         SET perdido = ?,
             publico_perdidos = CASE WHEN ? = 0 THEN 0 ELSE publico_perdidos END
         WHERE tag_codigo = ?
           AND LOWER(email) = LOWER(?)
-      `
-    )
-      .bind(
+      `).bind(
         perdido ? 1 : 0,
         perdido ? 1 : 0,
         tagCodigo,
         sessao.email
-      )
-      .run();
+      );
+
+    if (perdido) {
+      await env.DB.batch([
+        atualizarStatus,
+        env.DB.prepare(`INSERT INTO localizacoes_pet (tag_codigo, latitude, longitude, precisao_metros, origem) VALUES (?, ?, ?, NULL, 'tutor_ultimo_avistamento')`).bind(tagCodigo, latitude, longitude)
+      ]);
+    } else {
+      await atualizarStatus.run();
+    }
 
     try {
       await env.DB.prepare(`

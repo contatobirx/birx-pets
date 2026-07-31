@@ -50,17 +50,23 @@ test("a última localização do tutor exige sessão da conta responsável", asy
   assert.equal(resposta.status, 401);
 });
 
-test("perfil público e painel incluem compartilhamento e mapa", async () => {
-  const [perfil, painel, perdidos] = await Promise.all([
+test("perfil público e modo perdido incluem mapas no momento correto", async () => {
+  const [perfil, painel, perdidos, seletor, status] = await Promise.all([
     readFile(new URL("../public/t.html", import.meta.url), "utf8"),
     readFile(new URL("../public/tutor.html", import.meta.url), "utf8"),
-    readFile(new URL("../public/perdidos.html", import.meta.url), "utf8")
+    readFile(new URL("../public/perdidos.html", import.meta.url), "utf8"),
+    readFile(new URL("../public/js/tutor-lost-location.js", import.meta.url), "utf8"),
+    readFile(new URL("../functions/api/tutor-status.js", import.meta.url), "utf8")
   ]);
   assert.match(perfil, /botaoCompartilharLocalizacao/);
   assert.match(perfil, /pet-location\.js/);
-  assert.match(painel, /mapaUltimaLocalizacao/);
+  assert.doesNotMatch(painel, /mapaUltimaLocalizacao/);
+  assert.match(painel, /mapaSelecionarLocalPerdido/);
   assert.match(painel, /leaflet@1\.9\.4/);
   assert.match(perfil, /voltarPerdidos/);
   assert.match(perfil, /mapaPetPerdido/);
   assert.doesNotMatch(perdidos, /mapaPerdidos/);
+  assert.match(seletor, /mapa\.on\("click"/);
+  assert.match(status, /tutor_ultimo_avistamento/);
+  assert.match(status, /Selecione no mapa/);
 });
