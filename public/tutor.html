@@ -22,6 +22,7 @@
   <link rel="stylesheet" href="/css/tutor-lost.css?v=2.5" />
   <link rel="stylesheet" href="/css/tutor-notificacoes.css?v=2.9" />
   <link rel="stylesheet" href="/css/pet-gallery.css?v=2.11" />
+  <link rel="stylesheet" href="/css/medicamentos.css?v=2.13" />
 </head>
 
 <body>
@@ -135,7 +136,7 @@
             <button class="modulo-card" type="button" data-modulo="documentos"><span class="modulo-icone">📄</span><span><strong>Documentos</strong><small>Receitas, exames e PDFs</small></span><b>›</b></button>
             <button class="modulo-card" type="button" data-modulo="timeline"><span class="modulo-icone">🕒</span><span><strong>Timeline</strong><small>Histórico do pet</small></span><b>›</b></button>
             <button class="modulo-card" type="button" data-modulo="historico"><span class="modulo-icone">📍</span><span><strong>Acessos</strong><small>Leituras e localização</small></span><b>›</b></button>
-            <button class="modulo-card" type="button" data-modulo="medicamentos"><span class="modulo-icone">💊</span><span><strong>Medicamentos</strong><small>Em desenvolvimento</small></span><b>›</b></button>
+            <button class="modulo-card" type="button" data-modulo="medicamentos"><span class="modulo-icone">💊</span><span><strong>Medicamentos</strong><small>Tratamentos e horários</small></span><b>›</b></button>
           </div>
         </article>
       </section>
@@ -700,6 +701,29 @@
     </div>
   </div>
 
+  <div id="modalMedicamentos" class="modal" hidden>
+    <div class="modal-overlay" data-fechar-medicamentos></div>
+    <div class="modal-caixa modal-caixa-medicamentos" role="dialog" aria-modal="true" aria-labelledby="tituloMedicamentos">
+      <div class="modal-topo"><div><h2 id="tituloMedicamentos">Medicamentos de <span id="medicamentoNomePet">Pet</span></h2><p class="modal-subtitulo">Organize tratamentos, dosagens e horários deste pet.</p></div><button class="modal-fechar" data-fechar-medicamentos type="button" aria-label="Fechar">✕</button></div>
+      <input id="medicamentoTag" type="hidden">
+      <div class="medicamentos-barra"><div><strong>Tratamentos</strong><p id="medicamentosResumo">Carregando medicamentos...</p></div><button id="novoMedicamento" class="botao botao-principal" type="button">+ Adicionar medicamento</button></div>
+      <div id="medicamentosCarregando" class="saude-carregando" hidden><span class="saude-spinner" aria-hidden="true"></span> Carregando...</div>
+      <div id="listaMedicamentos" class="lista-medicamentos"></div>
+      <div id="medicamentosVazio" class="saude-vazio" hidden><div class="saude-vazio-icone">💊</div><strong>Nenhum medicamento cadastrado</strong><p>Adicione o primeiro tratamento deste pet.</p></div>
+      <form id="formMedicamento" class="form-saude" hidden>
+        <div class="form-saude-topo"><h3 id="tituloFormMedicamento">Novo medicamento</h3><button id="cancelarFormMedicamento" class="botao-link" type="button">Cancelar</button></div>
+        <input id="medicamentoId" type="hidden">
+        <div class="grid-2"><div class="campo"><label for="medicamentoNome">Medicamento *</label><input id="medicamentoNome" maxlength="120" placeholder="Ex.: Apoquel" required></div><div class="campo"><label for="medicamentoDosagem">Dosagem</label><input id="medicamentoDosagem" maxlength="80" placeholder="Ex.: 1 comprimido"></div></div>
+        <div class="grid-2"><div class="campo"><label for="medicamentoFrequencia">Frequência *</label><input id="medicamentoFrequencia" maxlength="120" placeholder="Ex.: A cada 12 horas" required></div><div class="campo"><label for="medicamentoHorarios">Horários</label><input id="medicamentoHorarios" maxlength="120" placeholder="Ex.: 08:00 e 20:00"></div></div>
+        <div class="grid-2"><div class="campo"><label for="medicamentoInicio">Início *</label><input id="medicamentoInicio" type="date" required></div><div class="campo"><label for="medicamentoFim">Término</label><input id="medicamentoFim" type="date"></div></div>
+        <div class="campo"><label for="medicamentoVeterinario">Veterinário responsável</label><input id="medicamentoVeterinario" maxlength="120" placeholder="Nome do profissional"></div>
+        <div class="campo"><label for="medicamentoObservacoes">Orientações e observações</label><textarea id="medicamentoObservacoes" rows="3" maxlength="1000" placeholder="Ex.: oferecer após a alimentação"></textarea></div>
+        <label class="medicamento-ativo"><input id="medicamentoAtivo" type="checkbox" checked> Tratamento ativo</label>
+        <div class="modal-botoes"><button id="fecharFormMedicamento" class="botao botao-secundario" type="button">Cancelar</button><button id="salvarMedicamento" class="botao botao-principal" type="submit">Salvar medicamento</button></div>
+      </form>
+    </div>
+  </div>
+
   <div id="modalLocalPerdido" class="modal" hidden>
     <div class="modal-overlay" id="fecharLocalPerdidoOverlay"></div>
     <div class="modal-caixa modal-caixa-local-perdido" role="dialog" aria-modal="true" aria-labelledby="tituloLocalPerdido">
@@ -718,6 +742,7 @@
   <script src="/js/tutor-notificacoes.js?v=2.9"></script>
   <script src="/js/core/notifications.js?v=1"></script>
   <script src="/js/tutor.js?v=14.4"></script>
+  <script src="/js/tutor-medicamentos.js?v=2.13"></script>
   <script src="/js/timeline.js?v=1"></script>
   <script src="/js/core/ux.js?v=1"></script>
 </body>

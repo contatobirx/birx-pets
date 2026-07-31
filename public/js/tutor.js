@@ -453,7 +453,10 @@ function acionarModulo(modulo) {
     return;
   }
   if (modulo === "medicamentos") {
-    exibirMensagem("O módulo de medicamentos será disponibilizado em breve.");
+    window.dispatchEvent(new CustomEvent("orbitek:abrir-medicamentos", {
+      detail: { tagCodigo: pet.tagCodigo, nome: pet.nome }
+    }));
+    return;
   }
 }
 
