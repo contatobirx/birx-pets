@@ -1,73 +1,49 @@
-const parametros = new URLSearchParams(window.location.search);
-const codigoTag = parametros.get("tag")?.trim().toUpperCase() || "";
+const menuButton = document.querySelector('.menu-toggle');
+const menu = document.querySelector('.main-nav');
 
-const mensagem = document.getElementById("mensagem");
-const carregando = document.getElementById("carregando");
-const botaoAtivar = document.getElementById("botaoAtivar");
+menuButton?.addEventListener('click', () => {
+  const open = menuButton.getAttribute('aria-expanded') === 'true';
+  menuButton.setAttribute('aria-expanded', String(!open));
+  menuButton.setAttribute('aria-label', open ? 'Abrir menu' : 'Fechar menu');
+  menu.classList.toggle('is-open', !open);
+});
 
-function encerrarCarregamento() {
-  carregando.style.display = "none";
-}
+document.querySelectorAll('.main-nav a').forEach((link) => {
+  link.addEventListener('click', () => {
+    menuButton?.setAttribute('aria-expanded', 'false');
+    menu?.classList.remove('is-open');
+  });
+});
 
-function mostrarErro(texto) {
-  encerrarCarregamento();
-  mensagem.innerText = texto;
-  botaoAtivar.classList.add("escondido");
-}
-
-function mostrarTagNaoAtivada() {
-  encerrarCarregamento();
-  mensagem.innerText =
-    "Sua tag ainda não foi ativada. Faça o cadastro para proteger seu pet.";
-
-  botaoAtivar.href =
-    `/ativar.html?tag=${encodeURIComponent(codigoTag)}`;
-  botaoAtivar.classList.remove("escondido");
-}
-
-async function verificarTag() {
-  if (!codigoTag) {
-    mostrarErro(
-      "Esta tag não foi identificada. Verifique o endereço ou fale com a Orbitek."
-    );
-    return;
-  }
-
-  try {
-    const resposta = await fetch(
-      `/api/tag?tag=${encodeURIComponent(codigoTag)}`,
-      { headers: { Accept: "application/json" } }
-    );
-
-    const resultado = await resposta.json();
-
-    if (resultado.status === "nao-ativada") {
-      mostrarTagNaoAtivada();
-      return;
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach((entry) => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('is-visible');
+      observer.unobserve(entry.target);
     }
+  });
+}, { threshold: 0.12 });
 
-    if (resultado.status === "ativa" || resultado.status === "perdido") {
-      window.location.replace(
-        `/t.html?tag=${encodeURIComponent(codigoTag)}`
-      );
-      return;
-    }
+document.querySelectorAll('.reveal').forEach((item) => observer.observe(item));
 
-    if (resultado.status === "bloqueada") {
-      mostrarErro("Esta tag está bloqueada. Fale com a Orbitek.");
-      return;
-    }
+const counters = document.querySelectorAll('[data-count]');
+const counterObserver = new IntersectionObserver((entries) => {
+  entries.forEach((entry) => {
+    if (!entry.isIntersecting) return;
+    const element = entry.target;
+    const target = Number(element.dataset.count);
+    const suffix = element.dataset.suffix || '+';
+    const start = performance.now();
+    const duration = 1200;
+    const tick = (now) => {
+      const progress = Math.min((now - start) / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      element.textContent = `${Math.round(target * eased)}${suffix}`;
+      if (progress < 1) requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+    counterObserver.unobserve(element);
+  });
+}, { threshold: 0.5 });
 
-    mostrarErro(
-      resultado.mensagem ||
-      "Esta tag não foi identificada. Verifique o endereço ou fale com a Orbitek."
-    );
-  } catch (erro) {
-    console.error("Erro ao verificar tag:", erro);
-    mostrarErro(
-      "Não foi possível verificar a tag agora. Confira sua conexão e tente novamente."
-    );
-  }
-}
-
-verificarTag();
+counters.forEach((counter) => counterObserver.observe(counter));
