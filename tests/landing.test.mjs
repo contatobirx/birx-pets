@@ -66,3 +66,11 @@ test("o catálogo descreve corretamente os três modelos físicos", async () => 
   assert.match(catalogo, /Nome e telefone gravados/);
   assert.match(catalogo, /Leitura por aproximação/);
 });
+
+test("a galeria principal representa cães e gatos com a tag Orbitek", async () => {
+  const pagina = await readFile(new URL("../public/index.html", import.meta.url), "utf8");
+  assert.match(pagina, /\/assets\/maior\.png/);
+  assert.match(pagina, /\/assets\/menor\.png/);
+  assert.match(pagina, /\/assets\/gato\.png/);
+  assert.match(pagina, /PARA GATOS/);
+});
