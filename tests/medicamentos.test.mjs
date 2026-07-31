@@ -20,6 +20,7 @@ test("a aba Medicamentos oferece cadastro completo por pet", () => {
   for (const id of ["modalMedicamentos", "medicamentoNome", "medicamentoDosagem", "medicamentoFrequencia", "medicamentoHorarios", "medicamentoInicio", "medicamentoFim", "medicamentoVeterinario", "medicamentoObservacoes"]) assert.match(html, new RegExp(`id="${id}"`));
   assert.match(js, /orbitek:abrir-medicamentos/);
   assert.match(js, /method: "DELETE"/);
+  assert.match(html, /\/js\/tutor\.js\?v=14\.5/);
 });
 
 test("a Sprint 2.14 registra doses e cria lembretes na central", () => {
