@@ -1422,13 +1422,6 @@ async function excluirRegistroSaude(evento) {
 
   if (!confirmar) return;
 
-  let localPerdido = null;
-  if (novoEstado) {
-    if (!window.OrbitekSelecionarLocalizacao?.abrir) return exibirMensagem("O seletor de localização não foi carregado.", "erro");
-    localPerdido = await window.OrbitekSelecionarLocalizacao.abrir();
-    if (!localPerdido) return;
-  }
-
   const botao = evento.currentTarget;
   botao.disabled = true;
   botao.textContent = "…";
@@ -2035,6 +2028,16 @@ async function alterarModoPerdido(evento) {
       );
 
   if (!confirmar) return;
+
+  let localPerdido = null;
+  if (novoEstado) {
+    if (!window.OrbitekSelecionarLocalizacao?.abrir) {
+      exibirMensagem("O seletor de localização não foi carregado. Atualize a página e tente novamente.", "erro");
+      return;
+    }
+    localPerdido = await window.OrbitekSelecionarLocalizacao.abrir();
+    if (!localPerdido) return;
+  }
 
   const textoOriginal = botao.textContent;
   botao.disabled = true;

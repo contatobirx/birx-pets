@@ -51,12 +51,13 @@ test("a última localização do tutor exige sessão da conta responsável", asy
 });
 
 test("perfil público e modo perdido incluem mapas no momento correto", async () => {
-  const [perfil, painel, perdidos, seletor, status] = await Promise.all([
+  const [perfil, painel, perdidos, seletor, status, tutorJs] = await Promise.all([
     readFile(new URL("../public/t.html", import.meta.url), "utf8"),
     readFile(new URL("../public/tutor.html", import.meta.url), "utf8"),
     readFile(new URL("../public/perdidos.html", import.meta.url), "utf8"),
     readFile(new URL("../public/js/tutor-lost-location.js", import.meta.url), "utf8"),
-    readFile(new URL("../functions/api/tutor-status.js", import.meta.url), "utf8")
+    readFile(new URL("../functions/api/tutor-status.js", import.meta.url), "utf8"),
+    readFile(new URL("../public/js/tutor.js", import.meta.url), "utf8")
   ]);
   assert.match(perfil, /botaoCompartilharLocalizacao/);
   assert.match(perfil, /pet-location\.js/);
@@ -69,4 +70,7 @@ test("perfil público e modo perdido incluem mapas no momento correto", async ()
   assert.match(seletor, /mapa\.on\("click"/);
   assert.match(status, /tutor_ultimo_avistamento/);
   assert.match(status, /Selecione no mapa/);
+  const fluxoPerdido = tutorJs.slice(tutorJs.indexOf("async function alterarModoPerdido"), tutorJs.indexOf("async function sair"));
+  assert.match(fluxoPerdido, /let localPerdido = null/);
+  assert.match(fluxoPerdido, /OrbitekSelecionarLocalizacao/);
 });
