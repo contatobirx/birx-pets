@@ -21,6 +21,29 @@ export async function onRequestGet(context) {
             );
         }
 
+        if (codigo === "DEMO") {
+            return Response.json({
+                sucesso: true,
+                status: "ativa",
+                demonstracao: true,
+                perdido: false,
+                pet: {
+                    nome: "Bento",
+                    especie: "Cachorro",
+                    raca: "Shih-tzu",
+                    sexo: "Macho",
+                    idade: "3 anos",
+                    comportamento: "Sou dócil e amigável. Aproxime-se com calma e fale comigo pelo nome.",
+                    nome_tutor: "Perfil demonstrativo",
+                    bairro: "Centro",
+                    cidade: "São Paulo",
+                    estado: "SP",
+                    foto_url: "/assets/menor.png",
+                    perdido: 0
+                }
+            });
+        }
+
         const tag = await db
             .prepare(`
                 SELECT *

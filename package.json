@@ -2,6 +2,6 @@
   "name": "orbitek-pets-v2",
   "private": true,
   "scripts": {
-    "test": "node --test tests/saude.test.mjs"
+    "test": "node --test tests/*.test.mjs"
   }
 }

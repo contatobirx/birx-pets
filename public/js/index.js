@@ -15,6 +15,30 @@ document.querySelectorAll('.main-nav a').forEach((link) => {
   });
 });
 
+document.addEventListener('keydown', (event) => {
+  if (event.key !== 'Escape' || !menu?.classList.contains('is-open')) return;
+  menuButton?.setAttribute('aria-expanded', 'false');
+  menuButton?.setAttribute('aria-label', 'Abrir menu');
+  menu?.classList.remove('is-open');
+  menuButton?.focus();
+});
+
+document.addEventListener('click', (event) => {
+  if (!menu?.classList.contains('is-open')) return;
+  if (menu.contains(event.target) || menuButton?.contains(event.target)) return;
+  menuButton?.setAttribute('aria-expanded', 'false');
+  menuButton?.setAttribute('aria-label', 'Abrir menu');
+  menu.classList.remove('is-open');
+});
+
+window.addEventListener('resize', () => {
+  if (window.innerWidth > 900 && menu?.classList.contains('is-open')) {
+    menuButton?.setAttribute('aria-expanded', 'false');
+    menuButton?.setAttribute('aria-label', 'Abrir menu');
+    menu.classList.remove('is-open');
+  }
+});
+
 const observer = new IntersectionObserver((entries) => {
   entries.forEach((entry) => {
     if (entry.isIntersecting) {

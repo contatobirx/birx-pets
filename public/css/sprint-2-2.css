@@ -1,0 +1,49 @@
+.hero-actions {
+  flex-wrap: wrap;
+}
+
+.button-demo {
+  border-color: #cfd6e4;
+  background: #16233d;
+  color: #fff;
+}
+
+.button-demo:hover {
+  box-shadow: 0 12px 24px rgba(22, 35, 61, .18);
+}
+
+.cta-actions {
+  display: flex;
+  min-width: 220px;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 10px;
+}
+
+.cta-actions .button-light {
+  margin-bottom: 0;
+}
+
+.cta-actions > a:not(.button) {
+  display: block;
+  color: #fff;
+  font-size: .78rem;
+  text-align: center;
+}
+
+.whatsapp-share {
+  padding: 9px 12px;
+  border: 1px solid rgba(255, 255, 255, .28);
+  border-radius: 11px;
+  text-decoration: none;
+}
+
+@media (max-width: 600px) {
+  .hero-actions .button {
+    width: 100%;
+  }
+
+  .cta-actions {
+    width: 100%;
+  }
+}
