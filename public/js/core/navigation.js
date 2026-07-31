@@ -40,7 +40,7 @@
   function abrirPerfilTutor(tag) {
     const url = urlPerfil(tag, "tutor");
 
-    window.open(url, "_blank", "noopener");
+    window.location.href = url;
   }
 
   function abrirHistoricoTutor(tag) {

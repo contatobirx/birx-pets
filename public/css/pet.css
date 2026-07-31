@@ -34,3 +34,4 @@ body{margin:0;background:#f4f7fc;color:var(--texto);font-family:Inter,system-ui,
 .hero-conteudo h1,#nomePet{color:#fff!important;text-shadow:0 2px 12px rgba(0,0,0,.18)}
 .hero-conteudo .local-pet,.hero-conteudo .codigo-tag{color:rgba(255,255,255,.9)!important}
 @media(max-width:620px){.marca-orbitek img{width:150px;max-height:52px}}
+.botao-voltar-perfil{display:inline-flex;align-items:center;margin:0 0 14px;padding:9px 12px;border:1px solid #d9e2f2;border-radius:11px;background:#fff;color:#284a9e;text-decoration:none;font-size:.82rem;font-weight:850;box-shadow:0 5px 16px rgba(24,54,118,.07)}.botao-voltar-perfil:hover{background:#f1f5ff}

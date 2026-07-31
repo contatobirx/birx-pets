@@ -6,8 +6,16 @@ const estadoErro = document.getElementById("estadoErro");
 const tituloErro = document.getElementById("tituloErro");
 const mensagemErro = document.getElementById("mensagemErro");
 const botaoAtivar = document.getElementById("botaoAtivar");
+const voltarPerfil = document.getElementById("voltarPerfil");
 let telefoneTutor = "";
 let temporizadorToast;
+
+const origemPerfil = parametros.get("origem") || "";
+if (voltarPerfil) {
+  if (origemPerfil === "tutor") { voltarPerfil.href = "/tutor.html"; voltarPerfil.textContent = "← Voltar ao painel"; }
+  else if (origemPerfil === "perdidos" || document.referrer.includes("/perdidos")) { voltarPerfil.href = "/perdidos"; voltarPerfil.textContent = "← Voltar para animais perdidos"; }
+  else { voltarPerfil.href = "/"; voltarPerfil.textContent = "← Voltar para o início"; }
+}
 
 iniciar();
 
@@ -58,6 +66,7 @@ function preencherPerfil(pet, statusApi) {
   const estaPerdido = statusApi === "perdido" || Number(pet.perdido) === 1;
   const veioDePerdidos = parametros.get("origem") === "perdidos" || document.referrer.includes("/perdidos");
   document.getElementById("voltarPerdidos")?.classList.toggle("escondido", !(estaPerdido && veioDePerdidos));
+  if (veioDePerdidos) document.getElementById("voltarPerdidos")?.classList.add("escondido");
   configurarTemaSexo(pet.sexo);
   preencherStatus(estaPerdido);
   configurarContato(pet, estaPerdido);
