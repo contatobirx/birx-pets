@@ -8,6 +8,10 @@ const api = await readFile(new URL("../functions/api/medicamentos.js", import.me
 const dosesApi = await readFile(new URL("../functions/api/medicamento-doses.js", import.meta.url), "utf8");
 const migration = await readFile(new URL("../database/015_create_medicamentos.sql", import.meta.url), "utf8");
 const dosesMigration = await readFile(new URL("../database/016_medicamento_doses.sql", import.meta.url), "utf8");
+const pushApi = await readFile(new URL("../functions/api/push-assinatura.js", import.meta.url), "utf8");
+const pushClient = await readFile(new URL("../public/js/tutor-push.js", import.meta.url), "utf8");
+const serviceWorker = await readFile(new URL("../public/sw.js", import.meta.url), "utf8");
+const pushWorker = await readFile(new URL("../workers/medication-push.js", import.meta.url), "utf8");
 
 test("a aba Medicamentos oferece cadastro completo por pet", () => {
   assert.doesNotMatch(html, /Medicamentos<\/strong><small>Em desenvolvimento/);
@@ -24,6 +28,18 @@ test("a Sprint 2.14 registra doses e cria lembretes na central", () => {
   assert.match(dosesApi, /INSERT OR IGNORE INTO medicamento_doses/);
   assert.match(dosesApi, /administrada.*ignorada/);
   assert.match(dosesMigration, /UNIQUE\(medicamento_id, prevista_em\)/);
+});
+
+test("a Sprint 2.14.1 oferece notificações push com consentimento", () => {
+  assert.match(html, /Ativar avisos no celular/);
+  assert.match(pushClient, /Notification\.requestPermission/);
+  assert.match(pushClient, /pushManager\.subscribe/);
+  assert.match(pushApi, /push_assinaturas/);
+  assert.doesNotMatch(pushApi, /__VAPID_PUBLIC_KEY__/);
+  assert.match(serviceWorker, /showNotification/);
+  assert.match(serviceWorker, /notificationclick/);
+  assert.match(pushWorker, /scheduled\(controller,env,ctx\)/);
+  assert.match(pushWorker, /sendNotification/);
 });
 
 test("medicamentos são protegidos por sessão, tutor e tag", () => {

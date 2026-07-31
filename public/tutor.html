@@ -706,7 +706,7 @@
     <div class="modal-caixa modal-caixa-medicamentos" role="dialog" aria-modal="true" aria-labelledby="tituloMedicamentos">
       <div class="modal-topo"><div><h2 id="tituloMedicamentos">Medicamentos de <span id="medicamentoNomePet">Pet</span></h2><p class="modal-subtitulo">Organize tratamentos, dosagens e horários deste pet.</p></div><button class="modal-fechar" data-fechar-medicamentos type="button" aria-label="Fechar">✕</button></div>
       <input id="medicamentoTag" type="hidden">
-      <div class="medicamentos-barra"><div><strong>Tratamentos</strong><p id="medicamentosResumo">Carregando medicamentos...</p></div><button id="novoMedicamento" class="botao botao-principal" type="button">+ Adicionar medicamento</button></div>
+      <div class="medicamentos-barra"><div><strong>Tratamentos</strong><p id="medicamentosResumo">Carregando medicamentos...</p></div><div class="medicamentos-acoes-topo"><button id="ativarPushMedicamentos" class="botao botao-secundario" type="button">🔔 Ativar avisos no celular</button><button id="novoMedicamento" class="botao botao-principal" type="button">+ Adicionar medicamento</button></div></div>
       <div id="medicamentosCarregando" class="saude-carregando" hidden><span class="saude-spinner" aria-hidden="true"></span> Carregando...</div>
       <div id="listaMedicamentos" class="lista-medicamentos"></div>
       <div id="medicamentosVazio" class="saude-vazio" hidden><div class="saude-vazio-icone">💊</div><strong>Nenhum medicamento cadastrado</strong><p>Adicione o primeiro tratamento deste pet.</p></div>
@@ -743,6 +743,7 @@
   <script src="/js/core/notifications.js?v=1"></script>
   <script src="/js/tutor.js?v=14.4"></script>
   <script src="/js/tutor-medicamentos.js?v=2.14"></script>
+  <script src="/js/tutor-push.js?v=2.14.1"></script>
   <script src="/js/timeline.js?v=1"></script>
   <script src="/js/core/ux.js?v=1"></script>
 </body>
