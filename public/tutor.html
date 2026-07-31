@@ -23,6 +23,7 @@
   <link rel="stylesheet" href="/css/tutor-notificacoes.css?v=2.9" />
   <link rel="stylesheet" href="/css/pet-gallery.css?v=2.11" />
   <link rel="stylesheet" href="/css/medicamentos.css?v=2.13" />
+  <link rel="stylesheet" href="/css/onde-comprar.css?v=2.16" />
 </head>
 
 <body>
@@ -724,6 +725,18 @@
     </div>
   </div>
 
+  <div id="modalOndeComprar" class="modal" hidden>
+    <div class="modal-overlay" data-fechar-onde-comprar></div>
+    <div class="modal-caixa modal-caixa-onde-comprar" role="dialog" aria-modal="true" aria-labelledby="tituloOndeComprar">
+      <div class="modal-topo"><div><span class="onde-comprar-kicker">ONDE COMPRAR</span><h2 id="tituloOndeComprar">Encontre <span id="nomeMedicamentoBusca">o medicamento</span> perto de você</h2><p class="modal-subtitulo">Pet shops, clínicas e farmácias veterinárias em um raio de até 10 km.</p></div><button class="modal-fechar" data-fechar-onde-comprar type="button" aria-label="Fechar">✕</button></div>
+      <div id="ondeComprarPermissao" class="onde-comprar-permissao"><span>📍</span><div><strong>Use sua localização atual</strong><p>Ela não será salva. O serviço externo recebe apenas uma área aproximada, nunca seu ponto exato.</p></div><button id="buscarOndeComprar" class="botao botao-principal" type="button">Mostrar locais próximos</button></div>
+      <div id="ondeComprarCarregando" class="onde-comprar-carregando" hidden><span class="saude-spinner"></span><div><strong>Buscando estabelecimentos próximos...</strong><small>Isso pode levar alguns segundos.</small></div></div>
+      <div id="ondeComprarConteudo" class="onde-comprar-conteudo" hidden><div id="mapaOndeComprar" aria-label="Mapa de estabelecimentos próximos"></div><div class="onde-comprar-resultados"><div class="onde-comprar-resumo"><strong id="ondeComprarQuantidade">Locais encontrados</strong><small>Ordenados pela distância</small></div><div id="listaOndeComprar" class="lista-onde-comprar"></div></div></div>
+      <div id="ondeComprarVazio" class="saude-vazio" hidden><div class="saude-vazio-icone">🔎</div><strong>Nenhum estabelecimento encontrado</strong><p>Tente novamente em outro local ou abra a pesquisa ampliada.</p></div>
+      <div class="onde-comprar-aviso"><strong>Antes de comprar:</strong> confirme por telefone se o produto, a apresentação e a dosagem estão disponíveis. Utilize medicamentos somente com orientação veterinária. <span>Dados de estabelecimentos: OpenStreetMap.</span></div>
+    </div>
+  </div>
+
   <div id="modalLocalPerdido" class="modal" hidden>
     <div class="modal-overlay" id="fecharLocalPerdidoOverlay"></div>
     <div class="modal-caixa modal-caixa-local-perdido" role="dialog" aria-modal="true" aria-labelledby="tituloLocalPerdido">
@@ -743,6 +756,7 @@
   <script src="/js/core/notifications.js?v=1"></script>
   <script src="/js/tutor.js?v=14.4"></script>
   <script src="/js/tutor-medicamentos.js?v=2.14"></script>
+  <script src="/js/tutor-onde-comprar.js?v=2.16"></script>
   <script src="/js/tutor-push.js?v=2.14.1"></script>
   <script src="/js/timeline.js?v=1"></script>
   <script src="/js/core/ux.js?v=1"></script>
