@@ -124,6 +124,7 @@ export async function onRequestGet(context) {
           cidade,
           estado,
           perdido,
+          publico_perdidos,
           status,
           foto_url
         FROM pets
@@ -146,6 +147,8 @@ export async function onRequestGet(context) {
           pet.comportamento,
         perdido:
           pet.perdido == 1,
+        publicoPerdidos:
+          pet.publico_perdidos == 1,
         fotoUrl:
           pet.foto_url,
         tutor: {

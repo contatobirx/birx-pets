@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Ajude animais perdidos protegidos pela Orbitek Pets a voltarem para casa.">
+  <meta name="theme-color" content="#fffaf4">
+  <title>Animais perdidos | Orbitek Pets</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/perdidos.css?v=2.5">
+</head>
+<body>
+  <a class="skip-link" href="#conteudo">Ir para o conteúdo</a>
+  <header class="lost-header"><div class="lost-container lost-nav"><a class="lost-brand" href="/"><img src="/assets/login.png" alt="Orbitek Pets"></a><nav><a href="/">Início</a><a href="/produtos">Produtos</a><a href="/catalogo">Catálogo</a></nav><a class="login-link" href="/login">Entrar</a></div></header>
+  <main id="conteudo">
+    <section class="lost-hero"><div class="lost-container"><span>REDE DE AJUDA ORBITEK</span><h1>Ajude um pet a voltar para casa</h1><p>Estes animais foram publicados voluntariamente por seus tutores. Reconheceu algum? Abra o perfil para entrar em contato ou compartilhar onde ele foi visto.</p></div></section>
+    <section class="lost-tools"><div class="lost-container"><form id="filtrosPerdidos"><label>Cidade<input id="filtroCidade" name="cidade" placeholder="Ex.: Curitiba"></label><label>Espécie<select id="filtroEspecie" name="especie"><option value="">Todas</option><option value="Cachorro">Cachorros</option><option value="Gato">Gatos</option></select></label><button type="submit">Buscar</button><button type="button" id="buscarPerto">📍 Perto de mim</button></form><p id="avisoPrivacidade">As posições exibidas são aproximadas para proteger tutores e animais.</p></div></section>
+    <section class="lost-list"><div class="lost-container"><div class="lost-result-top"><h2>Animais desaparecidos</h2><span id="quantidadePerdidos">Carregando...</span></div><div id="listaPerdidos" class="lost-grid" aria-live="polite"></div><div id="estadoPerdidos" class="lost-state" hidden></div></div></section>
+  </main>
+  <footer class="lost-footer"><div class="lost-container"><img src="/assets/login.png" alt="Orbitek Pets"><p>Tecnologia que protege quem você ama.</p><a href="mailto:contato@orbitekoficial.com.br">contato@orbitekoficial.com.br</a></div></footer>
+  <script src="/js/perdidos.js?v=2.5"></script>
+</body>
+</html>

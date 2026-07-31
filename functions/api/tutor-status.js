@@ -266,12 +266,14 @@ export async function onRequestPost(
     await env.DB.prepare(
       `
         UPDATE pets
-        SET perdido = ?
+        SET perdido = ?,
+            publico_perdidos = CASE WHEN ? = 0 THEN 0 ELSE publico_perdidos END
         WHERE tag_codigo = ?
           AND LOWER(email) = LOWER(?)
       `
     )
       .bind(
+        perdido ? 1 : 0,
         perdido ? 1 : 0,
         tagCodigo,
         sessao.email

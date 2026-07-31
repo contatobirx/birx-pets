@@ -12,6 +12,7 @@ const elementos = {
   editarPetDestaque: document.getElementById("editarPetDestaque"),
   verPerfilPublico: document.getElementById("verPerfilPublico"),
   modoPerdidoDestaque: document.getElementById("modoPerdidoDestaque"),
+  publicarPerdidoDestaque: document.getElementById("publicarPerdidoDestaque"),
   statusPetPrincipal: document.getElementById("statusPetPrincipal"),
   metricaStatusTag: document.getElementById("metricaStatusTag"),
   metricaLocalizacao: document.getElementById("metricaLocalizacao"),
@@ -200,6 +201,7 @@ function dadosPet(pet) {
     cidade: local.cidade ?? valorPet(pet, "cidade"),
     estado: local.estado ?? valorPet(pet, "estado"),
     perdido: Boolean(pet?.perdido),
+    publicoPerdidos: Boolean(pet?.publicoPerdidos ?? pet?.publico_perdidos),
     fotoUrl: valorPet(pet, "fotoUrl", "foto_url"),
   };
 }
@@ -331,6 +333,13 @@ function renderizarPainel2(pets, nomeTutor) {
     elementos.modoPerdidoDestaque.classList.toggle("ativo", pet.perdido);
   }
   if (elementos.verPerfilPublico) elementos.verPerfilPublico.dataset.tag = pet.tagCodigo;
+  if (elementos.publicarPerdidoDestaque) {
+    elementos.publicarPerdidoDestaque.hidden = !pet.perdido;
+    elementos.publicarPerdidoDestaque.dataset.tag = pet.tagCodigo;
+    elementos.publicarPerdidoDestaque.dataset.publicado = pet.publicoPerdidos ? "1" : "0";
+    elementos.publicarPerdidoDestaque.textContent = pet.publicoPerdidos ? "✓ Remover do diretório público" : "🌐 Publicar em pets perdidos";
+    elementos.publicarPerdidoDestaque.classList.toggle("ativo", pet.publicoPerdidos);
+  }
 
   elementos.petDestaqueFoto.innerHTML = pet.fotoUrl
     ? `<img src="${escaparHtml(pet.fotoUrl)}" alt="Foto de ${escaparHtml(nomePet)}">`
