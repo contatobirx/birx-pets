@@ -15,6 +15,7 @@
   <link rel="stylesheet" href="/css/geral.css">
   <link rel="stylesheet" href="/css/pet.css?v=14.2.2">
   <link rel="stylesheet" href="/css/ux.css?v=1">
+  <link rel="stylesheet" href="/css/location.css?v=2.4">
 </head>
 <body>
   <main class="pagina-pet">
@@ -55,6 +56,12 @@
         <a href="#" class="botao-acao botao-ligar escondido" id="botaoLigar">
           <span aria-hidden="true">📞</span><span>Ligar para o tutor</span>
         </a>
+      </section>
+
+      <section class="compartilhar-localizacao" aria-labelledby="tituloCompartilharLocalizacao">
+        <div><strong id="tituloCompartilharLocalizacao">Encontrou este pet?</strong><p>Com sua permissão, envie a localização atual ao tutor para ajudar no reencontro.</p></div>
+        <button type="button" id="botaoCompartilharLocalizacao"><span aria-hidden="true">📍</span> Compartilhar localização</button>
+        <small>A localização só é acessada após seu toque e será compartilhada exclusivamente com o tutor.</small>
       </section>
 
       <section class="secao-perfil" aria-labelledby="tituloIdentificacao">
@@ -105,6 +112,7 @@
   <div id="toastPerfil" class="toast-perfil" role="status" aria-live="polite"></div>
   <script src="/js/core/api.js?v=2"></script>
   <script src="/js/pet.js?v=14.2.2"></script>
+  <script src="/js/pet-location.js?v=2.4"></script>
   <script src="/js/core/notifications.js?v=2"></script>
   <script src="/js/core/ux.js?v=1"></script>
 </body>

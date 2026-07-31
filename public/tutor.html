@@ -17,6 +17,8 @@
 
   <link rel="stylesheet" href="/css/tutor.css?v=14.3" />
   <link rel="stylesheet" href="/css/ux.css?v=1" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
+  <link rel="stylesheet" href="/css/tutor-location.css?v=2.4" />
 </head>
 
 <body>
@@ -95,6 +97,12 @@
           <span class="metrica-icone">🕒</span>
           <div><small>Última atualização</small><strong id="metricaAtualizacao">Agora</strong></div>
         </article>
+      </section>
+
+      <section class="localizacao-painel" id="localizacaoPainel" hidden aria-labelledby="localizacaoTitulo">
+        <div class="localizacao-cabecalho"><div><span class="painel-sobretitulo">Localização compartilhada</span><h2 id="localizacaoTitulo">Último local informado</h2><p id="localizacaoResumo">Aguardando uma localização.</p></div><button type="button" id="atualizarLocalizacao">Atualizar mapa</button></div>
+        <div id="mapaUltimaLocalizacao" aria-label="Mapa da última localização compartilhada"></div>
+        <div id="historicoLocalizacoes" class="historico-localizacoes"></div>
       </section>
 
       <section class="dashboard-corpo-premium">
@@ -701,6 +709,8 @@
   </div>
 
   <script src="/js/core/navigation.js?v=1"></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+  <script src="/js/tutor-location.js?v=2.4"></script>
   <script src="/js/core/notifications.js?v=1"></script>
   <script src="/js/tutor.js?v=14.3"></script>
   <script src="/js/timeline.js?v=1"></script>
