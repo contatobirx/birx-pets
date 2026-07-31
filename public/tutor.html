@@ -496,7 +496,12 @@
           <div><strong>Carteira de vacinação</strong><p id="saudeResumo">Carregando vacinas...</p></div>
           <button id="novoRegistroSaude" class="botao botao-principal" type="button">+ Adicionar vacina</button>
         </div>
-        <div id="saudeCarregando" class="saude-carregando" hidden>Carregando...</div>
+        <div id="saudeDashboard" class="saude-dashboard" aria-label="Resumo das vacinas" hidden>
+          <div class="saude-metrica saude-metrica-emdia"><span aria-hidden="true">✓</span><div><strong id="saudeEmDia">0</strong><small>Em dia</small></div></div>
+          <div class="saude-metrica saude-metrica-proxima"><span aria-hidden="true">◷</span><div><strong id="saudeProximas">0</strong><small>Próximas</small></div></div>
+          <div class="saude-metrica saude-metrica-atrasada"><span aria-hidden="true">!</span><div><strong id="saudeAtrasadas">0</strong><small>Atrasadas</small></div></div>
+        </div>
+        <div id="saudeCarregando" class="saude-carregando" role="status" aria-live="polite" hidden><span class="saude-spinner" aria-hidden="true"></span> Carregando vacinas...</div>
         <div id="listaSaude" class="lista-saude"></div>
         <div id="saudeVazio" class="saude-vazio" hidden>
           <div class="saude-vazio-icone">💉</div><strong>Nenhuma vacina cadastrada</strong><p>Adicione a primeira vacina deste pet.</p>
@@ -507,8 +512,12 @@
           <div class="grid-2">
             <div class="campo">
               <label for="saudeNome">Nome da vacina *</label>
-              <input id="saudeNome" type="text" maxlength="120" list="listaVacinasComuns" placeholder="Ex.: Antirrábica ou V10" required>
-              <datalist id="listaVacinasComuns"><option value="Antirrábica"><option value="V8"><option value="V10"><option value="Giárdia"><option value="Gripe Canina"><option value="Leishmaniose"><option value="Quádrupla Felina"><option value="Quíntupla Felina"></datalist>
+              <input id="saudeNome" type="text" list="listaVacinasComuns" maxlength="120" autocomplete="off" placeholder="Ex.: V10" required>
+              <datalist id="listaVacinasComuns">
+                <option value="V8"><option value="V10"><option value="Antirrábica"><option value="Giárdia">
+                <option value="Gripe Canina"><option value="Tosse dos Canis"><option value="Leishmaniose">
+                <option value="Tríplice Felina"><option value="Quádrupla Felina"><option value="Quíntupla Felina"><option value="Leucemia Felina">
+              </datalist>
             </div>
             <div class="campo"><label for="saudeFabricante">Fabricante</label><input id="saudeFabricante" type="text" maxlength="120" placeholder="Ex.: Zoetis"></div>
             <div class="campo"><label for="saudeLote">Lote</label><input id="saudeLote" type="text" maxlength="80" placeholder="Número do lote"></div>

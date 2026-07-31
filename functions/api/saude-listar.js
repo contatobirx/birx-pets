@@ -166,7 +166,14 @@ export async function onRequestGet(context) {
       WHERE UPPER(tag_codigo) = UPPER(?)
         AND tipo = 'Vacina'
       ORDER BY
-        COALESCE(data_aplicacao, criado_em) DESC,
+        CASE
+          WHEN proxima_data IS NOT NULL AND date(proxima_data) < date('now', 'localtime') THEN 0
+          WHEN proxima_data IS NOT NULL AND date(proxima_data) <= date('now', 'localtime', '+30 days') THEN 1
+          WHEN proxima_data IS NOT NULL THEN 2
+          ELSE 3
+        END,
+        CASE WHEN proxima_data IS NULL THEN NULL ELSE date(proxima_data) END ASC,
+        COALESCE(date(data_aplicacao), date(criado_em)) DESC,
         id DESC
     `)
       .bind(tagCodigo)

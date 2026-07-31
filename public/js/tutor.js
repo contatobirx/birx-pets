@@ -94,6 +94,10 @@ const elementos = {
   saudeNomePet: document.getElementById("saudeNomePet"),
   saudeTag: document.getElementById("saudeTag"),
   saudeResumo: document.getElementById("saudeResumo"),
+  saudeDashboard: document.getElementById("saudeDashboard"),
+  saudeEmDia: document.getElementById("saudeEmDia"),
+  saudeProximas: document.getElementById("saudeProximas"),
+  saudeAtrasadas: document.getElementById("saudeAtrasadas"),
   novoRegistroSaude: document.getElementById("novoRegistroSaude"),
   saudeCarregando: document.getElementById("saudeCarregando"),
   listaSaude: document.getElementById("listaSaude"),
@@ -1072,7 +1076,7 @@ function formatarDataSaude(valor) {
 
 function limparFormSaude() {
   definirValor(elementos.saudeId, "");
-  definirValor(elementos.saudeTipo, "");
+  definirValor(elementos.saudeTipo, "Vacina");
   definirValor(elementos.saudeNome, "");
   definirValor(elementos.saudeFabricante, "");
   definirValor(elementos.saudeLote, "");
@@ -1082,7 +1086,11 @@ function limparFormSaude() {
   definirValor(elementos.saudeObservacoes, "");
 
   if (elementos.tituloFormSaude) {
-    elementos.tituloFormSaude.textContent = "Novo registro";
+    elementos.tituloFormSaude.textContent = "Nova vacina";
+  }
+
+  if (elementos.salvarSaude) {
+    elementos.salvarSaude.textContent = "Salvar vacina";
   }
 }
 
@@ -1126,6 +1134,27 @@ function statusVacina(proximaData) {
   return { texto: "Em dia", classe: "emdia" };
 }
 
+function prioridadeVacina(registro) {
+  const proximaData = registro.proximaData || registro.proxima_data || "";
+  const prioridades = { atrasada: 0, vencendo: 1, emdia: 2, neutro: 3 };
+  return prioridades[statusVacina(proximaData).classe] ?? 4;
+}
+
+function ordenarVacinas(registros) {
+  return [...registros].sort((a, b) => {
+    const prioridade = prioridadeVacina(a) - prioridadeVacina(b);
+    if (prioridade) return prioridade;
+
+    const proximaA = a.proximaData || a.proxima_data || "9999-12-31";
+    const proximaB = b.proximaData || b.proxima_data || "9999-12-31";
+    if (proximaA !== proximaB) return proximaA.localeCompare(proximaB);
+
+    const aplicacaoA = a.dataAplicacao || a.data_aplicacao || "0000-00-00";
+    const aplicacaoB = b.dataAplicacao || b.data_aplicacao || "0000-00-00";
+    return aplicacaoB.localeCompare(aplicacaoA) || Number(b.id || 0) - Number(a.id || 0);
+  });
+}
+
 function criarCardSaude(registro) {
   const dataAplicacao = registro.dataAplicacao || registro.data_aplicacao || "";
   const proximaData = registro.proximaData || registro.proxima_data || "";
@@ -1137,7 +1166,7 @@ function criarCardSaude(registro) {
     registro.veterinario ? `<span><strong>Veterinário:</strong> ${escaparHtml(registro.veterinario)}</span>` : "",
   ].filter(Boolean).join("");
   return `
-    <article class="saude-card">
+    <article class="saude-card saude-card-${status.classe}">
       <div class="saude-card-icone" aria-hidden="true">💉</div>
       <div class="saude-card-corpo">
         <div class="saude-card-cabecalho"><div><div class="saude-card-tipo">Vacina</div><div class="saude-card-nome">${escaparHtml(formatarTexto(registro.nome, "Vacina"))}</div></div><span class="vacina-status vacina-status-${status.classe}">${escaparHtml(status.texto)}</span></div>
@@ -1151,13 +1180,21 @@ function criarCardSaude(registro) {
 
 function renderizarSaude() {
   const registros = estado.registrosSaude;
+  const contadores = registros.reduce((total, registro) => {
+    const classe = statusVacina(registro.proximaData || registro.proxima_data || "").classe;
+    if (classe === "atrasada") total.atrasadas += 1;
+    else if (classe === "vencendo") total.proximas += 1;
+    else total.emDia += 1;
+    return total;
+  }, { emDia: 0, proximas: 0, atrasadas: 0 });
 
-  if (elementos.saudeResumo) {
-    elementos.saudeResumo.textContent =
-      registros.length === 1
-        ? "1 vacina cadastrada."
-        : `${registros.length} vacinas cadastradas.`;
-  }
+  if (elementos.saudeResumo) elementos.saudeResumo.textContent = registros.length
+    ? `${registros.length} vacina${registros.length === 1 ? "" : "s"} cadastrada${registros.length === 1 ? "" : "s"}, ordenadas por prioridade.`
+    : "Nenhuma vacina cadastrada.";
+  if (elementos.saudeDashboard) elementos.saudeDashboard.hidden = registros.length === 0;
+  if (elementos.saudeEmDia) elementos.saudeEmDia.textContent = String(contadores.emDia);
+  if (elementos.saudeProximas) elementos.saudeProximas.textContent = String(contadores.proximas);
+  if (elementos.saudeAtrasadas) elementos.saudeAtrasadas.textContent = String(contadores.atrasadas);
 
   if (elementos.saudeVazio) elementos.saudeVazio.hidden = registros.length > 0;
   if (elementos.listaSaude) {
@@ -1212,7 +1249,7 @@ async function carregarSaude() {
       throw new Error(dados.mensagem || "Não foi possível carregar as vacinas.");
     }
 
-    estado.registrosSaude = Array.isArray(dados.registros) ? dados.registros : [];
+    estado.registrosSaude = Array.isArray(dados.registros) ? ordenarVacinas(dados.registros) : [];
     renderizarSaude();
   } catch (erro) {
     estado.registrosSaude = [];
@@ -1309,8 +1346,12 @@ async function salvarRegistroSaude(evento) {
 
   if (elementos.salvarSaude) {
     elementos.salvarSaude.disabled = true;
-    elementos.salvarSaude.textContent = "Salvando...";
+    elementos.salvarSaude.innerHTML = '<span class="saude-spinner saude-spinner-botao" aria-hidden="true"></span> Salvando...';
   }
+
+  elementos.formSaude?.querySelectorAll("input, select, textarea, button").forEach((campo) => {
+    campo.disabled = true;
+  });
 
   try {
     const resposta = await fetch("/api/saude-salvar", {
@@ -1343,9 +1384,11 @@ async function salvarRegistroSaude(evento) {
     estado.salvandoSaude = false;
 
     if (elementos.salvarSaude) {
-      elementos.salvarSaude.disabled = false;
       elementos.salvarSaude.textContent = textoOriginal;
     }
+    elementos.formSaude?.querySelectorAll("input, select, textarea, button").forEach((campo) => {
+      campo.disabled = false;
+    });
   }
 }
 
@@ -1372,6 +1415,7 @@ async function excluirRegistroSaude(evento) {
 
   const botao = evento.currentTarget;
   botao.disabled = true;
+  botao.textContent = "…";
 
   try {
     const resposta = await fetch("/api/saude-excluir", {
