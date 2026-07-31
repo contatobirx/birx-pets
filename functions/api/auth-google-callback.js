@@ -58,7 +58,7 @@ export async function onRequestGet({ request, env }) {
     const userAgent = request.headers.get("User-Agent") || null;
     await env.DB.batch([
       env.DB.prepare(`DELETE FROM sessoes_tutor WHERE email = ? AND expira_em <= ?`).bind(email, agora.toISOString()),
-      env.DB.prepare(`INSERT INTO sessoes_tutor (email, token_hash, criado_em, expira_em, ultimo_acesso, ip, user_agent) VALUES (?, ?, ?, ?, ?, ?, ?)`).bind(email, sessaoHash, agora.toISOString(), expira.toISOString(), agora.toISOString(), ip, userAgent)
+      env.DB.prepare(`INSERT INTO sessoes_tutor (email, token_hash, criado_em, expira_em, ultimo_acesso, ip, user_agent, provedor) VALUES (?, ?, ?, ?, ?, ?, ?, 'google')`).bind(email, sessaoHash, agora.toISOString(), expira.toISOString(), agora.toISOString(), ip, userAgent)
     ]);
 
     const headers = new Headers({ Location: `${origem}/tutor.html` });

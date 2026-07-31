@@ -262,9 +262,10 @@ export async function onRequestPost(context) {
           expira_em,
           ultimo_acesso,
           ip,
-          user_agent
+          user_agent,
+          provedor
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, 'email')
         `
       ).bind(
         email,
