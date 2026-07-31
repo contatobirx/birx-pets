@@ -440,6 +440,12 @@ function acionarModulo(modulo) {
     abrirModalSaude(evento);
     return;
   }
+  if (modulo === "carteirinha") {
+    window.dispatchEvent(new CustomEvent("orbitek:abrir-carteirinha", {
+      detail: pet
+    }));
+    return;
+  }
   if (modulo === "documentos") {
     abrirModalDocumentos(evento);
     return;

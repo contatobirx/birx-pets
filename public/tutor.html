@@ -24,6 +24,7 @@
   <link rel="stylesheet" href="/css/pet-gallery.css?v=2.11" />
   <link rel="stylesheet" href="/css/medicamentos.css?v=2.13" />
   <link rel="stylesheet" href="/css/agendamentos.css?v=2.18" />
+  <link rel="stylesheet" href="/css/carteirinha.css?v=2.19" />
   <link rel="stylesheet" href="/css/onde-comprar.css?v=2.17" />
 </head>
 
@@ -134,6 +135,7 @@
           </div>
           <div class="modulos-grid">
             <button class="modulo-card" type="button" data-modulo="saude"><span class="modulo-icone">❤️</span><span><strong>Saúde</strong><small>Informações importantes</small></span><b>›</b></button>
+            <button class="modulo-card" type="button" data-modulo="carteirinha"><span class="modulo-icone">🪪</span><span><strong>Carteirinha digital</strong><small>Dados essenciais do pet</small></span><b>›</b></button>
             <button class="modulo-card" type="button" data-modulo="vacinas"><span class="modulo-icone">💉</span><span><strong>Vacinas</strong><small>Carteira de vacinação</small></span><b>›</b></button>
             <button class="modulo-card" type="button" data-modulo="documentos"><span class="modulo-icone">📄</span><span><strong>Documentos</strong><small>Receitas, exames e PDFs</small></span><b>›</b></button>
             <button class="modulo-card" type="button" data-modulo="timeline"><span class="modulo-icone">🕒</span><span><strong>Timeline</strong><small>Histórico do pet</small></span><b>›</b></button>
@@ -762,6 +764,15 @@
     </div>
   </div>
 
+  <div id="modalCarteirinha" class="modal" hidden>
+    <div class="modal-overlay" data-fechar-carteirinha></div>
+    <div class="modal-caixa modal-caixa-carteirinha" role="dialog" aria-modal="true" aria-labelledby="tituloCarteirinha">
+      <div class="modal-topo"><div><h2 id="tituloCarteirinha">Carteirinha digital</h2><p class="modal-subtitulo">Apresente os dados essenciais do pet em consultas e atendimentos.</p></div><div class="carteirinha-acoes"><button id="imprimirCarteirinha" class="botao botao-principal" type="button">🖨️ Imprimir ou salvar PDF</button><button class="modal-fechar" data-fechar-carteirinha type="button" aria-label="Fechar">✕</button></div></div>
+      <div id="carteirinhaCarregando" class="saude-carregando"><span class="saude-spinner"></span> Montando carteirinha...</div>
+      <article id="carteirinhaDigital" class="carteirinha-digital" hidden></article>
+    </div>
+  </div>
+
   <div id="modalLocalPerdido" class="modal" hidden>
     <div class="modal-overlay" id="fecharLocalPerdidoOverlay"></div>
     <div class="modal-caixa modal-caixa-local-perdido" role="dialog" aria-modal="true" aria-labelledby="tituloLocalPerdido">
@@ -782,6 +793,7 @@
   <script src="/js/tutor.js?v=14.6"></script>
   <script src="/js/tutor-medicamentos.js?v=2.14"></script>
   <script src="/js/tutor-agendamentos.js?v=2.18"></script>
+  <script src="/js/tutor-carteirinha.js?v=2.19"></script>
   <script src="/js/tutor-onde-comprar.js?v=2.17.1"></script>
   <script src="/js/tutor-push.js?v=2.14.1"></script>
   <script src="/js/timeline.js?v=1"></script>
