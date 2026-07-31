@@ -135,6 +135,11 @@ const elementos = {
   documentoId: document.getElementById("documentoId"),
   documentoCategoria: document.getElementById("documentoCategoria"),
   documentoTitulo: document.getElementById("documentoTitulo"),
+  documentoData: document.getElementById("documentoData"),
+  documentoProfissional: document.getElementById("documentoProfissional"),
+  documentoObservacoes: document.getElementById("documentoObservacoes"),
+  documentosBusca: document.getElementById("documentosBusca"),
+  documentosFiltroCategoria: document.getElementById("documentosFiltroCategoria"),
   campoArquivoDocumento: document.getElementById("campoArquivoDocumento"),
   documentoArquivo: document.getElementById("documentoArquivo"),
   documentoArquivoTexto: document.getElementById("documentoArquivoTexto"),
@@ -1514,6 +1519,9 @@ function limparFormDocumento() {
   definirValor(elementos.documentoId, "");
   definirValor(elementos.documentoCategoria, "");
   definirValor(elementos.documentoTitulo, "");
+  definirValor(elementos.documentoData, new Date().toISOString().slice(0, 10));
+  definirValor(elementos.documentoProfissional, "");
+  definirValor(elementos.documentoObservacoes, "");
 
   if (elementos.documentoArquivo) elementos.documentoArquivo.value = "";
   if (elementos.documentoArquivoTexto) {
@@ -1539,6 +1547,9 @@ function mostrarFormDocumento(documento = null) {
     definirValor(elementos.documentoId, documento.id);
     definirValor(elementos.documentoCategoria, documento.categoria);
     definirValor(elementos.documentoTitulo, documento.titulo);
+    definirValor(elementos.documentoData, documento.dataDocumento || documento.data_documento || "");
+    definirValor(elementos.documentoProfissional, documento.profissional || "");
+    definirValor(elementos.documentoObservacoes, documento.observacoes || "");
 
     if (elementos.tituloFormDocumento) {
       elementos.tituloFormDocumento.textContent = "Editar documento";
@@ -1571,6 +1582,7 @@ function criarCardDocumento(documento) {
   const nomeArquivo = documento.nomeArquivo || documento.nome_arquivo || "";
   const tamanho = documento.tamanhoBytes || documento.tamanho_bytes || 0;
   const criadoEm = documento.criadoEm || documento.criado_em || "";
+  const dataDocumento = documento.dataDocumento || documento.data_documento || "";
 
   const preview = ehPdf
     ? `<div class="documento-preview-pdf" aria-hidden="true">📕</div>`
@@ -1579,7 +1591,8 @@ function criarCardDocumento(documento) {
   const detalhes = [
     ehPdf ? "PDF" : "Imagem",
     formatarTamanhoArquivo(tamanho),
-    formatarDataDocumento(criadoEm),
+    formatarDataDocumento(dataDocumento || criadoEm),
+    documento.profissional,
   ].filter(Boolean).join(" • ");
 
   return `
@@ -1595,6 +1608,7 @@ function criarCardDocumento(documento) {
       <div class="documento-card-corpo">
         <div class="documento-card-titulo">${escaparHtml(documento.titulo)}</div>
         <div class="documento-card-detalhes">${escaparHtml(detalhes || nomeArquivo)}</div>
+        ${documento.observacoes ? `<div class="documento-card-observacoes">${escaparHtml(documento.observacoes)}</div>` : ""}
 
         <div class="documento-card-acoes">
           <a
@@ -1644,13 +1658,19 @@ function criarCardDocumento(documento) {
 }
 
 function renderizarDocumentos() {
-  const documentos = estado.documentos;
+  const busca = (elementos.documentosBusca?.value || "").trim().toLocaleLowerCase("pt-BR");
+  const categoria = elementos.documentosFiltroCategoria?.value || "";
+  const documentos = estado.documentos.filter((item) => {
+    if (categoria && item.categoria !== categoria) return false;
+    if (!busca) return true;
+    return [item.titulo, item.profissional, item.observacoes, item.categoria].some((valor) => String(valor || "").toLocaleLowerCase("pt-BR").includes(busca));
+  });
 
   if (elementos.documentosResumo) {
     elementos.documentosResumo.textContent =
       documentos.length === 1
         ? "1 documento armazenado."
-        : `${documentos.length} documentos armazenados.`;
+        : `${documentos.length} documento${documentos.length === 1 ? "" : "s"} exibido${documentos.length === 1 ? "" : "s"} de ${estado.documentos.length}.`;
   }
 
   if (elementos.documentosVazio) {
@@ -1796,6 +1816,9 @@ async function salvarDocumento(evento) {
   const tagCodigo = elementos.documentosTag?.value.trim() || "";
   const categoria = elementos.documentoCategoria?.value.trim() || "";
   const titulo = elementos.documentoTitulo?.value.trim() || "";
+  const dataDocumento = elementos.documentoData?.value || "";
+  const profissional = elementos.documentoProfissional?.value.trim() || "";
+  const observacoes = elementos.documentoObservacoes?.value.trim() || "";
   const arquivo = elementos.documentoArquivo?.files?.[0];
 
   if (!tagCodigo || !categoria || !titulo) {
@@ -1832,13 +1855,16 @@ async function salvarDocumento(evento) {
           "Content-Type": "application/json",
           Accept: "application/json",
         },
-        body: JSON.stringify({ id, tagCodigo, categoria, titulo }),
+        body: JSON.stringify({ id, tagCodigo, categoria, titulo, dataDocumento, profissional, observacoes }),
       });
     } else {
       const formulario = new FormData();
       formulario.append("tagCodigo", tagCodigo);
       formulario.append("categoria", categoria);
       formulario.append("titulo", titulo);
+      formulario.append("dataDocumento", dataDocumento);
+      formulario.append("profissional", profissional);
+      formulario.append("observacoes", observacoes);
       formulario.append("arquivo", arquivo);
 
       resposta = await fetch("/api/documentos-upload", {
@@ -2199,6 +2225,8 @@ elementos.listaPetsRecentes?.addEventListener("click", (evento) => {
   elementos.fecharFormDocumento?.addEventListener("click", esconderFormDocumento);
   elementos.documentoArquivo?.addEventListener("change", atualizarNomeArquivoDocumento);
   elementos.formDocumento?.addEventListener("submit", salvarDocumento);
+  elementos.documentosBusca?.addEventListener("input", renderizarDocumentos);
+  elementos.documentosFiltroCategoria?.addEventListener("change", renderizarDocumentos);
 
   document.addEventListener("keydown", (evento) => {
     if (evento.key !== "Escape") return;

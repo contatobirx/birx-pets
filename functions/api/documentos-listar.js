@@ -111,6 +111,14 @@ async function petDoTutor(env, tagCodigo, email) {
     .first();
 }
 
+async function garantirMetadados(env) {
+  const colunas = await env.DB.prepare("PRAGMA table_info(documentos_pet)").all();
+  const nomes = new Set((colunas.results || []).map((item) => item.name));
+  for (const [nome, tipo] of [["data_documento", "TEXT"], ["profissional", "TEXT"], ["observacoes", "TEXT"]]) {
+    if (!nomes.has(nome)) await env.DB.prepare(`ALTER TABLE documentos_pet ADD COLUMN ${nome} ${tipo}`).run();
+  }
+}
+
 async function documentoDoTutor(env, id, tagCodigo, email) {
   return env.DB.prepare(`
     SELECT
@@ -160,6 +168,8 @@ export async function onRequestGet(context) {
       );
     }
 
+    await garantirMetadados(env);
+
     const resultado = await env.DB.prepare(`
       SELECT
         id,
@@ -172,11 +182,14 @@ export async function onRequestGet(context) {
         recurso_tipo AS recursoTipo,
         nome_arquivo AS nomeArquivo,
         tamanho_bytes AS tamanhoBytes,
+        data_documento AS dataDocumento,
+        profissional,
+        observacoes,
         criado_em AS criadoEm,
         atualizado_em AS atualizadoEm
       FROM documentos_pet
       WHERE UPPER(tag_codigo) = UPPER(?)
-      ORDER BY criado_em DESC, id DESC
+      ORDER BY COALESCE(data_documento, substr(criado_em, 1, 10)) DESC, id DESC
     `)
       .bind(tagCodigo)
       .all();

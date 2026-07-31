@@ -15,7 +15,7 @@
 
   <title>Painel do Tutor | Orbitek Pets</title>
 
-  <link rel="stylesheet" href="/css/tutor.css?v=14.3" />
+  <link rel="stylesheet" href="/css/tutor.css?v=2.20" />
   <link rel="stylesheet" href="/css/ux.css?v=1" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
   <link rel="stylesheet" href="/css/tutor-lost-location.css?v=2.10.2" />
@@ -581,6 +581,11 @@
           </button>
         </div>
 
+        <div class="documentos-filtros">
+          <input id="documentosBusca" type="search" maxlength="120" placeholder="Buscar por título, profissional ou observação">
+          <select id="documentosFiltroCategoria" aria-label="Filtrar documentos por categoria"><option value="">Todas as categorias</option><option value="Carteira de vacinação">Carteira de vacinação</option><option value="Receita">Receitas</option><option value="Exame">Exames</option><option value="Laudo">Laudos</option><option value="Foto">Fotos</option><option value="Outro">Outros</option></select>
+        </div>
+
         <div id="documentosCarregando" class="documentos-carregando" hidden>
           Carregando...
         </div>
@@ -633,6 +638,12 @@
               >
             </div>
           </div>
+
+          <div class="grid-2">
+            <div class="campo"><label for="documentoData">Data do documento</label><input id="documentoData" type="date"></div>
+            <div class="campo"><label for="documentoProfissional">Clínica ou profissional</label><input id="documentoProfissional" type="text" maxlength="120" placeholder="Ex.: Dra. Ana — Clínica Vet"></div>
+          </div>
+          <div class="campo"><label for="documentoObservacoes">Observações</label><textarea id="documentoObservacoes" rows="2" maxlength="1000" placeholder="Resultado, orientação ou informação importante"></textarea></div>
 
           <div id="campoArquivoDocumento" class="campo">
             <label for="documentoArquivo">Imagem ou PDF</label>
@@ -790,7 +801,7 @@
   <script src="/js/tutor-lost.js?v=2.5"></script>
   <script src="/js/tutor-notificacoes.js?v=2.9"></script>
   <script src="/js/core/notifications.js?v=1"></script>
-  <script src="/js/tutor.js?v=14.6"></script>
+  <script src="/js/tutor.js?v=2.20"></script>
   <script src="/js/tutor-medicamentos.js?v=2.14"></script>
   <script src="/js/tutor-agendamentos.js?v=2.18"></script>
   <script src="/js/tutor-carteirinha.js?v=2.19"></script>

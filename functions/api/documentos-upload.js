@@ -111,6 +111,12 @@ async function petDoTutor(env, tagCodigo, email) {
     .first();
 }
 
+async function garantirMetadados(env) {
+  const colunas = await env.DB.prepare("PRAGMA table_info(documentos_pet)").all();
+  const nomes = new Set((colunas.results || []).map((item) => item.name));
+  for (const [nome, tipo] of [["data_documento", "TEXT"], ["profissional", "TEXT"], ["observacoes", "TEXT"]]) if (!nomes.has(nome)) await env.DB.prepare(`ALTER TABLE documentos_pet ADD COLUMN ${nome} ${tipo}`).run();
+}
+
 async function documentoDoTutor(env, id, tagCodigo, email) {
   return env.DB.prepare(`
     SELECT
@@ -168,6 +174,9 @@ export async function onRequestPost(context) {
     const tagCodigo = texto(formulario.get("tagCodigo"), 100).toUpperCase();
     const categoria = texto(formulario.get("categoria"), 60);
     const titulo = texto(formulario.get("titulo"), 120);
+    const dataDocumento = texto(formulario.get("dataDocumento"), 10);
+    const profissional = texto(formulario.get("profissional"), 120);
+    const observacoes = texto(formulario.get("observacoes"), 1000);
     const arquivo = formulario.get("arquivo");
 
     if (!tagCodigo || !categoria || !titulo) {
@@ -180,6 +189,7 @@ export async function onRequestPost(context) {
     if (!CATEGORIAS.has(categoria)) {
       return responder({ sucesso: false, mensagem: "Categoria inválida." }, 400);
     }
+    if (dataDocumento && !/^\d{4}-\d{2}-\d{2}$/.test(dataDocumento)) return responder({ sucesso: false, mensagem: "Data inválida." }, 400);
 
     if (!arquivo || typeof arquivo.arrayBuffer !== "function") {
       return responder({ sucesso: false, mensagem: "Selecione um arquivo." }, 400);
@@ -254,6 +264,7 @@ export async function onRequestPost(context) {
       );
     }
 
+    await garantirMetadados(env);
     const resultado = await env.DB.prepare(`
       INSERT INTO documentos_pet (
         tag_codigo,
@@ -264,9 +275,12 @@ export async function onRequestPost(context) {
         arquivo_public_id,
         recurso_tipo,
         nome_arquivo,
-        tamanho_bytes
+        tamanho_bytes,
+        data_documento,
+        profissional,
+        observacoes
       )
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NULLIF(?, ''), NULLIF(?, ''), NULLIF(?, ''))
     `)
       .bind(
         tagCodigo,
@@ -277,7 +291,10 @@ export async function onRequestPost(context) {
         cloud.public_id,
         recursoTipo,
         texto(arquivo.name, 255),
-        arquivo.size
+        arquivo.size,
+        dataDocumento,
+        profissional,
+        observacoes
       )
       .run();
 

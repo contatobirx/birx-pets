@@ -111,6 +111,12 @@ async function petDoTutor(env, tagCodigo, email) {
     .first();
 }
 
+async function garantirMetadados(env) {
+  const colunas = await env.DB.prepare("PRAGMA table_info(documentos_pet)").all();
+  const nomes = new Set((colunas.results || []).map((item) => item.name));
+  for (const [nome, tipo] of [["data_documento", "TEXT"], ["profissional", "TEXT"], ["observacoes", "TEXT"]]) if (!nomes.has(nome)) await env.DB.prepare(`ALTER TABLE documentos_pet ADD COLUMN ${nome} ${tipo}`).run();
+}
+
 async function documentoDoTutor(env, id, tagCodigo, email) {
   return env.DB.prepare(`
     SELECT
@@ -158,6 +164,9 @@ export async function onRequestPost(context) {
     const tagCodigo = texto(corpo.tagCodigo, 100);
     const categoria = texto(corpo.categoria, 60);
     const titulo = texto(corpo.titulo, 120);
+    const dataDocumento = texto(corpo.dataDocumento, 10);
+    const profissional = texto(corpo.profissional, 120);
+    const observacoes = texto(corpo.observacoes, 1000);
 
     if (!id || !tagCodigo || !categoria || !titulo) {
       return responder(
@@ -169,6 +178,7 @@ export async function onRequestPost(context) {
     if (!CATEGORIAS.has(categoria)) {
       return responder({ sucesso: false, mensagem: "Categoria inválida." }, 400);
     }
+    if (dataDocumento && !/^\d{4}-\d{2}-\d{2}$/.test(dataDocumento)) return responder({ sucesso: false, mensagem: "Data inválida." }, 400);
 
     const documento = await documentoDoTutor(env, id, tagCodigo, sessao.email);
 
@@ -179,13 +189,14 @@ export async function onRequestPost(context) {
       );
     }
 
+    await garantirMetadados(env);
     await env.DB.prepare(`
       UPDATE documentos_pet
-      SET categoria = ?, titulo = ?, atualizado_em = CURRENT_TIMESTAMP
+      SET categoria = ?, titulo = ?, data_documento = NULLIF(?, ''), profissional = NULLIF(?, ''), observacoes = NULLIF(?, ''), atualizado_em = CURRENT_TIMESTAMP
       WHERE id = ?
         AND UPPER(tag_codigo) = UPPER(?)
     `)
-      .bind(categoria, titulo, id, tagCodigo)
+      .bind(categoria, titulo, dataDocumento, profissional, observacoes, id, tagCodigo)
       .run();
 
     return responder({

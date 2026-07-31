@@ -775,6 +775,7 @@ body.modal-aberto {
 }
 
 @media (max-width: 620px) {
+  .documentos-filtros { grid-template-columns: 1fr; }
   .foto-editor {
     grid-template-columns: 1fr;
   }
@@ -1066,6 +1067,24 @@ body.modal-aberto {
   font-size: 0.9rem;
 }
 
+.documentos-filtros {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 220px;
+  gap: 10px;
+  margin: -6px 0 20px;
+}
+
+.documentos-filtros input,
+.documentos-filtros select {
+  min-height: 44px;
+  padding: 0 13px;
+  border: 1px solid var(--cor-borda);
+  border-radius: 12px;
+  background: #fff;
+  color: var(--cor-texto);
+  font: inherit;
+}
+
 .documentos-carregando {
   padding: 28px;
   text-align: center;
@@ -1136,6 +1155,16 @@ body.modal-aberto {
   margin-top: 7px;
   color: var(--cor-texto-claro);
   font-size: .82rem;
+}
+
+.documento-card-observacoes {
+  margin-top: 9px;
+  padding: 8px 10px;
+  border-radius: 9px;
+  background: #f7f8fb;
+  color: #5f6b7d;
+  font-size: .8rem;
+  line-height: 1.4;
 }
 
 .documento-card-acoes {
