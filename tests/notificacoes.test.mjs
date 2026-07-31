@@ -3,9 +3,24 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { enviarAlerta } from "../functions/_shared/notificacoes.js";
 
-test("alertas não tentam enviar sem a chave do serviço de e-mail", async () => {
-  const enviado = await enviarAlerta({ env: {}, pet: { email: "tutor@example.com" }, tipo: "leitura" });
+test("alertas ignoram pets sem e-mail de tutor", async () => {
+  const enviado = await enviarAlerta({ env: {}, pet: {}, tipo: "leitura" });
   assert.equal(enviado, false);
+});
+
+test("a Sprint 2.9 oferece central com contador e leitura dos avisos", async () => {
+  const [pagina, painel, api, banco, helper] = await Promise.all([
+    readFile(new URL("../public/notificacoes.html", import.meta.url), "utf8"),
+    readFile(new URL("../public/tutor.html", import.meta.url), "utf8"),
+    readFile(new URL("../functions/api/notificacoes.js", import.meta.url), "utf8"),
+    readFile(new URL("../database/013_central_notificacoes.sql", import.meta.url), "utf8"),
+    readFile(new URL("../functions/_shared/notificacoes.js", import.meta.url), "utf8")
+  ]);
+  assert.match(pagina, /Marcar todas como lidas/);
+  assert.match(painel, /contadorNotificacoes/);
+  assert.match(api, /marcar-todas/);
+  assert.match(banco, /notificacoes_tutor/);
+  assert.match(helper, /INSERT OR IGNORE INTO notificacoes_tutor/);
 });
 
 test("a Sprint 2.8 conecta leitura, localização, preferências e antirrepetição", async () => {

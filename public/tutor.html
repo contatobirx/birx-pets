@@ -20,6 +20,7 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
   <link rel="stylesheet" href="/css/tutor-location.css?v=2.4" />
   <link rel="stylesheet" href="/css/tutor-lost.css?v=2.5" />
+  <link rel="stylesheet" href="/css/tutor-notificacoes.css?v=2.9" />
 </head>
 
 <body>
@@ -27,7 +28,7 @@
     <div class="cabecalho-conteudo">
       <div class="barra-superior">
         <div class="marca">Orbitek Pets</div>
-        <div class="acoes-conta"><a class="botao-conta" href="/conta">Minha conta</a><button class="botao-sair" id="botaoSair" type="button">Sair</button></div>
+        <div class="acoes-conta"><a class="botao-notificacoes" href="/notificacoes" aria-label="Notificações">🔔<span class="contador-notificacoes" id="contadorNotificacoes" hidden>0</span></a><a class="botao-conta" href="/conta">Minha conta</a><button class="botao-sair" id="botaoSair" type="button">Sair</button></div>
       </div>
 
       <div class="saudacao">
@@ -707,6 +708,7 @@
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
   <script src="/js/tutor-location.js?v=2.4"></script>
   <script src="/js/tutor-lost.js?v=2.5"></script>
+  <script src="/js/tutor-notificacoes.js?v=2.9"></script>
   <script src="/js/core/notifications.js?v=1"></script>
   <script src="/js/tutor.js?v=14.3"></script>
   <script src="/js/timeline.js?v=1"></script>
