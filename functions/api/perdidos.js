@@ -16,7 +16,10 @@ async function sessaoTutor(request, env) {
   const hash = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(token));
   const tokenHash = [...new Uint8Array(hash)].map((b) => b.toString(16).padStart(2, "0")).join("");
   const sessao = await env.DB.prepare(`SELECT email, expira_em FROM sessoes_tutor WHERE token_hash = ?`).bind(tokenHash).first();
-  return sessao && Date.now() <= Number(sessao.expira_em) ? sessao : null;
+  if (!sessao) return null;
+  const numero = Number(sessao.expira_em);
+  const expira = Number.isFinite(numero) && numero > 0 ? numero : Date.parse(sessao.expira_em);
+  return Number.isFinite(expira) && Date.now() <= expira ? sessao : null;
 }
 
 export async function onRequestGet({ request, env }) {

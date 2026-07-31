@@ -6,6 +6,8 @@ const buscarPerto = document.getElementById("buscarPerto");
 const limparFiltros = document.getElementById("limparFiltros");
 let origemUsuario = null;
 let petsAtuais = [];
+let mapaPerdidos = null;
+let marcadoresPerdidos = null;
 
 function escapar(valor) { const div = document.createElement("div"); div.textContent = valor ?? ""; return div.innerHTML; }
 function rad(graus) { return graus * Math.PI / 180; }
@@ -17,7 +19,21 @@ function renderizar(pets) {
   quantidade.textContent = `${exibidos.length} ${exibidos.length === 1 ? "animal" : "animais"}`;
   estado.hidden = exibidos.length > 0;
   estado.textContent = origemUsuario ? "Nenhum animal publicado foi encontrado em um raio aproximado de 20 km." : "Nenhum animal perdido foi publicado com estes filtros.";
-  lista.innerHTML = exibidos.map((pet) => `<article class="lost-card"><div class="lost-card-img">${pet.fotoUrl ? `<img src="${escapar(pet.fotoUrl)}" alt="Foto de ${escapar(pet.nome)}" loading="lazy">` : ""}<span class="lost-alert">PERDIDO</span></div><div class="lost-card-body"><h3>${escapar(pet.nome || "Pet")}</h3><p class="lost-meta">${escapar([pet.especie,pet.raca,pet.sexo].filter(Boolean).join(" · "))}</p><div class="lost-place">📍 ${escapar([pet.bairro,pet.cidade,pet.estado].filter(Boolean).join(" · ") || "Localização não informada")}</div>${pet.distancia != null ? `<span class="lost-distance">Aproximadamente ${pet.distancia.toFixed(1)} km de você</span>` : ""}<a href="/t.html?tag=${encodeURIComponent(pet.tag)}">Ver perfil e ajudar →</a></div></article>`).join("");
+  lista.innerHTML = exibidos.map((pet) => `<article class="lost-card"><div class="lost-card-img">${pet.fotoUrl ? `<img src="${escapar(pet.fotoUrl)}" alt="Foto de ${escapar(pet.nome)}" loading="lazy">` : ""}<span class="lost-alert">PERDIDO</span></div><div class="lost-card-body"><h3>${escapar(pet.nome || "Pet")}</h3><p class="lost-meta">${escapar([pet.especie,pet.raca,pet.sexo].filter(Boolean).join(" · "))}</p><div class="lost-place">📍 ${escapar([pet.bairro,pet.cidade,pet.estado].filter(Boolean).join(" · ") || "Localização não informada")}</div>${pet.distancia != null ? `<span class="lost-distance">Aproximadamente ${pet.distancia.toFixed(1)} km de você</span>` : ""}<a href="/t.html?tag=${encodeURIComponent(pet.tag)}&origem=perdidos">Ver perfil e ajudar →</a></div></article>`).join("");
+  renderizarMapa(exibidos);
+}
+
+function renderizarMapa(pets) {
+  const elemento = document.getElementById("mapaPerdidos"), vazio = document.getElementById("mapaPerdidosVazio");
+  if (!elemento || !window.L) return;
+  if (!mapaPerdidos) { mapaPerdidos = L.map(elemento).setView([-14.2, -51.9], 4); L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 18, attribution: "&copy; OpenStreetMap" }).addTo(mapaPerdidos); marcadoresPerdidos = L.layerGroup().addTo(mapaPerdidos); }
+  marcadoresPerdidos.clearLayers();
+  const localizados = pets.filter((pet) => Number.isFinite(Number(pet.latitudeAproximada)) && Number.isFinite(Number(pet.longitudeAproximada)));
+  vazio.hidden = localizados.length > 0;
+  elemento.hidden = localizados.length === 0;
+  if (!localizados.length) return;
+  const pontos = localizados.map((pet) => { const ponto=[Number(pet.latitudeAproximada),Number(pet.longitudeAproximada)]; L.marker(ponto).bindPopup(`<div class="lost-popup"><strong>${escapar(pet.nome||"Pet")}</strong><span>${escapar([pet.cidade,pet.estado].filter(Boolean).join(" - "))}</span><a href="/t.html?tag=${encodeURIComponent(pet.tag)}&origem=perdidos">Abrir perfil</a></div>`).addTo(marcadoresPerdidos); return ponto; });
+  mapaPerdidos.fitBounds(pontos, { padding: [35,35], maxZoom: 13 }); setTimeout(() => mapaPerdidos.invalidateSize(), 0);
 }
 
 async function carregar() {

@@ -24,7 +24,10 @@ async function obterSessao(request, env) {
   if (!token) return null;
   const tokenHash = await sha256(token);
   const sessao = await env.DB.prepare(`SELECT email, expira_em FROM sessoes_tutor WHERE token_hash = ?`).bind(tokenHash).first();
-  return sessao && Date.now() <= Number(sessao.expira_em) ? sessao : null;
+  if (!sessao) return null;
+  const numero = Number(sessao.expira_em);
+  const expira = Number.isFinite(numero) && numero > 0 ? numero : Date.parse(sessao.expira_em);
+  return Number.isFinite(expira) && Date.now() <= expira ? sessao : null;
 }
 
 export async function onRequestPost(context) {
@@ -35,6 +38,7 @@ export async function onRequestPost(context) {
     const latitude = Number(corpo.latitude);
     const longitude = Number(corpo.longitude);
     const precisao = Number(corpo.precisao);
+    const origem = corpo.origem === "tutor_ultimo_avistamento" ? "tutor_ultimo_avistamento" : "perfil_publico";
 
     if (!tag || !Number.isFinite(latitude) || latitude < -90 || latitude > 90 || !Number.isFinite(longitude) || longitude < -180 || longitude > 180) {
       return json({ sucesso: false, mensagem: "Localização inválida." }, 400);
@@ -45,14 +49,21 @@ export async function onRequestPost(context) {
 
     const pet = await env.DB.prepare(`SELECT tag_codigo, nome, email, perdido FROM pets WHERE tag_codigo = ? LIMIT 1`).bind(tag).first();
     if (!pet) return json({ sucesso: false, mensagem: "Pet não encontrado." }, 404);
+    if (origem === "tutor_ultimo_avistamento") {
+      const sessao = await obterSessao(request, env);
+      if (!sessao || String(sessao.email).trim().toLowerCase() !== String(pet.email || "").trim().toLowerCase()) return json({ sucesso: false, mensagem: "Acesso não autorizado." }, 401);
+      if (Number(pet.perdido) !== 1) return json({ sucesso: false, mensagem: "Ative o modo perdido antes de informar a localização." }, 409);
+    }
 
     await env.DB.prepare(`
       INSERT INTO localizacoes_pet (tag_codigo, latitude, longitude, precisao_metros, origem)
-      VALUES (?, ?, ?, ?, 'perfil_publico')
-    `).bind(tag, latitude, longitude, Number.isFinite(precisao) && precisao >= 0 ? precisao : null).run();
+      VALUES (?, ?, ?, ?, ?)
+    `).bind(tag, latitude, longitude, Number.isFinite(precisao) && precisao >= 0 ? precisao : null, origem).run();
 
-    const alerta = enviarAlerta({ env, pet, tipo: "localizacao", latitude, longitude });
-    if (context.waitUntil) context.waitUntil(alerta); else await alerta;
+    if (origem === "perfil_publico") {
+      const alerta = enviarAlerta({ env, pet, tipo: "localizacao", latitude, longitude });
+      if (context.waitUntil) context.waitUntil(alerta); else await alerta;
+    }
 
     return json({ sucesso: true, mensagem: "Localização compartilhada com o tutor." }, 201);
   } catch (erro) {

@@ -56,6 +56,8 @@ function preencherPerfil(pet, statusApi) {
   definirTexto("comportamentoPet", textoSeguro(pet.comportamento, "Nenhuma orientação especial foi cadastrada pelo tutor."));
   definirTexto("nomeTutor", textoSeguro(pet.nome_tutor));
   const estaPerdido = statusApi === "perdido" || Number(pet.perdido) === 1;
+  const veioDePerdidos = parametros.get("origem") === "perdidos" || document.referrer.includes("/perdidos");
+  document.getElementById("voltarPerdidos")?.classList.toggle("escondido", !(estaPerdido && veioDePerdidos));
   configurarTemaSexo(pet.sexo);
   preencherStatus(estaPerdido);
   configurarContato(pet, estaPerdido);
