@@ -22,6 +22,8 @@ test("a Sprint 2.5 expõe o diretório e o controle voluntário do tutor", async
   ]);
   assert.match(pagina, /Animais desaparecidos/);
   assert.match(pagina, /Perto de mim/);
+  assert.match(pagina, /Todos os animais aparecem automaticamente/);
+  assert.match(pagina, /Mostrar todos/);
   assert.match(pagina, /posições exibidas são aproximadas/);
   assert.match(painel, /publicarPerdidoDestaque/);
   assert.match(landing, /href="\/perdidos"/);

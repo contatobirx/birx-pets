@@ -3,6 +3,7 @@ const lista = document.getElementById("listaPerdidos");
 const estado = document.getElementById("estadoPerdidos");
 const quantidade = document.getElementById("quantidadePerdidos");
 const buscarPerto = document.getElementById("buscarPerto");
+const limparFiltros = document.getElementById("limparFiltros");
 let origemUsuario = null;
 let petsAtuais = [];
 
@@ -21,11 +22,16 @@ function renderizar(pets) {
 
 async function carregar() {
   quantidade.textContent = "Carregando..."; estado.hidden = true; lista.innerHTML = "";
-  const params = new URLSearchParams(new FormData(formulario));
+  const params = new URLSearchParams();
+  const cidade = document.getElementById("filtroCidade").value.trim();
+  const especie = document.getElementById("filtroEspecie").value;
+  if (cidade) params.set("cidade", cidade);
+  if (especie) params.set("especie", especie);
   try { const resposta = await fetch(`/api/perdidos?${params}`, { headers: { Accept: "application/json" } }); const dados = await resposta.json(); if (!resposta.ok) throw new Error(dados.mensagem); petsAtuais = dados.pets || []; renderizar(petsAtuais); }
   catch (erro) { quantidade.textContent = ""; estado.hidden = false; estado.textContent = erro.message || "Não foi possível carregar os animais."; }
 }
 
 formulario.addEventListener("submit", (evento) => { evento.preventDefault(); origemUsuario = null; carregar(); });
+limparFiltros.addEventListener("click", () => { formulario.reset(); origemUsuario = null; carregar(); });
 buscarPerto.addEventListener("click", () => { if (!navigator.geolocation) return; buscarPerto.disabled = true; navigator.geolocation.getCurrentPosition((pos) => { origemUsuario={lat:pos.coords.latitude,lon:pos.coords.longitude}; buscarPerto.disabled=false; renderizar(petsAtuais); }, () => { buscarPerto.disabled=false; }, { timeout:12000 }); });
 carregar();
