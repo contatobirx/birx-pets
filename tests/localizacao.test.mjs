@@ -66,10 +66,14 @@ test("perfil público e modo perdido incluem mapas no momento correto", async ()
   assert.match(painel, /leaflet@1\.9\.4/);
   assert.match(perfil, /voltarPerdidos/);
   assert.match(perfil, /mapaPetPerdido/);
+  assert.match(perfil, /Última localização/);
   assert.doesNotMatch(perdidos, /mapaPerdidos/);
   assert.match(seletor, /mapa\.on\("click"/);
   assert.match(status, /tutor_ultimo_avistamento/);
   assert.match(status, /Selecione no mapa/);
+  const mapaPet = await readFile(new URL("../public/js/pet-lost-map.js", import.meta.url), "utf8");
+  assert.match(mapaPet, /\/api\/ultima-localizacao/);
+  assert.match(mapaPet, /aria-expanded/);
   const fluxoPerdido = tutorJs.slice(tutorJs.indexOf("async function alterarModoPerdido"), tutorJs.indexOf("async function sair"));
   assert.match(fluxoPerdido, /let localPerdido = null/);
   assert.match(fluxoPerdido, /OrbitekSelecionarLocalizacao/);

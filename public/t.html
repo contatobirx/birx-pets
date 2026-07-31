@@ -16,7 +16,7 @@
   <link rel="stylesheet" href="/css/pet.css?v=14.2.2">
   <link rel="stylesheet" href="/css/ux.css?v=1">
   <link rel="stylesheet" href="/css/location.css?v=2.4">
-  <link rel="stylesheet" href="/css/perdidos-map.css?v=2.10">
+  <link rel="stylesheet" href="/css/perdidos-map.css?v=2.10.2">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
 </head>
 <body>
@@ -51,7 +51,7 @@
         <div class="icone-alerta" aria-hidden="true">!</div>
         <div><strong>Este pet está desaparecido</strong><p>Ajude-o a voltar para casa. Entre em contato com o tutor imediatamente.</p></div>
       </div>
-      <section class="mapa-pet-perdido escondido" id="localizacaoPetPerdido" aria-labelledby="tituloMapaPetPerdido"><div><span>Último local informado</span><h2 id="tituloMapaPetPerdido">Onde este pet foi visto por último</h2><p id="textoMapaPetPerdido">A posição exibida é aproximada para proteger o animal e o tutor.</p></div><div id="mapaPetPerdido" aria-label="Mapa da última localização deste pet"></div></section>
+      <section class="mapa-pet-perdido escondido" id="localizacaoPetPerdido" aria-labelledby="tituloMapaPetPerdido"><button class="botao-ultima-localizacao" id="abrirUltimaLocalizacao" type="button" aria-expanded="false"><span>📍</span><span><strong>Última localização</strong><small>Veja onde o tutor informou que este pet foi visto</small></span><b>›</b></button><div class="mapa-pet-conteudo" id="conteudoMapaPetPerdido" hidden><div><span>Local informado pelo tutor</span><h2 id="tituloMapaPetPerdido">Onde este pet foi visto por último</h2><p id="textoMapaPetPerdido">A posição exibida é aproximada para proteger o animal e o tutor.</p></div><div id="mapaPetPerdido" aria-label="Mapa da última localização deste pet"></div></div></section>
 
       <section class="acoes-principais" aria-label="Ações de contato">
         <a href="#" class="botao-acao botao-whatsapp escondido" id="botaoWhatsapp" target="_blank" rel="noopener noreferrer">
@@ -117,7 +117,7 @@
   <script src="/js/core/api.js?v=2"></script>
   <script src="/js/pet.js?v=14.2.2"></script>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
-  <script src="/js/pet-lost-map.js?v=2.10.1"></script>
+  <script src="/js/pet-lost-map.js?v=2.10.2"></script>
   <script src="/js/pet-location.js?v=2.4"></script>
   <script src="/js/core/notifications.js?v=2"></script>
   <script src="/js/core/ux.js?v=1"></script>
