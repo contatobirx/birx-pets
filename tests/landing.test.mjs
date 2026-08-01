@@ -61,10 +61,11 @@ test("o catálogo descreve corretamente os três modelos físicos", async () => 
   assert.match(catalogo, /tag-essential\.png/);
   assert.match(catalogo, /Tag Essential com nome e telefone gravados/);
   assert.match(catalogo, /tag-nfc\.png/);
-  assert.match(catalogo, /Sem nome, telefone ou QR Code/);
+  assert.match(catalogo, /QR Code para qualquer celular com câmera/);
   assert.match(catalogo, /tag-nfc-identificacao\.png/);
   assert.match(catalogo, /Nome e telefone gravados/);
   assert.match(catalogo, /Leitura por aproximação/);
+  assert.match(catalogo, /QR Code para acesso pela câmera/);
 });
 
 test("a galeria principal representa cães e gatos com a tag Orbitek", async () => {
