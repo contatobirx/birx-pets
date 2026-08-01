@@ -20,7 +20,7 @@
 
   <title>Painel do Tutor | Orbitek Pets</title>
 
-  <link rel="stylesheet" href="/css/tutor.css?v=3.7" />
+  <link rel="stylesheet" href="/css/tutor.css?v=3.8" />
   <link rel="stylesheet" href="/css/ux.css?v=1" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
   <link rel="stylesheet" href="/css/tutor-lost-location.css?v=2.10.2" />
@@ -153,6 +153,7 @@
             <button class="modulo-card" type="button" data-modulo="medicamentos"><span class="modulo-icone">💊</span><span><strong>Medicamentos</strong><small>Tratamentos e horários</small></span><b>›</b></button>
             <button class="modulo-card" type="button" data-modulo="peso"><span class="modulo-icone">⚖️</span><span><strong>Peso</strong><small>Evolução e histórico</small></span><b>›</b></button>
             <button class="modulo-card" type="button" data-modulo="agendamentos"><span class="modulo-icone">📅</span><span><strong>Agendamentos</strong><small>Consultas, exames e vacinas</small></span><b>›</b></button>
+            <button class="modulo-card" type="button" data-modulo="calendario"><span class="modulo-icone">🗓️</span><span><strong>Agenda inteligente</strong><small>Todos os cuidados no calendário</small></span><b>›</b></button>
             <button class="modulo-card" type="button" data-modulo="clinicas"><span class="modulo-icone">🏥</span><span><strong>Clínicas próximas</strong><small>Encontre atendimento veterinário</small></span><b>›</b></button>
           </div>
         </article>
@@ -852,6 +853,17 @@
     </div>
   </div>
 
+  <div id="modalCalendario" class="modal" hidden>
+    <div class="modal-overlay" data-fechar-calendario></div>
+    <div class="modal-caixa modal-caixa-calendario" role="dialog" aria-modal="true" aria-labelledby="tituloCalendario">
+      <div class="modal-topo"><div><h2 id="tituloCalendario">Agenda de <span id="calendarioNomePet">Pet</span></h2><p class="modal-subtitulo">Consultas, vacinas e tratamentos em um só lugar.</p></div><button class="modal-fechar" data-fechar-calendario type="button" aria-label="Fechar">✕</button></div>
+      <input id="calendarioTag" type="hidden">
+      <div class="calendario-barra"><button id="calendarioAnterior" type="button" aria-label="Mês anterior">‹</button><strong id="calendarioMes"></strong><button id="calendarioProximo" type="button" aria-label="Próximo mês">›</button><button id="exportarCalendario" class="botao botao-secundario" type="button">＋ Adicionar ao calendário</button></div>
+      <div id="calendarioCarregando" class="saude-carregando"><span class="saude-spinner"></span> Organizando agenda...</div>
+      <div id="calendarioConteudo" hidden><div class="calendario-legenda"><span><i class="consulta"></i> Consulta</span><span><i class="vacina"></i> Vacina</span><span><i class="medicamento"></i> Tratamento</span></div><div class="calendario-semana"><span>DOM</span><span>SEG</span><span>TER</span><span>QUA</span><span>QUI</span><span>SEX</span><span>SÁB</span></div><div id="calendarioGrid" class="calendario-grid"></div><section class="calendario-proximos"><h3>Compromissos deste mês</h3><div id="calendarioLista"></div><div id="calendarioVazio" class="saude-vazio" hidden><div class="saude-vazio-icone">🗓️</div><strong>Nenhum cuidado programado</strong><p>Use as abas Agendamentos, Vacinas ou Medicamentos para adicionar.</p></div></section></div>
+    </div>
+  </div>
+
   <div id="modalLocalPerdido" class="modal" hidden>
     <div class="modal-overlay" id="fecharLocalPerdidoOverlay"></div>
     <div class="modal-caixa modal-caixa-local-perdido" role="dialog" aria-modal="true" aria-labelledby="tituloLocalPerdido">
@@ -878,6 +890,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <script src="/js/tutor-cartaz.js?v=3.7.1"></script>
   <script src="/js/tutor-peso.js?v=3.7"></script>
+  <script src="/js/tutor-calendario.js?v=3.8"></script>
   <script src="/js/tutor-onde-comprar.js?v=2.17.1"></script>
   <script src="/js/tutor-push.js?v=2.14.1"></script>
   <script src="/js/timeline.js?v=1"></script>
