@@ -20,7 +20,7 @@
 
   <title>Painel do Tutor | Orbitek Pets</title>
 
-  <link rel="stylesheet" href="/css/tutor.css?v=3.9" />
+  <link rel="stylesheet" href="/css/tutor.css?v=3.10" />
   <link rel="stylesheet" href="/css/ux.css?v=1" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
   <link rel="stylesheet" href="/css/tutor-lost-location.css?v=2.10.2" />
@@ -155,6 +155,7 @@
             <button class="modulo-card" type="button" data-modulo="agendamentos"><span class="modulo-icone">📅</span><span><strong>Agendamentos</strong><small>Consultas, exames e vacinas</small></span><b>›</b></button>
             <button class="modulo-card" type="button" data-modulo="calendario"><span class="modulo-icone">🗓️</span><span><strong>Agenda inteligente</strong><small>Todos os cuidados no calendário</small></span><b>›</b></button>
             <button class="modulo-card" type="button" data-modulo="contatos"><span class="modulo-icone">👥</span><span><strong>Contatos de confiança</strong><small>Rede de apoio do pet</small></span><b>›</b></button>
+            <button class="modulo-card" type="button" data-modulo="relatorio"><span class="modulo-icone">🩺</span><span><strong>Resumo veterinário</strong><small>Ficha completa para consultas</small></span><b>›</b></button>
             <button class="modulo-card" type="button" data-modulo="clinicas"><span class="modulo-icone">🏥</span><span><strong>Clínicas próximas</strong><small>Encontre atendimento veterinário</small></span><b>›</b></button>
           </div>
         </article>
@@ -877,6 +878,16 @@
     </div>
   </div>
 
+  <div id="modalRelatorioVet" class="modal" hidden>
+    <div class="modal-overlay" data-fechar-relatorio></div>
+    <div class="modal-caixa modal-caixa-relatorio" role="dialog" aria-modal="true" aria-labelledby="tituloRelatorioVet">
+      <div class="modal-topo relatorio-modal-topo"><div><h2 id="tituloRelatorioVet">Resumo veterinário</h2><p class="modal-subtitulo">Informações organizadas para levar à consulta.</p></div><button class="modal-fechar" data-fechar-relatorio type="button" aria-label="Fechar">✕</button></div>
+      <div id="relatorioVetCarregando" class="saude-carregando"><span class="saude-spinner"></span> Preparando ficha...</div>
+      <article id="relatorioVet" class="relatorio-vet" hidden></article>
+      <div id="relatorioVetAcoes" class="relatorio-acoes" hidden><button id="imprimirRelatorioVet" class="botao botao-principal" type="button">🖨️ Imprimir ou salvar em PDF</button><button class="botao botao-secundario" data-fechar-relatorio type="button">Fechar</button></div>
+    </div>
+  </div>
+
   <div id="modalLocalPerdido" class="modal" hidden>
     <div class="modal-overlay" id="fecharLocalPerdidoOverlay"></div>
     <div class="modal-caixa modal-caixa-local-perdido" role="dialog" aria-modal="true" aria-labelledby="tituloLocalPerdido">
@@ -906,6 +917,7 @@
   <script src="/js/tutor-peso.js?v=3.7"></script>
   <script src="/js/tutor-calendario.js?v=3.8"></script>
   <script src="/js/tutor-contatos.js?v=3.9"></script>
+  <script src="/js/tutor-relatorio-vet.js?v=3.10"></script>
   <script src="/js/tutor-onde-comprar.js?v=2.17.1"></script>
   <script src="/js/tutor-push.js?v=2.14.1"></script>
   <script src="/js/timeline.js?v=1"></script>
