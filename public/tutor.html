@@ -20,7 +20,7 @@
 
   <title>Painel do Tutor | Orbitek Pets</title>
 
-  <link rel="stylesheet" href="/css/tutor.css?v=3.10" />
+  <link rel="stylesheet" href="/css/tutor.css?v=3.11" />
   <link rel="stylesheet" href="/css/ux.css?v=1" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
   <link rel="stylesheet" href="/css/tutor-lost-location.css?v=2.10.2" />
@@ -156,6 +156,7 @@
             <button class="modulo-card" type="button" data-modulo="calendario"><span class="modulo-icone">🗓️</span><span><strong>Agenda inteligente</strong><small>Todos os cuidados no calendário</small></span><b>›</b></button>
             <button class="modulo-card" type="button" data-modulo="contatos"><span class="modulo-icone">👥</span><span><strong>Contatos de confiança</strong><small>Rede de apoio do pet</small></span><b>›</b></button>
             <button class="modulo-card" type="button" data-modulo="relatorio"><span class="modulo-icone">🩺</span><span><strong>Resumo veterinário</strong><small>Ficha completa para consultas</small></span><b>›</b></button>
+            <button class="modulo-card" type="button" data-modulo="compartilhar-vet"><span class="modulo-icone">🔗</span><span><strong>Compartilhar com veterinário</strong><small>Link temporário e seguro</small></span><b>›</b></button>
             <button class="modulo-card" type="button" data-modulo="clinicas"><span class="modulo-icone">🏥</span><span><strong>Clínicas próximas</strong><small>Encontre atendimento veterinário</small></span><b>›</b></button>
           </div>
         </article>
@@ -888,6 +889,17 @@
     </div>
   </div>
 
+  <div id="modalCompartilharVet" class="modal" hidden>
+    <div class="modal-overlay" data-fechar-compartilhar-vet></div>
+    <div class="modal-caixa modal-caixa-compartilhar-vet" role="dialog" aria-modal="true" aria-labelledby="tituloCompartilharVet">
+      <div class="modal-topo"><div><h2 id="tituloCompartilharVet">Compartilhar dados de <span id="compartilharVetNomePet">Pet</span></h2><p class="modal-subtitulo">Crie um acesso temporário e somente para leitura.</p></div><button class="modal-fechar" data-fechar-compartilhar-vet type="button" aria-label="Fechar">✕</button></div>
+      <input id="compartilharVetTag" type="hidden">
+      <form id="formCompartilharVet" class="form-saude compartilhar-vet-form"><div class="grid-2"><div class="campo"><label for="compartilharVetTitulo">Identificação do link</label><input id="compartilharVetTitulo" maxlength="100" value="Consulta veterinária"></div><div class="campo"><label for="compartilharVetValidade">Validade</label><select id="compartilharVetValidade"><option value="24">24 horas</option><option value="168">7 dias</option><option value="720">30 dias</option></select></div></div><fieldset><legend>Quais informações deseja compartilhar?</legend><div class="compartilhar-vet-opcoes"><label><input type="checkbox" name="tutor" checked> Contato do tutor</label><label><input type="checkbox" name="cuidados" checked> Cuidados e comportamento</label><label><input type="checkbox" name="medicamentos" checked> Medicamentos</label><label><input type="checkbox" name="vacinas" checked> Vacinas</label><label><input type="checkbox" name="pesos" checked> Histórico de peso</label><label><input type="checkbox" name="agendamentos" checked> Próximos compromissos</label></div></fieldset><p class="compartilhar-vet-privacidade">🔒 O veterinário não poderá alterar dados. Contatos de confiança e localização do modo perdido nunca são compartilhados.</p><button id="criarCompartilhamentoVet" class="botao botao-principal" type="submit">Criar link seguro</button></form>
+      <section id="compartilharVetResultado" class="compartilhar-vet-resultado" hidden><strong>Link pronto para enviar</strong><div><input id="compartilharVetUrl" readonly><button id="copiarCompartilhamentoVet" class="botao botao-principal" type="button">Copiar link</button></div><button id="enviarWhatsappCompartilhamentoVet" class="botao botao-whatsapp" type="button">Enviar pelo WhatsApp</button><small id="compartilharVetExpira"></small></section>
+      <section class="compartilhar-vet-historico"><h3>Links criados</h3><div id="compartilharVetCarregando" class="saude-carregando" hidden><span class="saude-spinner"></span> Carregando...</div><div id="listaCompartilhamentosVet"></div><div id="compartilhamentosVetVazio" class="saude-vazio" hidden><strong>Nenhum link criado</strong><p>Os acessos temporários aparecerão aqui.</p></div></section>
+    </div>
+  </div>
+
   <div id="modalLocalPerdido" class="modal" hidden>
     <div class="modal-overlay" id="fecharLocalPerdidoOverlay"></div>
     <div class="modal-caixa modal-caixa-local-perdido" role="dialog" aria-modal="true" aria-labelledby="tituloLocalPerdido">
@@ -918,6 +930,7 @@
   <script src="/js/tutor-calendario.js?v=3.8"></script>
   <script src="/js/tutor-contatos.js?v=3.9"></script>
   <script src="/js/tutor-relatorio-vet.js?v=3.10"></script>
+  <script src="/js/tutor-compartilhar-vet.js?v=3.11"></script>
   <script src="/js/tutor-onde-comprar.js?v=2.17.1"></script>
   <script src="/js/tutor-push.js?v=2.14.1"></script>
   <script src="/js/timeline.js?v=1"></script>
