@@ -20,7 +20,7 @@
 
   <title>Painel do Tutor | Orbitek Pets</title>
 
-  <link rel="stylesheet" href="/css/tutor.css?v=3.4" />
+  <link rel="stylesheet" href="/css/tutor.css?v=3.5" />
   <link rel="stylesheet" href="/css/ux.css?v=1" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
   <link rel="stylesheet" href="/css/tutor-lost-location.css?v=2.10.2" />
@@ -72,6 +72,7 @@
           </div>
 
           <div class="dashboard-hero-acoes">
+            <button class="botao-hero botao-hero-emergencia" id="abrirEmergenciaDestaque" type="button">✚ Central de emergência</button>
             <button class="botao-hero botao-hero-principal" id="editarPetDestaque" type="button">✏️ Editar perfil</button>
             <button class="botao-hero botao-hero-claro" id="verPerfilPublico" type="button">👁️ Ver perfil público</button>
             <button class="botao-hero botao-hero-alerta" id="modoPerdidoDestaque" type="button">🚨 Ativar modo perdido</button>
@@ -141,6 +142,7 @@
             </div>
           </div>
           <div class="modulos-grid">
+            <button class="modulo-card modulo-emergencia" type="button" data-modulo="emergencia"><span class="modulo-icone">✚</span><span><strong>Emergência</strong><small>Informações e contatos rápidos</small></span><b>›</b></button>
             <button class="modulo-card" type="button" data-modulo="saude"><span class="modulo-icone">❤️</span><span><strong>Saúde</strong><small>Informações importantes</small></span><b>›</b></button>
             <button class="modulo-card" type="button" data-modulo="carteirinha"><span class="modulo-icone">🪪</span><span><strong>Carteirinha digital</strong><small>Dados essenciais do pet</small></span><b>›</b></button>
             <button class="modulo-card" type="button" data-modulo="vacinas"><span class="modulo-icone">💉</span><span><strong>Vacinas</strong><small>Carteira de vacinação</small></span><b>›</b></button>
@@ -800,6 +802,22 @@
     </div>
   </div>
 
+  <div id="modalEmergencia" class="modal" hidden>
+    <div class="modal-overlay" data-fechar-emergencia></div>
+    <div class="modal-caixa modal-caixa-emergencia" role="dialog" aria-modal="true" aria-labelledby="tituloEmergencia">
+      <div class="emergencia-topo"><div><span>CENTRAL DE EMERGÊNCIA</span><h2 id="tituloEmergencia">Informações de <b id="emergenciaNomePet">Pet</b></h2><p>Mostre esta tela ao veterinário ou a quem estiver ajudando.</p></div><button class="modal-fechar" data-fechar-emergencia type="button" aria-label="Fechar">✕</button></div>
+      <div id="emergenciaCarregando" class="saude-carregando"><span class="saude-spinner"></span> Preparando informações...</div>
+      <div id="emergenciaConteudo" hidden>
+        <section class="emergencia-identidade"><div id="emergenciaFoto" class="emergencia-foto">🐾</div><div><span id="emergenciaStatus" class="emergencia-status">● Tag ativa</span><h3 id="emergenciaPet"></h3><p id="emergenciaPerfil"></p><small id="emergenciaTag"></small></div></section>
+        <div class="emergencia-grid"><section><span class="emergencia-rotulo">⚕ DADOS IMPORTANTES</span><dl id="emergenciaDados"></dl></section><section><span class="emergencia-rotulo">💊 MEDICAMENTOS ATIVOS</span><div id="emergenciaMedicamentos"></div></section></div>
+        <section class="emergencia-cuidados"><span class="emergencia-rotulo">⚠ CUIDADOS E COMPORTAMENTO</span><p id="emergenciaCuidados"></p></section>
+        <section class="emergencia-contato"><div><span class="emergencia-rotulo">TUTOR RESPONSÁVEL</span><strong id="emergenciaTutor"></strong><small id="emergenciaTelefone"></small></div><div class="emergencia-contato-acoes"><a id="emergenciaLigar" class="botao botao-emergencia" href="#">📞 Ligar</a><a id="emergenciaWhatsapp" class="botao botao-whatsapp" href="#" target="_blank" rel="noopener">WhatsApp</a></div></section>
+        <div class="emergencia-acoes"><button id="emergenciaClinica" class="botao botao-principal" type="button">🏥 Encontrar clínica próxima</button><button id="emergenciaPerfilPublico" class="botao botao-secundario" type="button">👁️ Abrir perfil público</button><button id="emergenciaCompartilhar" class="botao botao-secundario" type="button">↗ Compartilhar resumo</button></div>
+        <p class="emergencia-aviso">Em risco imediato, procure atendimento veterinário. Esta tela organiza informações cadastradas pelo tutor e não substitui orientação profissional.</p>
+      </div>
+    </div>
+  </div>
+
   <div id="modalLocalPerdido" class="modal" hidden>
     <div class="modal-overlay" id="fecharLocalPerdidoOverlay"></div>
     <div class="modal-caixa modal-caixa-local-perdido" role="dialog" aria-modal="true" aria-labelledby="tituloLocalPerdido">
@@ -822,6 +840,7 @@
   <script src="/js/tutor-agendamentos.js?v=2.18"></script>
   <script src="/js/tutor-carteirinha.js?v=2.19"></script>
   <script src="/js/tutor-transferencia.js?v=3.4"></script>
+  <script src="/js/tutor-emergencia.js?v=3.5"></script>
   <script src="/js/tutor-onde-comprar.js?v=2.17.1"></script>
   <script src="/js/tutor-push.js?v=2.14.1"></script>
   <script src="/js/timeline.js?v=1"></script>
