@@ -27,7 +27,8 @@ test("tags digitais usam o mesmo link no NFC e no QR Code",()=>{
   assert.match(qrJs,/\/q\/\$\{encodeURIComponent\(tagCode\)\}/);
   assert.match(qrJs,/correctLevel:window\.QRCode\.CorrectLevel\.M/);
   assert.match(qrJs,/width:600,height:600/);
-  assert.match(shortRoute,/tag\/\[serial\]\.js/);
+  assert.match(shortRoute,/SELECT codigo, ativada, bloqueada FROM tags/);
+  assert.match(shortRoute,/destino\.searchParams\.set\("tag", serial\)/);
   assert.match(qrJs,/download=`QR-\$\{current\.code\}\.png`/);
   assert.match(qrJs,/Essential/);
 });
