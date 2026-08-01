@@ -20,7 +20,7 @@
 
   <title>Painel do Tutor | Orbitek Pets</title>
 
-  <link rel="stylesheet" href="/css/tutor.css?v=3.8" />
+  <link rel="stylesheet" href="/css/tutor.css?v=3.9" />
   <link rel="stylesheet" href="/css/ux.css?v=1" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
   <link rel="stylesheet" href="/css/tutor-lost-location.css?v=2.10.2" />
@@ -154,6 +154,7 @@
             <button class="modulo-card" type="button" data-modulo="peso"><span class="modulo-icone">⚖️</span><span><strong>Peso</strong><small>Evolução e histórico</small></span><b>›</b></button>
             <button class="modulo-card" type="button" data-modulo="agendamentos"><span class="modulo-icone">📅</span><span><strong>Agendamentos</strong><small>Consultas, exames e vacinas</small></span><b>›</b></button>
             <button class="modulo-card" type="button" data-modulo="calendario"><span class="modulo-icone">🗓️</span><span><strong>Agenda inteligente</strong><small>Todos os cuidados no calendário</small></span><b>›</b></button>
+            <button class="modulo-card" type="button" data-modulo="contatos"><span class="modulo-icone">👥</span><span><strong>Contatos de confiança</strong><small>Rede de apoio do pet</small></span><b>›</b></button>
             <button class="modulo-card" type="button" data-modulo="clinicas"><span class="modulo-icone">🏥</span><span><strong>Clínicas próximas</strong><small>Encontre atendimento veterinário</small></span><b>›</b></button>
           </div>
         </article>
@@ -815,6 +816,7 @@
         <div class="emergencia-grid"><section><span class="emergencia-rotulo">⚕ DADOS IMPORTANTES</span><dl id="emergenciaDados"></dl></section><section><span class="emergencia-rotulo">💊 MEDICAMENTOS ATIVOS</span><div id="emergenciaMedicamentos"></div></section></div>
         <section class="emergencia-cuidados"><span class="emergencia-rotulo">⚠ CUIDADOS E COMPORTAMENTO</span><p id="emergenciaCuidados"></p></section>
         <section class="emergencia-contato"><div><span class="emergencia-rotulo">TUTOR RESPONSÁVEL</span><strong id="emergenciaTutor"></strong><small id="emergenciaTelefone"></small></div><div class="emergencia-contato-acoes"><a id="emergenciaLigar" class="botao botao-emergencia" href="#">📞 Ligar</a><a id="emergenciaWhatsapp" class="botao botao-whatsapp" href="#" target="_blank" rel="noopener">WhatsApp</a></div></section>
+        <section id="emergenciaRedeApoio" class="emergencia-rede-apoio" hidden><span class="emergencia-rotulo">👥 REDE DE APOIO</span><div id="emergenciaListaContatos"></div></section>
         <div class="emergencia-acoes"><button id="emergenciaClinica" class="botao botao-principal" type="button">🏥 Encontrar clínica próxima</button><button id="emergenciaPerfilPublico" class="botao botao-secundario" type="button">👁️ Abrir perfil público</button><button id="emergenciaCompartilhar" class="botao botao-secundario" type="button">↗ Compartilhar resumo</button></div>
         <p class="emergencia-aviso">Em risco imediato, procure atendimento veterinário. Esta tela organiza informações cadastradas pelo tutor e não substitui orientação profissional.</p>
       </div>
@@ -864,6 +866,17 @@
     </div>
   </div>
 
+  <div id="modalContatos" class="modal" hidden>
+    <div class="modal-overlay" data-fechar-contatos></div>
+    <div class="modal-caixa modal-caixa-contatos" role="dialog" aria-modal="true" aria-labelledby="tituloContatos">
+      <div class="modal-topo"><div><h2 id="tituloContatos">Contatos de <span id="contatosNomePet">Pet</span></h2><p class="modal-subtitulo">Pessoas de confiança para ajudar quando você não estiver disponível.</p></div><button class="modal-fechar" data-fechar-contatos type="button" aria-label="Fechar">✕</button></div>
+      <input id="contatosTag" type="hidden">
+      <div class="contatos-barra"><div><strong>Rede de apoio</strong><p id="contatosResumo">Até 5 contatos por pet.</p></div><button id="novoContato" class="botao botao-principal" type="button">+ Adicionar contato</button></div>
+      <div id="contatosCarregando" class="saude-carregando" hidden><span class="saude-spinner"></span> Carregando contatos...</div><div id="listaContatos" class="lista-contatos"></div><div id="contatosVazio" class="saude-vazio" hidden><div class="saude-vazio-icone">👥</div><strong>Nenhum contato de confiança</strong><p>Cadastre alguém que possa ajudar em uma emergência.</p></div>
+      <form id="formContato" class="form-saude" hidden><div class="form-saude-topo"><h3 id="tituloFormContato">Novo contato</h3><button id="cancelarContato" class="botao-link" type="button">Cancelar</button></div><input id="contatoId" type="hidden"><div class="grid-2"><div class="campo"><label for="contatoNome">Nome *</label><input id="contatoNome" maxlength="120" required></div><div class="campo"><label for="contatoVinculo">Vínculo</label><input id="contatoVinculo" maxlength="80" placeholder="Ex.: familiar, vizinha, pet sitter"></div></div><div class="grid-2"><div class="campo"><label for="contatoWhatsapp">WhatsApp *</label><input id="contatoWhatsapp" inputmode="tel" maxlength="30" placeholder="(41) 99999-9999" required></div><div class="campo"><label for="contatoEmail">E-mail</label><input id="contatoEmail" type="email" maxlength="254"></div></div><div class="campo"><label for="contatoPrioridade">Prioridade para contato</label><select id="contatoPrioridade"><option value="1">1ª opção</option><option value="2" selected>2ª opção</option><option value="3">3ª opção</option></select></div><div class="contatos-privacidade">🔒 Estes dados ficam visíveis somente dentro da conta do tutor e da Central de Emergência.</div><div class="modal-botoes"><button id="fecharFormContato" class="botao botao-secundario" type="button">Cancelar</button><button id="salvarContato" class="botao botao-principal" type="submit">Salvar contato</button></div></form>
+    </div>
+  </div>
+
   <div id="modalLocalPerdido" class="modal" hidden>
     <div class="modal-overlay" id="fecharLocalPerdidoOverlay"></div>
     <div class="modal-caixa modal-caixa-local-perdido" role="dialog" aria-modal="true" aria-labelledby="tituloLocalPerdido">
@@ -887,10 +900,12 @@
   <script src="/js/tutor-carteirinha.js?v=2.19"></script>
   <script src="/js/tutor-transferencia.js?v=3.4"></script>
   <script src="/js/tutor-emergencia.js?v=3.7.1"></script>
+  <script src="/js/tutor-emergencia-contatos.js?v=3.9"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <script src="/js/tutor-cartaz.js?v=3.7.1"></script>
   <script src="/js/tutor-peso.js?v=3.7"></script>
   <script src="/js/tutor-calendario.js?v=3.8"></script>
+  <script src="/js/tutor-contatos.js?v=3.9"></script>
   <script src="/js/tutor-onde-comprar.js?v=2.17.1"></script>
   <script src="/js/tutor-push.js?v=2.14.1"></script>
   <script src="/js/timeline.js?v=1"></script>
