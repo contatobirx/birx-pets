@@ -15,6 +15,8 @@ const descricaoTag = document.getElementById("descricaoTag");
 const quantidadeLeituras = document.getElementById("quantidadeLeituras");
 const ultimaLeitura = document.getElementById("ultimaLeitura");
 const listaLeituras = document.getElementById("listaLeituras");
+const secaoLocalizacoes = document.getElementById("secaoLocalizacoes");
+const listaLocalizacoes = document.getElementById("listaLocalizacoes");
 const botaoVoltar = document.getElementById("botaoVoltar");
 
 iniciar();
@@ -70,12 +72,16 @@ async function iniciar() {
       ? resultado.leituras
       : [];
 
-    if (leituras.length === 0) {
+    const respostaLocalizacoes = await fetch(`/api/localizacoes?tag=${encodeURIComponent(codigoTag)}`, { credentials: "same-origin", headers: { Accept: "application/json" } });
+    const dadosLocalizacoes = await respostaLocalizacoes.json().catch(() => ({}));
+    const localizacoes = respostaLocalizacoes.ok && Array.isArray(dadosLocalizacoes.localizacoes) ? dadosLocalizacoes.localizacoes : [];
+
+    if (leituras.length === 0 && localizacoes.length === 0) {
       mostrarVazio();
       return;
     }
 
-    mostrarHistorico(leituras);
+    mostrarHistorico(leituras, localizacoes);
   } catch (erro) {
     console.error("Erro ao carregar histórico:", erro);
 
@@ -103,7 +109,7 @@ function configurarBotaoVoltar() {
   });
 }
 
-function mostrarHistorico(leituras) {
+function mostrarHistorico(leituras, localizacoes = []) {
   ocultarEstados();
 
   conteudoHistorico?.classList.remove("escondido");
@@ -113,8 +119,7 @@ function mostrarHistorico(leituras) {
   }
 
   if (ultimaLeitura) {
-    ultimaLeitura.textContent =
-      formatarDataResumida(leituras[0]?.data_hora);
+    ultimaLeitura.textContent = formatarDataResumida(leituras[0]?.data_hora || localizacoes[0]?.criado_em);
   }
 
   if (!listaLeituras) return;
@@ -143,6 +148,21 @@ function mostrarHistorico(leituras) {
     item.append(marcador, dados);
     listaLeituras.appendChild(item);
   });
+
+  mostrarLocalizacoes(localizacoes);
+}
+
+function mostrarLocalizacoes(localizacoes) {
+  if (!secaoLocalizacoes || !listaLocalizacoes || !localizacoes.length) return;
+  secaoLocalizacoes.classList.remove("escondido");
+  listaLocalizacoes.textContent = "";
+  localizacoes.filter(item => item.origem === "perfil_publico").forEach(item => {
+    const latitude=Number(item.latitude),longitude=Number(item.longitude),precisao=Number(item.precisao_metros);
+    if(!Number.isFinite(latitude)||!Number.isFinite(longitude))return;
+    const artigo=document.createElement("article"),titulo=document.createElement("strong"),detalhe=document.createElement("span"),link=document.createElement("a");
+    artigo.className="item-localizacao";titulo.textContent="Localização enviada após acesso à tag";detalhe.textContent=`${formatarDataCompleta(item.criado_em)}${Number.isFinite(precisao)?` • precisão aproximada de ${Math.round(precisao)} metros`:""}`;link.href=`https://www.google.com/maps?q=${latitude},${longitude}`;link.target="_blank";link.rel="noopener noreferrer";link.textContent="📍 Abrir localização exata";artigo.append(titulo,detalhe,link);listaLocalizacoes.appendChild(artigo);
+  });
+  if(!listaLocalizacoes.children.length)secaoLocalizacoes.classList.add("escondido");
 }
 
 function montarLocalizacao(leitura) {

@@ -256,3 +256,5 @@ a {
         padding: 50px 20px;
     }
 }
+
+.secao-localizacoes{margin-top:34px;padding-top:28px;border-top:1px solid #dbe4f0}.titulo-localizacoes span{color:#2563eb;font-size:12px;font-weight:800;letter-spacing:.08em}.titulo-localizacoes h2{margin:7px 0;font-size:23px}.titulo-localizacoes p{margin:0 0 18px;color:#64748b;line-height:1.5}.lista-localizacoes{display:grid;gap:12px}.item-localizacao{padding:17px;border:1px solid #cfe0ff;border-radius:15px;background:#f5f9ff}.item-localizacao strong,.item-localizacao span{display:block}.item-localizacao span{margin-top:5px;color:#64748b;font-size:14px}.item-localizacao a{display:inline-block;margin-top:12px;padding:10px 14px;border-radius:10px;background:#225bea;color:#fff;font-weight:800;text-decoration:none}

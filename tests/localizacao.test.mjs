@@ -15,6 +15,27 @@ test("a localização exige coordenadas válidas", async () => {
   assert.equal(resposta.status, 400);
 });
 
+test("a Sprint 3.17 pede consentimento e entrega a localização exata somente ao tutor", async () => {
+  const [perfil, fluxo, api, historico, paginaHistorico] = await Promise.all([
+    readFile(new URL("../public/t.html", import.meta.url), "utf8"),
+    readFile(new URL("../public/js/pet-location.js", import.meta.url), "utf8"),
+    readFile(new URL("../functions/api/localizacoes.js", import.meta.url), "utf8"),
+    readFile(new URL("../public/js/historico.js", import.meta.url), "utf8"),
+    readFile(new URL("../public/historico.html", import.meta.url), "utf8")
+  ]);
+  assert.match(perfil, /conviteLocalizacao/);
+  assert.match(perfil, /não será exibida publicamente/);
+  assert.match(fluxo, /orbitek:pet-carregado/);
+  assert.match(fluxo, /navigator\.geolocation\.getCurrentPosition/);
+  assert.match(fluxo, /enableHighAccuracy:true/);
+  assert.match(fluxo, /posicao\.coords\.accuracy/);
+  assert.match(api, /obterSessao/);
+  assert.match(api, /LOWER\(email\) = LOWER\(\?\)/);
+  assert.match(historico, /Abrir localização exata/);
+  assert.match(historico, /precisão aproximada/);
+  assert.match(paginaHistorico, /Estas coordenadas são privadas/);
+});
+
 test("uma localização válida só é salva para tag ativa", async () => {
   let insercao;
   const banco = {

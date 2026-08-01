@@ -84,7 +84,7 @@ export async function onRequestGet({ request, env }) {
     if (!pet) return json({ sucesso: false, mensagem: "Pet não encontrado para esta conta." }, 404);
 
     const resultado = await env.DB.prepare(`
-      SELECT latitude, longitude, precisao_metros, criado_em
+      SELECT latitude, longitude, precisao_metros, origem, criado_em
       FROM localizacoes_pet WHERE tag_codigo = ?
       ORDER BY datetime(criado_em) DESC, id DESC LIMIT 20
     `).bind(tag).all();
