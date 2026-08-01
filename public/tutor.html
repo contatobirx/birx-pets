@@ -20,7 +20,7 @@
 
   <title>Painel do Tutor | Orbitek Pets</title>
 
-  <link rel="stylesheet" href="/css/tutor.css?v=3.6" />
+  <link rel="stylesheet" href="/css/tutor.css?v=3.7" />
   <link rel="stylesheet" href="/css/ux.css?v=1" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
   <link rel="stylesheet" href="/css/tutor-lost-location.css?v=2.10.2" />
@@ -151,6 +151,7 @@
             <button class="modulo-card" type="button" data-modulo="timeline"><span class="modulo-icone">🕒</span><span><strong>Timeline</strong><small>Histórico do pet</small></span><b>›</b></button>
             <button class="modulo-card" type="button" data-modulo="historico"><span class="modulo-icone">📍</span><span><strong>Acessos</strong><small>Leituras e localização</small></span><b>›</b></button>
             <button class="modulo-card" type="button" data-modulo="medicamentos"><span class="modulo-icone">💊</span><span><strong>Medicamentos</strong><small>Tratamentos e horários</small></span><b>›</b></button>
+            <button class="modulo-card" type="button" data-modulo="peso"><span class="modulo-icone">⚖️</span><span><strong>Peso</strong><small>Evolução e histórico</small></span><b>›</b></button>
             <button class="modulo-card" type="button" data-modulo="agendamentos"><span class="modulo-icone">📅</span><span><strong>Agendamentos</strong><small>Consultas, exames e vacinas</small></span><b>›</b></button>
             <button class="modulo-card" type="button" data-modulo="clinicas"><span class="modulo-icone">🏥</span><span><strong>Clínicas próximas</strong><small>Encontre atendimento veterinário</small></span><b>›</b></button>
           </div>
@@ -837,6 +838,20 @@
     </div>
   </div>
 
+  <div id="modalPeso" class="modal" hidden>
+    <div class="modal-overlay" data-fechar-peso></div>
+    <div class="modal-caixa modal-caixa-peso" role="dialog" aria-modal="true" aria-labelledby="tituloPeso">
+      <div class="modal-topo"><div><h2 id="tituloPeso">Peso de <span id="pesoNomePet">Pet</span></h2><p class="modal-subtitulo">Acompanhe a evolução ao longo do tempo.</p></div><button class="modal-fechar" data-fechar-peso type="button" aria-label="Fechar">✕</button></div>
+      <input id="pesoTag" type="hidden">
+      <div id="pesoCarregando" class="saude-carregando" hidden><span class="saude-spinner"></span> Carregando histórico...</div>
+      <div id="pesoDashboard" hidden><section class="peso-resumo"><article><small>Peso atual</small><strong id="pesoAtual">—</strong></article><article><small>Variação</small><strong id="pesoVariacao">—</strong></article><article><small>Medições</small><strong id="pesoTotal">0</strong></article></section><div id="pesoGrafico" class="peso-grafico" aria-label="Gráfico da evolução do peso"></div></div>
+      <div class="peso-barra"><div><strong>Histórico de medições</strong><p>Registre sempre em condições semelhantes.</p></div><button id="novoPeso" class="botao botao-principal" type="button">+ Registrar peso</button></div>
+      <div id="listaPesos" class="lista-pesos"></div>
+      <div id="pesoVazio" class="saude-vazio" hidden><div class="saude-vazio-icone">⚖️</div><strong>Nenhum peso registrado</strong><p>Adicione a primeira medição deste pet.</p></div>
+      <form id="formPeso" class="form-saude" hidden><div class="form-saude-topo"><h3>Nova medição</h3><button id="cancelarPeso" class="botao-link" type="button">Cancelar</button></div><div class="grid-2"><div class="campo"><label for="pesoKg">Peso em kg *</label><input id="pesoKg" type="number" min="0.1" max="300" step="0.01" inputmode="decimal" placeholder="Ex.: 8,50" required></div><div class="campo"><label for="pesoData">Data da medição *</label><input id="pesoData" type="date" required></div></div><div class="campo"><label for="pesoObservacoes">Observações</label><textarea id="pesoObservacoes" maxlength="500" rows="2" placeholder="Ex.: pesagem na consulta anual"></textarea></div><div class="modal-botoes"><button class="botao botao-secundario" id="fecharFormPeso" type="button">Cancelar</button><button class="botao botao-principal" id="salvarPeso" type="submit">Salvar medição</button></div></form>
+    </div>
+  </div>
+
   <div id="modalLocalPerdido" class="modal" hidden>
     <div class="modal-overlay" id="fecharLocalPerdidoOverlay"></div>
     <div class="modal-caixa modal-caixa-local-perdido" role="dialog" aria-modal="true" aria-labelledby="tituloLocalPerdido">
@@ -862,6 +877,7 @@
   <script src="/js/tutor-emergencia.js?v=3.5"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <script src="/js/tutor-cartaz.js?v=3.6"></script>
+  <script src="/js/tutor-peso.js?v=3.7"></script>
   <script src="/js/tutor-onde-comprar.js?v=2.17.1"></script>
   <script src="/js/tutor-push.js?v=2.14.1"></script>
   <script src="/js/timeline.js?v=1"></script>
