@@ -20,7 +20,7 @@
 
   <title>Painel do Tutor | Orbitek Pets</title>
 
-  <link rel="stylesheet" href="/css/tutor.css?v=3.5" />
+  <link rel="stylesheet" href="/css/tutor.css?v=3.6" />
   <link rel="stylesheet" href="/css/ux.css?v=1" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
   <link rel="stylesheet" href="/css/tutor-lost-location.css?v=2.10.2" />
@@ -76,6 +76,7 @@
             <button class="botao-hero botao-hero-principal" id="editarPetDestaque" type="button">✏️ Editar perfil</button>
             <button class="botao-hero botao-hero-claro" id="verPerfilPublico" type="button">👁️ Ver perfil público</button>
             <button class="botao-hero botao-hero-alerta" id="modoPerdidoDestaque" type="button">🚨 Ativar modo perdido</button>
+            <button class="botao-hero botao-hero-cartaz" id="gerarCartazDestaque" type="button" hidden>📄 Gerar cartaz</button>
             <button class="botao-hero botao-hero-claro" id="transferirPetDestaque" type="button">↗ Transferir pet</button>
             <button class="botao-hero botao-publicar-perdido" id="publicarPerdidoDestaque" type="button" hidden>🌐 Publicar em pets perdidos</button>
           </div>
@@ -818,6 +819,24 @@
     </div>
   </div>
 
+  <div id="modalCartazPerdido" class="modal" hidden>
+    <div class="modal-overlay" data-fechar-cartaz></div>
+    <div class="modal-caixa modal-caixa-cartaz" role="dialog" aria-modal="true" aria-labelledby="tituloModalCartaz">
+      <div class="modal-topo cartaz-modal-topo"><div><h2 id="tituloModalCartaz">Cartaz de pet desaparecido</h2><p class="modal-subtitulo">Pronto para imprimir, salvar em PDF ou compartilhar.</p></div><button class="modal-fechar" data-fechar-cartaz type="button" aria-label="Fechar">✕</button></div>
+      <div id="cartazCarregando" class="saude-carregando"><span class="saude-spinner"></span> Preparando cartaz...</div>
+      <article id="cartazPerdido" class="cartaz-perdido" hidden>
+        <header><img src="/assets/login.png" alt="Orbitek Pets"><span>PET DESAPARECIDO</span></header>
+        <h1>AJUDE A ENCONTRAR<br><b id="cartazNomePet">ESTE PET</b></h1>
+        <div id="cartazFoto" class="cartaz-foto">🐾</div>
+        <div class="cartaz-dados"><p id="cartazPerfil"></p><strong id="cartazLocal">Última localização não informada</strong><small id="cartazDataLocal"></small></div>
+        <div id="cartazCuidados" class="cartaz-cuidados"></div>
+        <section class="cartaz-contato"><div><span>SE VOCÊ VIU OU ENCONTROU</span><strong id="cartazTutor"></strong><a id="cartazTelefone" href="#"></a></div><div><div id="cartazQr" aria-label="QR Code do perfil público"></div><small>Aponte a câmera<br>para ver o perfil</small></div></section>
+        <footer>Compartilhe este cartaz • orbitekoficial.com.br</footer>
+      </article>
+      <div id="cartazAcoes" class="cartaz-acoes" hidden><button id="imprimirCartaz" class="botao botao-principal" type="button">🖨️ Imprimir ou salvar PDF</button><button id="compartilharCartaz" class="botao botao-secundario" type="button">↗ Compartilhar aviso</button></div>
+    </div>
+  </div>
+
   <div id="modalLocalPerdido" class="modal" hidden>
     <div class="modal-overlay" id="fecharLocalPerdidoOverlay"></div>
     <div class="modal-caixa modal-caixa-local-perdido" role="dialog" aria-modal="true" aria-labelledby="tituloLocalPerdido">
@@ -835,12 +854,14 @@
   <script src="/js/tutor-lost.js?v=2.5"></script>
   <script src="/js/tutor-notificacoes.js?v=2.9"></script>
   <script src="/js/core/notifications.js?v=1"></script>
-  <script src="/js/tutor.js?v=3.2"></script>
+  <script src="/js/tutor.js?v=3.6"></script>
   <script src="/js/tutor-medicamentos.js?v=2.14"></script>
   <script src="/js/tutor-agendamentos.js?v=2.18"></script>
   <script src="/js/tutor-carteirinha.js?v=2.19"></script>
   <script src="/js/tutor-transferencia.js?v=3.4"></script>
   <script src="/js/tutor-emergencia.js?v=3.5"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script src="/js/tutor-cartaz.js?v=3.6"></script>
   <script src="/js/tutor-onde-comprar.js?v=2.17.1"></script>
   <script src="/js/tutor-push.js?v=2.14.1"></script>
   <script src="/js/timeline.js?v=1"></script>

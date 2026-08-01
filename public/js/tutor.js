@@ -13,6 +13,7 @@ const elementos = {
   verPerfilPublico: document.getElementById("verPerfilPublico"),
   modoPerdidoDestaque: document.getElementById("modoPerdidoDestaque"),
   publicarPerdidoDestaque: document.getElementById("publicarPerdidoDestaque"),
+  gerarCartazDestaque: document.getElementById("gerarCartazDestaque"),
   statusPetPrincipal: document.getElementById("statusPetPrincipal"),
   metricaStatusTag: document.getElementById("metricaStatusTag"),
   metricaLocalizacao: document.getElementById("metricaLocalizacao"),
@@ -365,6 +366,10 @@ function renderizarPainel2(pets, nomeTutor) {
     elementos.publicarPerdidoDestaque.dataset.publicado = pet.publicoPerdidos ? "1" : "0";
     elementos.publicarPerdidoDestaque.textContent = pet.publicoPerdidos ? "✓ Remover do diretório público" : "🌐 Publicar em pets perdidos";
     elementos.publicarPerdidoDestaque.classList.toggle("ativo", pet.publicoPerdidos);
+  }
+  if (elementos.gerarCartazDestaque) {
+    elementos.gerarCartazDestaque.hidden = !pet.perdido;
+    elementos.gerarCartazDestaque.dataset.tag = pet.tagCodigo;
   }
 
   elementos.petDestaqueFoto.innerHTML = pet.fotoUrl
