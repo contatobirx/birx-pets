@@ -185,6 +185,11 @@ function somenteNumeros(valor) {
   return String(valor ?? "").replace(/\D/g, "");
 }
 
+function petFemea(pet) {
+  const sexo = String(pet?.sexo ?? "").trim().toLocaleLowerCase("pt-BR");
+  return sexo.includes("fêmea") || sexo.includes("femea") || sexo.includes("femin");
+}
+
 function valorPet(pet, camel, snake = camel) {
   return pet?.[camel] ?? pet?.[snake] ?? "";
 }
@@ -309,7 +314,7 @@ function renderizarPetsRecentes(pets) {
           <small>${escaparHtml(perfil)} · ${escaparHtml(formatarDataCurta(dataCadastro))}</small>
         </div>
         <span class="pet-recente-status ${pet.perdido ? "perdido" : "seguro"}">
-          ${pet.perdido ? "● Perdido" : "● Seguro"}
+          ${pet.perdido ? `● ${petFemea(pet) ? "Perdida" : "Perdido"}` : `● ${petFemea(pet) ? "Segura" : "Seguro"}`}
         </span>
         <span class="pet-recente-seta" aria-hidden="true">›</span>
       </button>
@@ -327,10 +332,11 @@ function renderizarPainel2(pets, nomeTutor) {
   const perfil = [pet.especie, pet.raca].filter(Boolean).join(" • ") || "Complete o perfil do pet";
 
   const estaPerdido = Boolean(pet.perdido);
+  const feminina = petFemea(pet);
 
   elementos.boasVindasTitulo.textContent = estaPerdido
-    ? `${nomePet} está perdido`
-    : `${nomePet} está protegido 🐾`;
+    ? `${nomePet} está ${feminina ? "perdida" : "perdido"}`
+    : `${nomePet} está ${feminina ? "protegida" : "protegido"} 🐾`;
   if (elementos.protecaoRotulo) elementos.protecaoRotulo.textContent = estaPerdido ? "Pet desaparecido" : "Proteção Orbitek";
   if (elementos.protecaoIcone) elementos.protecaoIcone.textContent = estaPerdido ? "🚨" : "🛡️";
   if (elementos.textoProtecao) {
@@ -345,7 +351,7 @@ function renderizarPainel2(pets, nomeTutor) {
   elementos.petDestaqueTag.textContent = `Tag ${formatarTexto(pet.tagCodigo, "não informada")}`;
 
   if (elementos.statusPetPrincipal) {
-    elementos.statusPetPrincipal.textContent = pet.perdido ? "● Pet perdido" : "● Tag ativa";
+    elementos.statusPetPrincipal.textContent = pet.perdido ? `● Pet ${feminina ? "perdida" : "perdido"}` : "● Tag ativa";
     elementos.statusPetPrincipal.classList.toggle("perdido", pet.perdido);
   }
   if (elementos.metricaStatusTag) elementos.metricaStatusTag.textContent = pet.perdido ? "Em alerta" : "Ativa";
@@ -354,7 +360,7 @@ function renderizarPainel2(pets, nomeTutor) {
   if (elementos.modoPerdidoDestaque) {
     elementos.modoPerdidoDestaque.dataset.tag = pet.tagCodigo;
     elementos.modoPerdidoDestaque.dataset.perdido = pet.perdido ? "1" : "0";
-    elementos.modoPerdidoDestaque.textContent = pet.perdido ? "✅ Marcar como encontrado" : "🚨 Ativar modo perdido";
+    elementos.modoPerdidoDestaque.textContent = pet.perdido ? `✅ Marcar como ${feminina ? "encontrada" : "encontrado"}` : "🚨 Ativar modo perdido";
     elementos.modoPerdidoDestaque.classList.toggle("ativo", pet.perdido);
   }
   if (elementos.verPerfilPublico) elementos.verPerfilPublico.dataset.tag = pet.tagCodigo;
@@ -524,12 +530,13 @@ function criarCardPet(petOriginal) {
     ? `<img class="pet-foto" src="${escaparHtml(pet.fotoUrl)}" alt="Foto de ${escaparHtml(pet.nome)}" loading="lazy">`
     : `<div class="pet-sem-foto" aria-hidden="true">🐶</div>`;
 
+  const feminina = petFemea(pet);
   const status = pet.perdido
-    ? `<span class="status status-perdido">🔴 Perdido</span>`
-    : `<span class="status status-seguro">🟢 Seguro</span>`;
+    ? `<span class="status status-perdido">🔴 ${feminina ? "Perdida" : "Perdido"}</span>`
+    : `<span class="status status-seguro">🟢 ${feminina ? "Segura" : "Seguro"}</span>`;
 
   const classeStatus = pet.perdido ? "botao-seguro" : "botao-alerta";
-  const textoStatus = pet.perdido ? "Marcar como encontrado" : "Ativar modo perdido";
+  const textoStatus = pet.perdido ? `Marcar como ${feminina ? "encontrada" : "encontrado"}` : "Ativar modo perdido";
 
   return `
     <article class="pet-card">
@@ -2084,19 +2091,21 @@ async function alterarModoPerdido(evento) {
   const botao = evento.currentTarget;
   const tagCodigo = botao.dataset.tag;
   const novoEstado = botao.dataset.perdido !== "1";
+  const petAtual = dadosPet(estado.pets.find((item) => String(dadosPet(item).tagCodigo) === String(tagCodigo)) || {});
+  const feminina = petFemea(petAtual);
 
   const confirmar = window.OrbitekUI?.confirmar
     ? await window.OrbitekUI.confirmar({
-        titulo: novoEstado ? "Ativar modo perdido?" : "Pet encontrado?",
+        titulo: novoEstado ? "Ativar modo perdido?" : `Pet ${feminina ? "encontrada" : "encontrado"}?`,
         mensagem: novoEstado
-          ? "O perfil público destacará que este pet está perdido."
+          ? `O perfil público destacará que este pet está ${feminina ? "perdida" : "perdido"}.`
           : "O alerta de pet perdido será removido do perfil público.",
-        textoConfirmar: novoEstado ? "Ativar modo perdido" : "Marcar como encontrado",
+        textoConfirmar: novoEstado ? "Ativar modo perdido" : `Marcar como ${feminina ? "encontrada" : "encontrado"}`,
       })
     : window.confirm(
         novoEstado
           ? "Deseja ativar o modo perdido para este pet?"
-          : "Deseja marcar este pet como encontrado?"
+          : `Deseja marcar este pet como ${feminina ? "encontrada" : "encontrado"}?`
       );
 
   if (!confirmar) return;

@@ -68,7 +68,7 @@ function preencherPerfil(pet, statusApi) {
   document.getElementById("voltarPerdidos")?.classList.toggle("escondido", !(estaPerdido && veioDePerdidos));
   if (veioDePerdidos) document.getElementById("voltarPerdidos")?.classList.add("escondido");
   configurarTemaSexo(pet.sexo);
-  preencherStatus(estaPerdido);
+  preencherStatus(estaPerdido, pet.sexo);
   configurarContato(pet, estaPerdido);
   configurarFoto(pet);
   configurarModoPerdido(estaPerdido);
@@ -91,10 +91,20 @@ function configurarTemaSexo(sexo) {
   }
 }
 
-function preencherStatus(estaPerdido) {
+function sexoFeminino(sexo) {
+  const valor = String(sexo || "").trim().toLocaleLowerCase("pt-BR");
+  return valor.includes("fêmea") || valor.includes("femea") || valor.includes("femin");
+}
+
+function preencherStatus(estaPerdido, sexo) {
   const statusPet = document.getElementById("statusPet");
   if (!statusPet) return;
-  statusPet.textContent = estaPerdido ? "Pet desaparecido" : "Estou seguro";
+  const feminina = sexoFeminino(sexo);
+  statusPet.textContent = estaPerdido ? `Pet ${feminina ? "desaparecida" : "desaparecido"}` : `Estou ${feminina ? "segura" : "seguro"}`;
+  const alerta = document.querySelector("#alertaPetPerdido strong");
+  if (alerta) alerta.textContent = `Este pet está ${feminina ? "desaparecida" : "desaparecido"}`;
+  const ajuda = document.querySelector("#alertaPetPerdido p");
+  if (ajuda) ajuda.textContent = `${feminina ? "Ajude-a" : "Ajude-o"} a voltar para casa. Entre em contato com o tutor imediatamente.`;
   statusPet.classList.toggle("perdido", estaPerdido);
   statusPet.classList.toggle("seguro", !estaPerdido);
 }
@@ -112,7 +122,7 @@ function configurarContato(pet, estaPerdido) {
   if (!telefoneTutor) return;
   const completo = (telefoneTutor.length===10||telefoneTutor.length===11)?`55${telefoneTutor}`:telefoneTutor;
   const nomePet = pet.nome || "o pet";
-  const mensagem = estaPerdido ? `Olá! Encontrei ${nomePet}, que consta como desaparecido na Tag Orbitek ${codigoTag}.` : `Olá! Encontrei ${nomePet} pela Tag Orbitek ${codigoTag}.`;
+  const mensagem = estaPerdido ? `Olá! Encontrei ${nomePet}, que consta como ${sexoFeminino(pet.sexo) ? "desaparecida" : "desaparecido"} na Tag Orbitek ${codigoTag}.` : `Olá! Encontrei ${nomePet} pela Tag Orbitek ${codigoTag}.`;
   if (whatsapp) { whatsapp.href=`https://wa.me/${completo}?text=${encodeURIComponent(mensagem)}`; whatsapp.querySelector("span:last-child").textContent=estaPerdido?"Avisar que encontrei":"Falar no WhatsApp"; whatsapp.classList.remove("escondido"); }
   if (ligar) { ligar.href=`tel:+${completo}`; ligar.classList.remove("escondido"); }
   if (copiar) { copiar.classList.remove("escondido"); copiar.addEventListener("click",()=>copiarTexto(formatarTelefone(telefoneTutor),"Contato copiado")); }

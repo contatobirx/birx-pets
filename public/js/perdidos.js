@@ -8,6 +8,7 @@ let origemUsuario = null;
 let petsAtuais = [];
 
 function escapar(valor) { const div = document.createElement("div"); div.textContent = valor ?? ""; return div.innerHTML; }
+function femea(pet){const sexo=String(pet?.sexo||"").toLocaleLowerCase("pt-BR");return sexo.includes("fêmea")||sexo.includes("femea")||sexo.includes("femin")}
 function rad(graus) { return graus * Math.PI / 180; }
 function distanciaKm(a, b) { const r=6371,dLat=rad(b.lat-a.lat),dLon=rad(b.lon-a.lon); const x=Math.sin(dLat/2)**2+Math.cos(rad(a.lat))*Math.cos(rad(b.lat))*Math.sin(dLon/2)**2; return 2*r*Math.asin(Math.sqrt(x)); }
 
@@ -17,7 +18,7 @@ function renderizar(pets) {
   quantidade.textContent = `${exibidos.length} ${exibidos.length === 1 ? "animal" : "animais"}`;
   estado.hidden = exibidos.length > 0;
   estado.textContent = origemUsuario ? "Nenhum animal publicado foi encontrado em um raio aproximado de 20 km." : "Nenhum animal perdido foi publicado com estes filtros.";
-  lista.innerHTML = exibidos.map((pet) => `<article class="lost-card"><div class="lost-card-img">${pet.fotoUrl ? `<img src="${escapar(pet.fotoUrl)}" alt="Foto de ${escapar(pet.nome)}" loading="lazy">` : ""}<span class="lost-alert">PERDIDO</span></div><div class="lost-card-body"><h3>${escapar(pet.nome || "Pet")}</h3><p class="lost-meta">${escapar([pet.especie,pet.raca,pet.sexo].filter(Boolean).join(" · "))}</p><div class="lost-place">📍 ${escapar([pet.bairro,pet.cidade,pet.estado].filter(Boolean).join(" · ") || "Localização não informada")}</div>${pet.distancia != null ? `<span class="lost-distance">Aproximadamente ${pet.distancia.toFixed(1)} km de você</span>` : ""}<a href="/t.html?tag=${encodeURIComponent(pet.tag)}&origem=perdidos">Ver perfil e ajudar →</a></div></article>`).join("");
+  lista.innerHTML = exibidos.map((pet) => `<article class="lost-card"><div class="lost-card-img">${pet.fotoUrl ? `<img src="${escapar(pet.fotoUrl)}" alt="Foto de ${escapar(pet.nome)}" loading="lazy">` : ""}<span class="lost-alert">${femea(pet)?"PERDIDA":"PERDIDO"}</span></div><div class="lost-card-body"><h3>${escapar(pet.nome || "Pet")}</h3><p class="lost-meta">${escapar([pet.especie,pet.raca,pet.sexo].filter(Boolean).join(" · "))}</p><div class="lost-place">📍 ${escapar([pet.bairro,pet.cidade,pet.estado].filter(Boolean).join(" · ") || "Localização não informada")}</div>${pet.distancia != null ? `<span class="lost-distance">Aproximadamente ${pet.distancia.toFixed(1)} km de você</span>` : ""}<a href="/t.html?tag=${encodeURIComponent(pet.tag)}&origem=perdidos">Ver perfil e ajudar →</a></div></article>`).join("");
 }
 
 async function carregar() {

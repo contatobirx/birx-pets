@@ -245,6 +245,7 @@ export async function onRequestPost(
           SELECT
             tag_codigo,
             nome,
+            sexo,
             email,
             perdido
           FROM pets
@@ -269,6 +270,9 @@ export async function onRequestPost(
         404
       );
     }
+
+    const sexoPet = String(pet.sexo || "").trim().toLocaleLowerCase("pt-BR");
+    const petFemea = sexoPet.includes("fêmea") || sexoPet.includes("femea") || sexoPet.includes("femin");
 
     const atualizarStatus = env.DB.prepare(`
         UPDATE pets
@@ -301,10 +305,10 @@ export async function onRequestPost(
         .bind(
           tagCodigo,
           perdido ? "perdido" : "encontrado",
-          perdido ? "Modo perdido ativado" : "Pet marcado como encontrado",
+          perdido ? "Modo perdido ativado" : `Pet marcad${petFemea ? "a" : "o"} como encontrad${petFemea ? "a" : "o"}`,
           perdido
-            ? `${pet.nome} foi marcado como desaparecido pelo tutor.`
-            : `${pet.nome} foi marcado como encontrado e está seguro.`,
+            ? `${pet.nome} foi marcad${petFemea ? "a" : "o"} como desaparecid${petFemea ? "a" : "o"} pelo tutor.`
+            : `${pet.nome} foi marcad${petFemea ? "a" : "o"} como encontrad${petFemea ? "a" : "o"} e está segur${petFemea ? "a" : "o"}.`,
           sessao.email
         )
         .run();
@@ -317,7 +321,7 @@ export async function onRequestPost(
       autenticado: true,
       mensagem: perdido
         ? "Modo perdido ativado com sucesso."
-        : "Pet marcado como encontrado.",
+        : `Pet marcad${petFemea ? "a" : "o"} como encontrad${petFemea ? "a" : "o"}.`,
       pet: {
         tagCodigo,
         nome: pet.nome,
