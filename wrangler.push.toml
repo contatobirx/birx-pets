@@ -1,4 +1,4 @@
-name = "orbitek-medication-reminders"
+name = "birx-medication-reminders"
 main = "workers/medication-push.js"
 compatibility_date = "2026-07-29"
 compatibility_flags = ["nodejs_compat"]
