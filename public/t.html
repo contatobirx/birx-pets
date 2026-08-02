@@ -21,6 +21,7 @@
   <link rel="stylesheet" href="/css/pet-gallery.css?v=2.11">
   <link rel="stylesheet" href="/css/accessibility.css?v=3.16">
   <link rel="stylesheet" href="/css/scan-location.css?v=3.17">
+  <link rel="stylesheet" href="/css/avistamentos.css?v=4.5">
 </head>
 <body>
   <nav class="barra-acessibilidade" aria-label="Opções de acessibilidade">
@@ -90,6 +91,7 @@
         <button type="button" id="botaoCompartilharLocalizacao"><span aria-hidden="true">📍</span> Compartilhar localização</button>
         <small>A localização só é acessada após seu toque e será compartilhada exclusivamente com o tutor.</small>
       </section>
+      <section id="avistamentosPublico" class="avistamentos-publico escondido"><h2>Viu este pet?</h2><p>Registre um possível avistamento com horário, localização e foto. O tutor validará o relato antes de ele aparecer no mapa.</p><button id="abrirRelatoAvistamento" type="button">Registrar avistamento</button><p id="avistamentosQuantidade" class="avistamentos-nota"></p><div id="mapaAvistamentos" class="avistamentos-mapa" hidden></div><p class="avistamentos-nota">A linha no mapa apenas organiza os relatos em ordem cronológica. Ela não representa a localização atual nem uma rota garantida do pet.</p></section>
 
       <section class="secao-perfil" aria-labelledby="tituloIdentificacao">
         <div class="titulo-secao"><span class="icone-secao" aria-hidden="true">🐶</span><div><h2 id="tituloIdentificacao">Identificação</h2><p>Informações principais do pet</p></div></div>
@@ -136,6 +138,7 @@
     </section>
   </main>
 
+  <div id="modalAvistamento" class="avistamento-form" hidden><form id="formAvistamento"><h2>Registrar possível avistamento</h2><p>Envie somente informações que você presenciou.</p><label>Quando viu? *<input name="vistoEm" type="datetime-local" required></label><label>Foto (opcional)<input name="foto" type="file" accept="image/jpeg,image/png,image/webp"></label><label>O que observou?<textarea name="observacoes" maxlength="500" rows="3"></textarea></label><label>Contato para o tutor (opcional)<input name="contato" maxlength="150"></label><p id="avistamentoLocalStatus">A localização será solicitada ao enviar.</p><div class="acoes"><button id="fecharRelatoAvistamento" type="button">Cancelar</button><button type="submit">Enviar ao tutor</button></div></form></div>
   <div id="toastPerfil" class="toast-perfil" role="status" aria-live="polite"></div>
   <div class="foto-ampliada" id="fotoAmpliada" hidden><button type="button" aria-label="Fechar foto">✕</button><img alt="Foto ampliada do pet"></div>
   <script src="/js/core/api.js?v=2"></script>
@@ -144,6 +147,7 @@
   <script src="/js/pet-lost-map.js?v=2.10.2"></script>
   <script src="/js/pet-gallery.js?v=2.11"></script>
   <script src="/js/pet-location.js?v=3.17"></script>
+  <script src="/js/pet-avistamentos.js?v=4.5"></script>
   <script src="/js/core/notifications.js?v=2"></script>
   <script src="/js/core/ux.js?v=1"></script>
   <script src="/js/accessibility.js?v=3.16"></script>
