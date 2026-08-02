@@ -3,7 +3,7 @@
   const parametros=new URLSearchParams(window.location.search),tag=parametros.get("tag")?.trim().toUpperCase(),chave=`orbitek_localizacao_scan_${tag}`;
   if(!botao||!tag)return;
   let enviando=false,ultimoFoco=null;
-  function avisar(mensagem,erro=false){if(window.OrbitekUI?.notificar)return window.OrbitekUI.notificar(mensagem,erro?"erro":"sucesso");const toast=document.getElementById("toastPerfil");if(toast){toast.textContent=mensagem;toast.classList.add("visivel");setTimeout(()=>toast.classList.remove("visivel"),3500)}}
+  function avisar(mensagem,erro=false){if(window.BIRXUI?.notificar)return window.BIRXUI.notificar(mensagem,erro?"erro":"sucesso");const toast=document.getElementById("toastPerfil");if(toast){toast.textContent=mensagem;toast.classList.add("visivel");setTimeout(()=>toast.classList.remove("visivel"),3500)}}
   function abrir(){if(!modal||sessionStorage.getItem(chave)||parametros.get("origem")==="tutor")return;ultimoFoco=document.activeElement;modal.hidden=false;document.body.classList.add("modal-localizacao-aberto");setTimeout(()=>permitir?.focus(),50)}
   function fechar(resposta){if(!modal)return;if(resposta)sessionStorage.setItem(chave,resposta);modal.hidden=true;document.body.classList.remove("modal-localizacao-aberto");ultimoFoco?.focus?.()}
   function erroLocalizacao(erro){const mensagem=erro.code===1?"Você não autorizou a localização. O perfil continua disponível normalmente.":erro.code===3?"A localização demorou para responder. Você pode tentar novamente.":"Não foi possível obter sua localização neste dispositivo.";avisar(mensagem,erro.code!==1)}

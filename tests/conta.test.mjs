@@ -5,8 +5,8 @@ import { onRequestGet, onRequestPost } from "../functions/api/conta.js";
 
 test("a área da conta exige uma sessão válida", async () => {
   const env = { DB: { prepare() { throw new Error("o banco não deve ser consultado sem cookie"); } } };
-  const respostaGet = await onRequestGet({ request: new Request("https://orbitekoficial.com.br/api/conta"), env });
-  const respostaPost = await onRequestPost({ request: new Request("https://orbitekoficial.com.br/api/conta", { method: "POST" }), env });
+  const respostaGet = await onRequestGet({ request: new Request("https://pets.birx.com.br/api/conta"), env });
+  const respostaPost = await onRequestPost({ request: new Request("https://pets.birx.com.br/api/conta", { method: "POST" }), env });
   assert.equal(respostaGet.status, 401);
   assert.equal(respostaPost.status, 401);
 });

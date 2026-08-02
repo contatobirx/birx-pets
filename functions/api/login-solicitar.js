@@ -85,7 +85,7 @@ async function enviarEmailResend({
         from: remetente,
         to: [destinatario],
         subject:
-          "Seu código de acesso | Orbitek Pets",
+          "Seu código de acesso | BIRX Pets",
         html: `
           <!DOCTYPE html>
           <html lang="pt-BR">
@@ -122,7 +122,7 @@ async function enviarEmailResend({
                   text-transform:uppercase;
                 "
               >
-                Orbitek Pets
+                BIRX Pets
               </p>
 
               <h1
@@ -190,7 +190,7 @@ async function enviarEmailResend({
         `,
         text:
           `Olá, ${nomeTutor || "Tutor"}.\n\n` +
-          `Seu código de acesso à Orbitek Pets é: ${codigo}\n\n` +
+          `Seu código de acesso à BIRX Pets é: ${codigo}\n\n` +
           `Este código expira em 10 minutos.\n` +
           `Não compartilhe este código com ninguém.`,
       }),
@@ -375,7 +375,7 @@ console.log(
 
     const remetente =
       env.EMAIL_REMETENTE ||
-      "Orbitek Pets <onboarding@resend.dev>";
+      "BIRX Pets <onboarding@resend.dev>";
 
     try {
       const envio =

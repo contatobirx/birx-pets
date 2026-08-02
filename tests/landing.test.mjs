@@ -12,7 +12,7 @@ test("a landing page oferece uma tag demonstrativa", async () => {
 
 test("a tag DEMO funciona sem consultar dados de clientes", async () => {
   const resposta = await consultarTag({
-    request: new Request("https://orbitekoficial.com.br/api/tag?tag=DEMO"),
+    request: new Request("https://pets.birx.com.br/api/tag?tag=DEMO"),
     env: {
       DB: {
         prepare() {
@@ -68,7 +68,7 @@ test("o catálogo descreve corretamente os três modelos físicos", async () => 
   assert.match(catalogo, /QR Code para acesso pela câmera/);
 });
 
-test("a galeria principal representa cães e gatos com a tag Orbitek", async () => {
+test("a galeria principal representa cães e gatos com a tag BIRX", async () => {
   const pagina = await readFile(new URL("../public/index.html", import.meta.url), "utf8");
   assert.match(pagina, /\/assets\/maior\.png/);
   assert.match(pagina, /\/assets\/menor\.png/);

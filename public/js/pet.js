@@ -37,7 +37,7 @@ async function iniciar() {
 
 async function consultarTag() {
   const url = `/api/tag?tag=${encodeURIComponent(codigoTag)}`;
-  if (window.OrbitekAPI?.get) return window.OrbitekAPI.get(url, { aceitarErroDeNegocio: true, redirecionarLogin: false, retornarRespostaCompleta: true });
+  if (window.BIRXAPI?.get) return window.BIRXAPI.get(url, { aceitarErroDeNegocio: true, redirecionarLogin: false, retornarRespostaCompleta: true });
   const resposta = await fetch(url, { method: "GET", credentials: "same-origin", headers: { Accept: "application/json" } });
   return { ok: resposta.ok, statusHttp: resposta.status, dados: await resposta.json().catch(() => ({})) };
 }
@@ -122,7 +122,7 @@ function configurarContato(pet, estaPerdido) {
   if (!telefoneTutor) return;
   const completo = (telefoneTutor.length===10||telefoneTutor.length===11)?`55${telefoneTutor}`:telefoneTutor;
   const nomePet = pet.nome || "o pet";
-  const mensagem = estaPerdido ? `Olá! Encontrei ${nomePet}, que consta como ${sexoFeminino(pet.sexo) ? "desaparecida" : "desaparecido"} na Tag Orbitek ${codigoTag}.` : `Olá! Encontrei ${nomePet} pela Tag Orbitek ${codigoTag}.`;
+  const mensagem = estaPerdido ? `Olá! Encontrei ${nomePet}, que consta como ${sexoFeminino(pet.sexo) ? "desaparecida" : "desaparecido"} na Tag BIRX ${codigoTag}.` : `Olá! Encontrei ${nomePet} pela Tag BIRX ${codigoTag}.`;
   if (whatsapp) { whatsapp.href=`https://wa.me/${completo}?text=${encodeURIComponent(mensagem)}`; whatsapp.querySelector("span:last-child").textContent=estaPerdido?"Avisar que encontrei":"Falar no WhatsApp"; whatsapp.classList.remove("escondido"); }
   if (ligar) { ligar.href=`tel:+${completo}`; ligar.classList.remove("escondido"); }
   if (copiar) { copiar.classList.remove("escondido"); copiar.addEventListener("click",()=>copiarTexto(formatarTelefone(telefoneTutor),"Contato copiado")); }
@@ -139,13 +139,13 @@ function configurarCompartilhamento(nomePet) {
   const botaoCompartilhar=document.getElementById("botaoCompartilhar");
   const botaoCopiarLink=document.getElementById("botaoCopiarLink");
   const url=window.location.href;
-  botaoCompartilhar?.addEventListener("click",async()=>{ if(navigator.share){ try{await navigator.share({title:`${nomePet} - Orbitek Pets`,text:`Veja o perfil de ${nomePet} na Orbitek Pets.`,url});return;}catch(e){if(e?.name==="AbortError")return;} } await copiarTexto(url,"Link do perfil copiado"); });
+  botaoCompartilhar?.addEventListener("click",async()=>{ if(navigator.share){ try{await navigator.share({title:`${nomePet} - BIRX Pets`,text:`Veja o perfil de ${nomePet} na BIRX Pets.`,url});return;}catch(e){if(e?.name==="AbortError")return;} } await copiarTexto(url,"Link do perfil copiado"); });
   botaoCopiarLink?.addEventListener("click",()=>copiarTexto(url,"Link do perfil copiado"));
 }
 
 async function copiarTexto(texto,mensagem){ try{await navigator.clipboard.writeText(texto);}catch{const campo=document.createElement("textarea");campo.value=texto;campo.style.position="fixed";campo.style.opacity="0";document.body.appendChild(campo);campo.select();document.execCommand("copy");campo.remove();}mostrarToast(mensagem); }
 function mostrarToast(mensagem){const toast=document.getElementById("toastPerfil");if(!toast)return;clearTimeout(temporizadorToast);toast.textContent=mensagem;toast.classList.add("visivel");temporizadorToast=setTimeout(()=>toast.classList.remove("visivel"),2400);}
-function atualizarMetadados(nome,estaPerdido){const titulo=estaPerdido?`${nome} está desaparecido - Orbitek Pets`:`${nome} - Orbitek Pets`;const descricao=estaPerdido?`Ajude ${nome} a voltar para casa. Consulte o perfil e fale com o tutor.`:`Perfil de identificação de ${nome}, protegido pela Orbitek Pets.`;document.title=titulo;document.getElementById("metaOgTitulo")?.setAttribute("content",titulo);document.getElementById("metaOgDescricao")?.setAttribute("content",descricao);document.getElementById("metaOgUrl")?.setAttribute("content",window.location.href);document.querySelector('meta[name="description"]')?.setAttribute("content",descricao);}
+function atualizarMetadados(nome,estaPerdido){const titulo=estaPerdido?`${nome} está desaparecido - BIRX Pets`:`${nome} - BIRX Pets`;const descricao=estaPerdido?`Ajude ${nome} a voltar para casa. Consulte o perfil e fale com o tutor.`:`Perfil de identificação de ${nome}, protegido pela BIRX Pets.`;document.title=titulo;document.getElementById("metaOgTitulo")?.setAttribute("content",titulo);document.getElementById("metaOgDescricao")?.setAttribute("content",descricao);document.getElementById("metaOgUrl")?.setAttribute("content",window.location.href);document.querySelector('meta[name="description"]')?.setAttribute("content",descricao);}
 function formatarTelefone(valor){const n=somenteNumeros(valor);if(n.length===11)return`(${n.slice(0,2)}) ${n.slice(2,7)}-${n.slice(7)}`;if(n.length===10)return`(${n.slice(0,2)}) ${n.slice(2,6)}-${n.slice(6)}`;return n;}
 function somenteNumeros(valor){return String(valor||"").replace(/\D/g,"");}
 function mostrarErro(titulo,mensagem){estadoCarregando?.classList.add("escondido");perfilPet?.classList.add("escondido");estadoErro?.classList.remove("escondido");if(tituloErro)tituloErro.textContent=titulo;if(mensagemErro)mensagemErro.textContent=mensagem;}

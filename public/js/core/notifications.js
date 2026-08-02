@@ -131,7 +131,7 @@
       .replaceAll("'", "&#039;");
   }
 
-  window.OrbitekUI = {
+  window.BIRXUI = {
     notificar,
     confirmar: confirmarAcao,
     sucesso: (texto, opcoes) => notificar(texto, "sucesso", opcoes),

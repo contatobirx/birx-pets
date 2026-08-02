@@ -22,5 +22,5 @@ test("a central usa o pet ativo e reúne dados protegidos já cadastrados",()=>{
   assert.match(js,/item\.ativo/);
   assert.match(js,/orbitek:clinicas-proximas/);
   assert.match(js,/navigator\.share/);
-  assert.match(js,/OrbitekNavigation/);
+  assert.match(js,/BIRXNavigation/);
 });

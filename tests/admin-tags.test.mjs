@@ -35,7 +35,7 @@ test("tags digitais usam o mesmo link no NFC e no QR Code",()=>{
 
 test("a administração exige segredo e evita códigos duplicados",()=>{
   assert.match(api,/TAG_ADMIN_TOKEN/);
-  assert.match(api,/X-Orbitek-Admin/);
+  assert.match(api,/X-BIRX-Admin/);
   assert.match(api,/crypto\.getRandomValues/);
   assert.match(api,/INSERT INTO tags/);
   assert.match(api,/ativada/);

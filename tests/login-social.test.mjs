@@ -6,7 +6,7 @@ import { onRequestGet as concluirGoogle } from "../functions/api/auth-google-cal
 
 test("o login Google usa o fluxo oficial e protege o estado", async () => {
   const resposta = await iniciarGoogle({
-    request: new Request("https://orbitekoficial.com.br/api/auth-google-start"),
+    request: new Request("https://pets.birx.com.br/api/auth-google-start"),
     env: { GOOGLE_CLIENT_ID: "cliente-teste", GOOGLE_CLIENT_SECRET: "segredo-teste" }
   });
 
@@ -16,7 +16,7 @@ test("o login Google usa o fluxo oficial e protege o estado", async () => {
   assert.equal(destino.origin, "https://accounts.google.com");
   assert.equal(destino.pathname, "/o/oauth2/v2/auth");
   assert.equal(destino.searchParams.get("client_id"), "cliente-teste");
-  assert.equal(destino.searchParams.get("redirect_uri"), "https://orbitekoficial.com.br/api/auth-google-callback");
+  assert.equal(destino.searchParams.get("redirect_uri"), "https://pets.birx.com.br/api/auth-google-callback");
   assert.equal(destino.searchParams.get("response_type"), "code");
   assert.equal(destino.searchParams.get("scope"), "openid email profile");
   assert.ok(destino.searchParams.get("state"));
@@ -27,22 +27,22 @@ test("o login Google usa o fluxo oficial e protege o estado", async () => {
 
 test("o login Google informa quando as credenciais ainda não foram configuradas", async () => {
   const resposta = await iniciarGoogle({
-    request: new Request("https://orbitekoficial.com.br/api/auth-google-start"),
+    request: new Request("https://pets.birx.com.br/api/auth-google-start"),
     env: {}
   });
   assert.equal(resposta.status, 302);
-  assert.equal(resposta.headers.get("Location"), "https://orbitekoficial.com.br/login?erro=google-nao-configurado");
+  assert.equal(resposta.headers.get("Location"), "https://pets.birx.com.br/login?erro=google-nao-configurado");
 });
 
 test("o retorno do Google rejeita estado ausente antes de consultar serviços externos", async () => {
   const resposta = await concluirGoogle({
-    request: new Request("https://orbitekoficial.com.br/api/auth-google-callback?code=abc&state=errado", {
+    request: new Request("https://pets.birx.com.br/api/auth-google-callback?code=abc&state=errado", {
       headers: { Cookie: "orbitek_oauth_state=correto" }
     }),
     env: { GOOGLE_CLIENT_ID: "cliente", GOOGLE_CLIENT_SECRET: "segredo" }
   });
   assert.equal(resposta.status, 302);
-  assert.equal(resposta.headers.get("Location"), "https://orbitekoficial.com.br/login?erro=google-state-invalido");
+  assert.equal(resposta.headers.get("Location"), "https://pets.birx.com.br/login?erro=google-state-invalido");
 });
 
 test("a tela mantém o e-mail como alternativa e apresenta privacidade", async () => {

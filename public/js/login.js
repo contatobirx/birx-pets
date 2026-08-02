@@ -40,7 +40,7 @@ const errosOAuth = {
     "google-nao-configurado": "O login com Google ainda está sendo configurado. Use o código por e-mail.",
     "google-state-invalido": "A tentativa de login expirou. Tente novamente.",
     "google-email-invalido": "A conta Google não informou um e-mail verificado.",
-    "conta-nao-encontrada": "Este e-mail Google ainda não está associado a uma Tag Orbitek.",
+    "conta-nao-encontrada": "Este e-mail Google ainda não está associado a uma Tag BIRX.",
     "google-falhou": "Não foi possível entrar com Google. Tente novamente ou use o código por e-mail."
 };
 const erroOAuth = new URLSearchParams(window.location.search).get("erro");

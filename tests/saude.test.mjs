@@ -34,5 +34,5 @@ test("salvar saúde grava evento automático na timeline no mesmo lote", () => {
 test("UX bloqueia envio duplicado e pede confirmação para excluir", () => {
   assert.match(tutorJs, /estado\.salvandoSaude/);
   assert.match(tutorJs, /querySelectorAll\("input, select, textarea, button"\)/);
-  assert.match(tutorJs, /OrbitekUI\?\.confirmar/);
+  assert.match(tutorJs, /BIRXUI\?\.confirmar/);
 });

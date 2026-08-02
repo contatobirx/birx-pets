@@ -101,7 +101,7 @@ const etapas = [
 
 const textosEtapas = [
   [
-    "Ative sua Tag Orbitek",
+    "Ative sua Tag BIRX",
     "Primeiro, conte algumas informações sobre o seu pet."
   ],
   [

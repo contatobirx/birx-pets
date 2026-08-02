@@ -78,7 +78,7 @@
       : resultado.dados;
   }
 
-  window.OrbitekAPI = {
+  window.BIRXAPI = {
     request: requisicao,
     get,
     post,

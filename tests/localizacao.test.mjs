@@ -5,7 +5,7 @@ import { onRequestPost } from "../functions/api/localizacoes.js";
 
 test("a localização exige coordenadas válidas", async () => {
   const resposta = await onRequestPost({
-    request: new Request("https://orbitekoficial.com.br/api/localizacoes", {
+    request: new Request("https://pets.birx.com.br/api/localizacoes", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ tag: "ABC", latitude: 120, longitude: -49 })
@@ -51,7 +51,7 @@ test("uma localização válida só é salva para tag ativa", async () => {
     }
   };
   const resposta = await onRequestPost({
-    request: new Request("https://orbitekoficial.com.br/api/localizacoes", {
+    request: new Request("https://pets.birx.com.br/api/localizacoes", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ tag: "orb-1", latitude: -25.43, longitude: -49.27, precisao: 18 })
@@ -65,7 +65,7 @@ test("uma localização válida só é salva para tag ativa", async () => {
 test("a última localização do tutor exige sessão da conta responsável", async () => {
   const banco = { prepare(sql) { return { bind() { return { first: async () => sql.includes("FROM tags") ? { codigo: "ORB-1" } : sql.includes("FROM pets") ? { tag_codigo: "ORB-1", nome: "Thor", email: "tutor@example.com", perdido: 1 } : null }; } }; } };
   const resposta = await onRequestPost({
-    request: new Request("https://orbitekoficial.com.br/api/localizacoes", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ tag: "ORB-1", latitude: -25.43, longitude: -49.27, origem: "tutor_ultimo_avistamento" }) }),
+    request: new Request("https://pets.birx.com.br/api/localizacoes", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ tag: "ORB-1", latitude: -25.43, longitude: -49.27, origem: "tutor_ultimo_avistamento" }) }),
     env: { DB: banco }
   });
   assert.equal(resposta.status, 401);
@@ -97,5 +97,5 @@ test("perfil público e modo perdido incluem mapas no momento correto", async ()
   assert.match(mapaPet, /aria-expanded/);
   const fluxoPerdido = tutorJs.slice(tutorJs.indexOf("async function alterarModoPerdido"), tutorJs.indexOf("async function sair"));
   assert.match(fluxoPerdido, /let localPerdido = null/);
-  assert.match(fluxoPerdido, /OrbitekSelecionarLocalizacao/);
+  assert.match(fluxoPerdido, /BIRXSelecionarLocalizacao/);
 });

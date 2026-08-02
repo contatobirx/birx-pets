@@ -65,7 +65,7 @@
     window.location.href = "/";
   }
 
-  window.OrbitekNavigation = {
+  window.BIRXNavigation = {
     obterOrigem,
     veioDoTutor,
     montarUrl,

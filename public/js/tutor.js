@@ -236,8 +236,8 @@ function prepararSeletorPetAtivo(pets) {
 }
 
 function exibirMensagem(texto, tipo = "sucesso") {
-  if (window.OrbitekUI?.notificar) {
-    window.OrbitekUI.notificar(texto, tipo === "erro" ? "erro" : "sucesso");
+  if (window.BIRXUI?.notificar) {
+    window.BIRXUI.notificar(texto, tipo === "erro" ? "erro" : "sucesso");
     return;
   }
 
@@ -337,7 +337,7 @@ function renderizarPainel2(pets, nomeTutor) {
   elementos.boasVindasTitulo.textContent = estaPerdido
     ? `${nomePet} está ${feminina ? "perdida" : "perdido"}`
     : `${nomePet} está ${feminina ? "protegida" : "protegido"} 🐾`;
-  if (elementos.protecaoRotulo) elementos.protecaoRotulo.textContent = estaPerdido ? "Pet desaparecido" : "Proteção Orbitek";
+  if (elementos.protecaoRotulo) elementos.protecaoRotulo.textContent = estaPerdido ? "Pet desaparecido" : "Proteção BIRX";
   if (elementos.protecaoIcone) elementos.protecaoIcone.textContent = estaPerdido ? "🚨" : "🛡️";
   if (elementos.textoProtecao) {
     elementos.textoProtecao.textContent = estaPerdido
@@ -621,8 +621,8 @@ function abrirPerfilTutor(evento) {
     return;
   }
 
-  if (window.OrbitekNavigation?.abrirPerfilTutor) {
-    window.OrbitekNavigation.abrirPerfilTutor(tag);
+  if (window.BIRXNavigation?.abrirPerfilTutor) {
+    window.BIRXNavigation.abrirPerfilTutor(tag);
     return;
   }
 
@@ -641,8 +641,8 @@ function abrirHistoricoTutor(evento) {
     return;
   }
 
-  if (window.OrbitekNavigation?.abrirHistoricoTutor) {
-    window.OrbitekNavigation.abrirHistoricoTutor(tag);
+  if (window.BIRXNavigation?.abrirHistoricoTutor) {
+    window.BIRXNavigation.abrirHistoricoTutor(tag);
     return;
   }
 
@@ -734,8 +734,8 @@ function abrirModalEdicao(evento) {
 async function fecharModalEdicao(forcar = false) {
   if (estado.salvando || !elementos.modalEditar) return;
   if (!forcar && estado.formularioAlterado) {
-    const sair = window.OrbitekUI?.confirmar
-      ? await window.OrbitekUI.confirmar({ titulo: "Alterações não salvas", mensagem: "Você modificou informações. Deseja sair sem salvar?", textoConfirmar: "Sair sem salvar" })
+    const sair = window.BIRXUI?.confirmar
+      ? await window.BIRXUI.confirmar({ titulo: "Alterações não salvas", mensagem: "Você modificou informações. Deseja sair sem salvar?", textoConfirmar: "Sair sem salvar" })
       : window.confirm("Você possui alterações não salvas. Deseja sair sem salvar?");
     if (!sair) return;
   }
@@ -1469,8 +1469,8 @@ async function excluirRegistroSaude(evento) {
 
   if (!id || !tagCodigo) return;
 
-  const confirmar = window.OrbitekUI?.confirmar
-    ? await window.OrbitekUI.confirmar({
+  const confirmar = window.BIRXUI?.confirmar
+    ? await window.BIRXUI.confirmar({
         titulo: "Excluir vacina?",
         mensagem: "Esta ação não poderá ser desfeita.",
         textoConfirmar: "Excluir vacina",
@@ -1941,8 +1941,8 @@ async function excluirDocumento(evento) {
 
   if (!id || !tagCodigo) return;
 
-  const confirmar = window.OrbitekUI?.confirmar
-    ? await window.OrbitekUI.confirmar({
+  const confirmar = window.BIRXUI?.confirmar
+    ? await window.BIRXUI.confirmar({
         titulo: "Excluir documento?",
         mensagem: "O arquivo será removido permanentemente.",
         textoConfirmar: "Excluir documento",
@@ -2094,8 +2094,8 @@ async function alterarModoPerdido(evento) {
   const petAtual = dadosPet(estado.pets.find((item) => String(dadosPet(item).tagCodigo) === String(tagCodigo)) || {});
   const feminina = petFemea(petAtual);
 
-  const confirmar = window.OrbitekUI?.confirmar
-    ? await window.OrbitekUI.confirmar({
+  const confirmar = window.BIRXUI?.confirmar
+    ? await window.BIRXUI.confirmar({
         titulo: novoEstado ? "Ativar modo perdido?" : `Pet ${feminina ? "encontrada" : "encontrado"}?`,
         mensagem: novoEstado
           ? `O perfil público destacará que este pet está ${feminina ? "perdida" : "perdido"}.`
@@ -2112,11 +2112,11 @@ async function alterarModoPerdido(evento) {
 
   let localPerdido = null;
   if (novoEstado) {
-    if (!window.OrbitekSelecionarLocalizacao?.abrir) {
+    if (!window.BIRXSelecionarLocalizacao?.abrir) {
       exibirMensagem("O seletor de localização não foi carregado. Atualize a página e tente novamente.", "erro");
       return;
     }
-    localPerdido = await window.OrbitekSelecionarLocalizacao.abrir();
+    localPerdido = await window.BIRXSelecionarLocalizacao.abrir();
     if (!localPerdido) return;
   }
 

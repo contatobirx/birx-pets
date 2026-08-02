@@ -4,7 +4,7 @@ import { readFile } from "node:fs/promises";
 import { onRequestGet } from "../functions/api/fotos.js";
 
 test("a galeria do tutor exige autenticação", async () => {
-  const resposta = await onRequestGet({ request: new Request("https://orbitekoficial.com.br/api/fotos?tag=ABC"), env: { DB: {} } });
+  const resposta = await onRequestGet({ request: new Request("https://pets.birx.com.br/api/fotos?tag=ABC"), env: { DB: {} } });
   assert.equal(resposta.status, 401);
 });
 

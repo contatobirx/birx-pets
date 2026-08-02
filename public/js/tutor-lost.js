@@ -13,9 +13,9 @@
       botao.dataset.publicado = dados.publicoPerdidos ? "1" : "0";
       botao.textContent = dados.publicoPerdidos ? "✓ Remover do diretório público" : "🌐 Publicar em pets perdidos";
       botao.classList.toggle("ativo", dados.publicoPerdidos);
-      if (window.OrbitekUI?.notificar) window.OrbitekUI.notificar(dados.mensagem, "sucesso");
+      if (window.BIRXUI?.notificar) window.BIRXUI.notificar(dados.mensagem, "sucesso");
     } catch (erro) {
-      if (window.OrbitekUI?.notificar) window.OrbitekUI.notificar(erro.message, "erro");
+      if (window.BIRXUI?.notificar) window.BIRXUI.notificar(erro.message, "erro");
     } finally { botao.disabled = false; }
   });
 })();

@@ -5,7 +5,7 @@ import { onRequestGet } from "../functions/api/perdidos.js";
 
 test("o diretório retorna somente os campos públicos previstos", async () => {
   const banco = { prepare() { return { bind() { return { all: async () => ({ results: [{ tag_codigo:"ORB-1", nome:"Bento", especie:"Cachorro", cidade:"Curitiba", estado:"PR", latitude_aproximada:-25.43, longitude_aproximada:-49.27 }] }) }; } }; } };
-  const resposta = await onRequestGet({ request: new Request("https://orbitekoficial.com.br/api/perdidos"), env: { DB: banco } });
+  const resposta = await onRequestGet({ request: new Request("https://pets.birx.com.br/api/perdidos"), env: { DB: banco } });
   const dados = await resposta.json();
   assert.equal(resposta.status, 200);
   assert.equal(dados.pets[0].nome, "Bento");
