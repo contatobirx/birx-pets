@@ -32,6 +32,7 @@
   <link rel="stylesheet" href="/css/carteirinha.css?v=2.19" />
   <link rel="stylesheet" href="/css/onde-comprar.css?v=2.17" />
   <link rel="stylesheet" href="/css/pwa.css?v=3.0" />
+  <link rel="stylesheet" href="/css/tutor-alimentacao.css?v=4.3" />
 </head>
 
 <body>
@@ -158,6 +159,7 @@
             <button class="modulo-card" type="button" data-modulo="relatorio"><span class="modulo-icone">🩺</span><span><strong>Resumo veterinário</strong><small>Ficha completa para consultas</small></span><b>›</b></button>
             <button class="modulo-card" type="button" data-modulo="compartilhar-vet"><span class="modulo-icone">🔗</span><span><strong>Compartilhar com veterinário</strong><small>Link temporário e seguro</small></span><b>›</b></button>
             <button class="modulo-card" type="button" data-modulo="rotinas"><span class="modulo-icone">⏰</span><span><strong>Rotinas e lembretes</strong><small>Cuidados recorrentes do pet</small></span><b>›</b></button>
+            <button class="modulo-card" type="button" data-modulo="alimentacao"><span class="modulo-icone">🥣</span><span><strong>Alimentação inteligente</strong><small>Consumo, horários e reposição</small></span><b>›</b></button>
             <button class="modulo-card" type="button" data-modulo="despesas"><span class="modulo-icone">💰</span><span><strong>Despesas</strong><small>Controle dos gastos do pet</small></span><b>›</b></button>
             <button class="modulo-card" type="button" data-modulo="preventivos"><span class="modulo-icone">🛡️</span><span><strong>Antipulgas e vermífugos</strong><small>Proteção e próximas aplicações</small></span><b>›</b></button>
             <button class="modulo-card" type="button" data-modulo="diario"><span class="modulo-icone">📔</span><span><strong>Diário do pet</strong><small>Sintomas e bem-estar diário</small></span><b>›</b></button>
@@ -922,6 +924,8 @@
     </div>
   </div>
 
+  <div id="modalAlimentacao" class="modal" hidden><div class="modal-overlay" data-fechar-alimentacao></div><div class="modal-caixa" role="dialog" aria-modal="true" aria-labelledby="tituloAlimentacao"><div class="modal-topo"><div><h2 id="tituloAlimentacao">Alimentação de <span id="alimentacaoNomePet">Pet</span></h2><p class="modal-subtitulo">Acompanhe o consumo e saiba quando repor.</p></div><button class="modal-fechar" data-fechar-alimentacao type="button" aria-label="Fechar">✕</button></div><input id="alimentacaoTag" type="hidden"><div id="alimentacaoVazio" class="saude-vazio"><div class="saude-vazio-icone">🥣</div><strong>Nenhuma alimentação cadastrada</strong><p>Informe o pacote atual para começar a estimativa.</p></div><section id="alimentacaoResumo" class="alimentacao-resumo" hidden><article class="alimentacao-atual"><small>Plano atual</small><p></p></article><article><small>Duração estimada</small><strong id="alimentacaoDuracao">—</strong></article><article><small>Repor a partir de</small><strong id="alimentacaoRepor">—</strong></article><article><small>Fim estimado</small><strong id="alimentacaoTermina">—</strong></article></section><div class="alimentacao-barra"><div><strong>Plano e consumo</strong><p>A estimativa usa a quantidade diária informada.</p></div><div class="alimentacao-acoes"><button id="encerrarAlimentacao" class="botao botao-secundario" type="button" hidden>Encerrar</button><button id="novaAlimentacao" class="botao botao-principal" type="button">Cadastrar ou alterar</button></div></div><form id="formAlimentacao" class="form-saude" hidden><div class="grid-2"><div class="campo"><label for="alimentacaoMarca">Marca *</label><input id="alimentacaoMarca" maxlength="120" required></div><div class="campo"><label for="alimentacaoLinha">Linha</label><input id="alimentacaoLinha" maxlength="120"></div></div><div class="grid-2"><div class="campo"><label for="alimentacaoTipo">Tipo</label><select id="alimentacaoTipo"><option value="seca">Seca</option><option value="umida">Úmida</option><option value="natural">Natural</option><option value="mista">Mista</option><option value="outra">Outra</option></select></div><div class="campo"><label for="alimentacaoQuantidade">Quantidade diária (g) *</label><input id="alimentacaoQuantidade" type="number" min="1" max="10000" step="0.1" required></div></div><div class="grid-2"><div class="campo"><label for="alimentacaoHorarios">Horários *</label><input id="alimentacaoHorarios" placeholder="08:00, 19:00" required><small>Separe por vírgula.</small></div><div class="campo"><label for="alimentacaoPacote">Tamanho do pacote (g) *</label><input id="alimentacaoPacote" type="number" min="1" max="100000" step="1" required></div></div><div class="grid-2"><div class="campo"><label for="alimentacaoInicio">Pacote iniciado em *</label><input id="alimentacaoInicio" type="date" required></div><div class="campo"><label for="alimentacaoAlerta">Avisar quantos dias antes</label><input id="alimentacaoAlerta" type="number" min="0" max="30" value="5"></div></div><div class="campo"><label for="alimentacaoObservacoes">Observações</label><textarea id="alimentacaoObservacoes" maxlength="500" rows="2"></textarea></div><p class="alimentacao-aviso">A BIRX apenas organiza as informações. Este recurso não indica quantidade nem substitui a orientação do médico-veterinário.</p><div class="modal-botoes"><button id="cancelarAlimentacao" class="botao botao-secundario" type="button">Cancelar</button><button id="salvarAlimentacao" class="botao botao-principal" type="submit">Salvar alimentação</button></div></form><section><h3>Histórico de mudanças</h3><ul id="alimentacaoHistorico" class="alimentacao-historico"></ul></section></div></div>
+
   <script src="/js/core/navigation.js?v=3.3"></script>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
   <script src="/js/tutor-lost-location.js?v=2.10.2"></script>
@@ -944,6 +948,7 @@
   <script src="/js/tutor-relatorio-vet.js?v=3.10"></script>
   <script src="/js/tutor-compartilhar-vet.js?v=3.11"></script>
   <script src="/js/tutor-rotinas.js?v=3.12"></script>
+  <script src="/js/tutor-alimentacao.js?v=4.3"></script>
   <script src="/js/tutor-despesas.js?v=3.13"></script>
   <script src="/js/tutor-preventivos.js?v=3.14"></script>
   <script src="/js/tutor-diario.js?v=3.15"></script>
