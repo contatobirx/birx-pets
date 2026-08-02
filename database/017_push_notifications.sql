@@ -1,4 +1,4 @@
--- Orbitek Pets - Sprint 2.14.1: assinaturas Web Push
+-- BIRX Pets - assinaturas Web Push
 CREATE TABLE IF NOT EXISTS push_assinaturas (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   email TEXT NOT NULL,

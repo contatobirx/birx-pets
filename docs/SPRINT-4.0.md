@@ -50,3 +50,20 @@ Depois da exportação:
 2. Copiar o arquivo para um armazenamento seguro da BIRX.
 3. Não enviar o backup por mensagens nem anexá-lo a tarefas públicas.
 4. Registrar a data do backup no checklist de lançamento.
+
+## Entrega 3 — Notificações de medicamentos
+
+- O Worker `birx-medication-reminders` está publicado na Cloudflare.
+- O agendamento executa a verificação dos medicamentos a cada minuto.
+- As chaves VAPID ficam somente nos segredos da Cloudflare e não no código.
+- O site e o Worker usam o mesmo par de chaves para cadastrar o aparelho e enviar os avisos.
+- As tabelas `push_assinaturas` e `push_medicamentos_enviados` foram confirmadas no banco de produção.
+- O identificador técnico do banco continua `orbitek-pets` para preservar os dados existentes.
+
+### Teste pelo tutor
+
+1. Instalar ou abrir o BIRX Pets em um celular compatível.
+2. Entrar na conta e abrir a aba **Medicamentos**.
+3. Tocar em **Ativar avisos no celular** e permitir as notificações.
+4. Cadastrar um medicamento com um horário alguns minutos à frente.
+5. Manter o aparelho conectado e aguardar o aviso.

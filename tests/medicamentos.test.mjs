@@ -39,11 +39,13 @@ test("a Sprint 2.14.1 oferece notificações push com consentimento", () => {
   assert.match(pushClient, /Notification\.requestPermission/);
   assert.match(pushClient, /pushManager\.subscribe/);
   assert.match(pushApi, /push_assinaturas/);
-  assert.doesNotMatch(pushApi, /__VAPID_PUBLIC_KEY__/);
+  assert.match(pushApi, /env\.VAPID_PUBLIC_KEY/);
+  assert.doesNotMatch(pushApi, /const VAPID_PUBLIC_KEY=/);
   assert.match(serviceWorker, /showNotification/);
   assert.match(serviceWorker, /notificationclick/);
   assert.match(pushWorker, /scheduled\(controller,env,ctx\)/);
   assert.match(pushWorker, /sendNotification/);
+  assert.match(pushWorker, /birx-medication-reminders/);
 });
 
 test("a busca Onde Comprar usa endereço e exibe resultados dentro do app", () => {
