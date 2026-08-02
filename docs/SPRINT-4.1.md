@@ -56,3 +56,16 @@ Os nomes substituem comercialmente `Essential`, `NFC Connect` e `Smart NFC`. Os 
 ## Arquivo de cotação
 
 O PDF `output/pdf/birx-id-especificacao-lote-piloto.pdf` consolida esta ficha para envio a fornecedores. As medidas são a base de cotação e precisam ser homologadas em amostra antes da produção em escala.
+
+## Prova de embalagem
+
+O PDF `output/pdf/birx-id-embalagens-prova-grafica.pdf` contém oito páginas em tamanho real:
+
+- frente e verso da BIRX ID Essential;
+- frente e verso da BIRX ID Connect;
+- frente e verso da BIRX ID Complete;
+- frente e verso da BIRX ID Cat.
+
+Cada página mede 86 x 126 mm, incluindo 3 mm de sangria em todos os lados. A linha azul tracejada indica o corte final de 80 x 120 mm. O euro hole está centralizado e mede 32 x 6 mm.
+
+Esta é uma prova técnica para cotação e prototipagem. Antes da tiragem, a gráfica deve converter o material para o perfil de cor solicitado, revisar o acabamento e fornecer uma prova física. A ilustração da BIRX ID Cat é provisória até a aprovação do protótipo compacto.
