@@ -1,3 +1,12 @@
+const siteHeader = document.querySelector('.site-header');
+
+function atualizarCabecalhoAoRolar() {
+  siteHeader?.classList.toggle('is-scrolled', window.scrollY > 12);
+}
+
+atualizarCabecalhoAoRolar();
+window.addEventListener('scroll', atualizarCabecalhoAoRolar, { passive: true });
+
 const menuButton = document.querySelector('.menu-toggle');
 const menu = document.querySelector('.main-nav');
 

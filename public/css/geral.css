@@ -11,3 +11,14 @@
 .login-button{color:#fff;background:#111;border-color:#4a4a4a}
 .login-button:hover{background:#1f5eff;border-color:#1f5eff}
 @media(max-width:900px){.main-nav{background:#090909;border:1px solid #292929}.main-nav a{color:#fff}.main-nav a+a{border-top:1px solid #242424}}
+
+/* Sprint 2.1 — Header, hero e identidade visual */
+.site-header{transition:background .25s ease,box-shadow .25s ease,border-color .25s ease}
+.site-header.is-scrolled{background:rgba(5,5,5,.96);box-shadow:0 12px 32px rgba(0,0,0,.24);border-bottom-color:#2d2d2d}
+.brand img{object-fit:contain}
+.hero-copy .button-primary{background:linear-gradient(135deg,var(--blue),#1747c8)}
+.hero-copy .button-primary:hover{box-shadow:0 17px 34px rgba(31,94,255,.34)}
+.hero-visual{isolation:isolate}
+.pet-portrait img{transition:transform .7s ease}
+.hero-visual:hover .pet-portrait img{transform:scale(1.035)}
+@media(max-width:600px){.hero-copy .button-primary,.hero-copy .button-ghost,.hero-copy .button-demo{width:100%}.hero-actions{align-items:stretch}}
