@@ -80,3 +80,22 @@ const counterObserver = new IntersectionObserver((entries) => {
 }, { threshold: 0.5 });
 
 counters.forEach((counter) => counterObserver.observe(counter));
+
+
+// Sprint 2.2 — rolagem acessível para links internos da landing page.
+document.querySelectorAll('a[href^="#"]').forEach((link) => {
+  link.addEventListener('click', (event) => {
+    const destino = document.querySelector(link.getAttribute('href'));
+    if (!destino) return;
+
+    event.preventDefault();
+    destino.scrollIntoView({
+      behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
+      block: 'start',
+    });
+
+    if (destino.id) {
+      history.replaceState(null, '', `#${destino.id}`);
+    }
+  });
+});

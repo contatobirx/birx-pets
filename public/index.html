@@ -17,7 +17,7 @@
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/geral.css?v=2.1.0">
   <link rel="stylesheet" href="/css/landing-gallery.css?v=2.2">
-  <link rel="stylesheet" href="/css/sprint-2-2.css?v=2.2">
+  <link rel="stylesheet" href="/css/sprint-2-2.css?v=2.2.0">
   <link rel="stylesheet" href="/css/app-showcase.css?v=2.15">
   <link rel="stylesheet" href="/css/pwa.css?v=3.0">
 </head>
@@ -93,14 +93,21 @@
       </div>
     </section>
 
-    <section class="section how" id="como-funciona">
+    <section class="section how" id="como-funciona" aria-labelledby="como-funciona-titulo">
       <div class="container">
-        <div class="section-heading reveal"><span class="kicker">SIMPLES DE VERDADE</span><h2>Proteção em três passos</h2><p>Sem aplicativos complicados. Você ativa pelo celular e a proteção começa na hora.</p></div>
-        <div class="steps">
-          <article class="step-card reveal"><span class="step-number">01</span><div class="step-icon">🏷️</div><h3>Escolha sua tag</h3><p>Encontre o modelo e a cor que combinam com seu pet.</p></article>
-          <article class="step-card featured reveal"><span class="step-number">02</span><div class="step-icon">📱</div><h3>Ative pelo celular</h3><p>Cadastre o perfil do pet e seus contatos em poucos minutos.</p></article>
-          <article class="step-card reveal"><span class="step-number">03</span><div class="step-icon">💛</div><h3>Pronto, está protegido</h3><p>Quem encontrar usa os dados gravados ou aproxima o celular nos modelos NFC.</p></article>
+        <div class="section-heading reveal">
+          <span class="kicker">SIMPLES DE VERDADE</span>
+          <h2 id="como-funciona-titulo">Da coleira ao reencontro em cinco passos</h2>
+          <p>Sem aplicativos complicados e sem mensalidade. A ativação é feita pelo celular e a proteção começa em poucos minutos.</p>
         </div>
+        <div class="steps steps-five" role="list">
+          <article class="step-card reveal" role="listitem"><span class="step-number">01</span><div class="step-icon" aria-hidden="true">🏷️</div><h3>Escolha sua Birx ID</h3><p>Selecione o formato e a cor que combinam com seu pet.</p></article>
+          <article class="step-card reveal" role="listitem"><span class="step-number">02</span><div class="step-icon" aria-hidden="true">📱</div><h3>Cadastre gratuitamente</h3><p>Crie o perfil digital e informe os contatos do tutor.</p></article>
+          <article class="step-card featured reveal" role="listitem"><span class="step-number">03</span><div class="step-icon" aria-hidden="true">🐾</div><h3>Prenda na coleira</h3><p>A Birx ID fica pronta para acompanhar o pet todos os dias.</p></article>
+          <article class="step-card reveal" role="listitem"><span class="step-number">04</span><div class="step-icon" aria-hidden="true">⌁</div><h3>Alguém encontra e acessa</h3><p>O QR Code ou NFC abre o perfil digital em qualquer celular compatível.</p></article>
+          <article class="step-card reveal" role="listitem"><span class="step-number">05</span><div class="step-icon" aria-hidden="true">💛</div><h3>O contato acontece</h3><p>Quem encontrou pode falar com o tutor rapidamente pelo perfil.</p></article>
+        </div>
+        <div class="how-note reveal"><span aria-hidden="true">✓</span><p><strong>Sem instalação obrigatória:</strong> quem encontrar o pet acessa o perfil diretamente pelo navegador.</p></div>
       </div>
     </section>
 
@@ -145,15 +152,22 @@
       </div>
     </section>
 
-    <section class="section benefits">
-      <div class="container benefits-grid">
-        <div class="benefits-copy reveal"><span class="kicker">POR QUE BIRX?</span><h2>Uma pequena tag.<br>Uma grande tranquilidade.</h2><p>A identificação tradicional pode apagar ou ficar desatualizada. Com a BIRX, você atualiza os dados quando quiser e aproxima seu pet de casa.</p><a class="text-link" href="/produtos">Conhecer as linhas <span>→</span></a></div>
-        <div class="benefit-list">
-          <article class="benefit reveal"><span>∞</span><div><h3>Sem mensalidade</h3><p>Ative uma vez e use o perfil digital sem cobranças recorrentes.</p></div></article>
-          <article class="benefit reveal"><span>⌁</span><div><h3>Identificação + NFC</h3><p>Escolha entre dados gravados ou leitura por aproximação nos modelos NFC.</p></div></article>
-          <article class="benefit reveal"><span>✦</span><div><h3>Dados sempre atualizados</h3><p>Troque telefone, foto e informações do pet pelo painel do tutor.</p></div></article>
-          <article class="benefit reveal"><span>♡</span><div><h3>Contato em poucos toques</h3><p>WhatsApp e ligação direto no perfil, sem expor dados desnecessários.</p></div></article>
+    <section class="section benefits" id="beneficios" aria-labelledby="beneficios-titulo">
+      <div class="container">
+        <div class="section-heading benefits-heading reveal">
+          <span class="kicker">POR QUE ESCOLHER A BIRX ID?</span>
+          <h2 id="beneficios-titulo">Proteção simples para o pet.<br>Tranquilidade para o tutor.</h2>
+          <p>Uma identificação moderna que une acesso rápido, perfil digital e informações atualizáveis em um único produto.</p>
         </div>
+        <div class="benefit-list benefit-list-six" role="list">
+          <article class="benefit reveal" role="listitem"><span aria-hidden="true">🐶</span><div><h3>Perfil digital completo</h3><p>Nome, foto, comportamento, contatos e informações importantes reunidos em uma página fácil de acessar.</p></div></article>
+          <article class="benefit reveal" role="listitem"><span aria-hidden="true">⌁</span><div><h3>QR Code + NFC</h3><p>Leitura por câmera em todos os modelos e aproximação nos modelos compatíveis com NFC.</p></div></article>
+          <article class="benefit reveal" role="listitem"><span aria-hidden="true">∞</span><div><h3>Sem mensalidade</h3><p>Ative uma vez e mantenha o perfil do pet disponível sem cobranças recorrentes.</p></div></article>
+          <article class="benefit reveal" role="listitem"><span aria-hidden="true">⚡</span><div><h3>Ativação rápida</h3><p>O cadastro é feito pelo celular em poucos minutos, sem configuração complicada.</p></div></article>
+          <article class="benefit reveal" role="listitem"><span aria-hidden="true">🛡️</span><div><h3>Informações sob controle</h3><p>O tutor decide o que aparece publicamente e pode atualizar os dados quando precisar.</p></div></article>
+          <article class="benefit reveal" role="listitem"><span aria-hidden="true">💬</span><div><h3>Contato em poucos toques</h3><p>Quem encontrar o pet pode ligar ou chamar o tutor pelo WhatsApp diretamente no perfil.</p></div></article>
+        </div>
+        <div class="benefits-action reveal"><a class="text-link" href="/produtos">Conhecer os modelos Birx ID <span aria-hidden="true">→</span></a></div>
       </div>
     </section>
 
@@ -240,7 +254,7 @@
     </div>
     <div class="container footer-bottom"><span>© 2026 BIRX Pets. Todos os direitos reservados.</span><div><a href="/privacidade">Privacidade</a><a href="/termos">Termos de uso</a></div></div>
   </footer>
-  <script src="/js/index.js?v=2.1.0"></script>
+  <script src="/js/index.js?v=2.2.0"></script>
   <script src="/js/app-showcase.js?v=2.15"></script>
   <script src="/js/pwa.js?v=4.0.0"></script>
 </body>
