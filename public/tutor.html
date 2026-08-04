@@ -35,6 +35,7 @@
   <link rel="stylesheet" href="/css/tutor-alimentacao.css?v=4.3" />
   <link rel="stylesheet" href="/css/avistamentos.css?v=4.5" />
   <link rel="stylesheet" href="/css/tutor-modo-gato.css?v=4.8" />
+  <link rel="stylesheet" href="/css/tutor-bem-estar.css?v=4.9" />
 </head>
 
 <body>
@@ -168,6 +169,7 @@
             <button class="modulo-card" type="button" data-modulo="diario"><span class="modulo-icone">📔</span><span><strong>Diário do pet</strong><small>Sintomas e bem-estar diário</small></span><b>›</b></button>
             <button class="modulo-card" type="button" data-modulo="clinicas"><span class="modulo-icone">🏥</span><span><strong>Clínicas próximas</strong><small>Encontre atendimento veterinário</small></span><b>›</b></button>
             <button class="modulo-card modulo-gato" type="button" data-modulo="modo-gato" hidden><span class="modulo-icone">🐈</span><span><strong>Modo Gato</strong><small>Cuidados e segurança felina</small></span><b>›</b></button>
+            <button class="modulo-card modulo-bem-estar" type="button" data-modulo="bem-estar"><span class="modulo-icone">✨</span><span><strong>Índice de bem-estar</strong><small>Resumo transparente dos cuidados</small></span><b>›</b></button>
           </div>
         </article>
       </section>
@@ -918,6 +920,23 @@
 
   <div id="modalDiario" class="modal" hidden><div class="modal-overlay" data-fechar-diario></div><div class="modal-caixa modal-caixa-diario" role="dialog" aria-modal="true" aria-labelledby="tituloDiario"><div class="modal-topo"><div><h2 id="tituloDiario">Diário de <span id="diarioNomePet">Pet</span></h2><p class="modal-subtitulo">Perceba mudanças no bem-estar ao longo dos dias.</p></div><button class="modal-fechar" data-fechar-diario type="button" aria-label="Fechar">✕</button></div><input id="diarioTag" type="hidden"><div class="diario-resumo"><article><small>Registros</small><strong id="diarioTotal">0</strong></article><article><small>Para observar</small><strong id="diarioObservar">0</strong></article><article class="atencao"><small>Requerem atenção</small><strong id="diarioAtencao">0</strong></article><article><label for="diarioPeriodo">Período</label><select id="diarioPeriodo"><option value="7">7 dias</option><option value="30" selected>30 dias</option><option value="90">90 dias</option></select></article></div><div class="diario-barra"><div><strong>Histórico de bem-estar</strong><p>Registre alterações que possam ajudar em consultas.</p></div><button id="novoDiario" class="botao botao-principal" type="button">+ Novo registro</button></div><form id="formDiario" class="form-saude" hidden><div class="form-saude-topo"><h3 id="tituloFormDiario">Novo registro</h3><button id="cancelarDiario" class="botao-link" type="button">Cancelar</button></div><input id="diarioId" type="hidden"><div class="campo"><label for="diarioDataHora">Data e horário *</label><input id="diarioDataHora" type="datetime-local" required></div><div class="grid-3"><div class="campo"><label for="diarioHumor">Humor</label><select id="diarioHumor"><option value="feliz">Feliz</option><option value="calmo" selected>Calmo</option><option value="ansioso">Ansioso</option><option value="irritado">Irritado</option><option value="abatido">Abatido</option></select></div><div class="campo"><label for="diarioEnergia">Energia</label><select id="diarioEnergia"><option value="alta">Alta</option><option value="normal" selected>Normal</option><option value="baixa">Baixa</option></select></div><div class="campo"><label for="diarioApetite">Apetite</label><select id="diarioApetite"><option value="normal" selected>Normal</option><option value="aumentado">Aumentado</option><option value="reduzido">Reduzido</option><option value="sem_apetite">Sem apetite</option></select></div></div><div class="grid-2"><div class="campo"><label for="diarioAgua">Consumo de água</label><select id="diarioAgua"><option value="normal" selected>Normal</option><option value="aumentada">Aumentado</option><option value="reduzida">Reduzido</option></select></div><div class="campo"><label for="diarioFezes">Fezes</label><select id="diarioFezes"><option value="nao_observada">Não observadas</option><option value="normal">Normais</option><option value="mole">Moles</option><option value="diarreia">Diarreia</option><option value="ressecada">Ressecadas</option></select></div></div><div class="campo"><label for="diarioSintomas">Sintomas percebidos</label><textarea id="diarioSintomas" maxlength="1000" rows="2" placeholder="Ex.: coceira, vômito, tosse, mancando"></textarea></div><div class="campo"><label for="diarioObservacoes">Alimentação, comportamento e observações</label><textarea id="diarioObservacoes" maxlength="1000" rows="3" placeholder="Descreva o que mudou ou aconteceu hoje"></textarea></div><div class="campo"><label for="diarioNivel">Como deseja classificar?</label><select id="diarioNivel"><option value="normal">Rotina normal</option><option value="observar">Observar evolução</option><option value="atencao">Requer atenção</option></select></div><p class="diario-aviso">Este diário ajuda a organizar observações, mas não realiza diagnóstico. Em caso de urgência ou piora, procure atendimento veterinário.</p><div class="modal-botoes"><button id="fecharFormDiario" class="botao botao-secundario" type="button">Cancelar</button><button id="salvarDiario" class="botao botao-principal" type="submit">Salvar no diário</button></div></form><div id="diarioCarregando" class="saude-carregando" hidden><span class="saude-spinner"></span> Carregando diário...</div><div id="listaDiario" class="lista-diario"></div><div id="diarioVazio" class="saude-vazio" hidden><div class="saude-vazio-icone">📔</div><strong>Nenhum registro no período</strong><p>Adicione uma observação sobre o dia do pet.</p></div></div></div>
 
+  <div id="modalBemEstar" class="modal" hidden>
+    <div class="modal-overlay" data-fechar-bem-estar></div>
+    <div class="modal-caixa modal-caixa-bem-estar" role="dialog" aria-modal="true" aria-labelledby="tituloBemEstar">
+      <div class="modal-topo bem-estar-topo"><div><span class="bem-estar-selo">ACOMPANHAMENTO BIRX</span><h2 id="tituloBemEstar">Índice de bem-estar de <span id="bemEstarNomePet">Pet</span></h2><p class="modal-subtitulo">Uma leitura simples dos registros que você mantém no aplicativo.</p></div><button class="modal-fechar" data-fechar-bem-estar type="button" aria-label="Fechar">✕</button></div>
+      <input id="bemEstarTag" type="hidden">
+      <div id="bemEstarCarregando" class="saude-carregando"><span class="saude-spinner"></span> Analisando os registros...</div>
+      <div id="bemEstarConteudo" hidden>
+        <section class="bem-estar-resumo"><div class="bem-estar-medidor" id="bemEstarMedidor"><strong id="bemEstarPontuacao">0</strong><small>de 100</small></div><div><span id="bemEstarFaixa">Acompanhamento em construção</span><h3>Organização dos cuidados</h3><p id="bemEstarExplicacao"></p><small id="bemEstarAtualizado"></small></div></section>
+        <p class="bem-estar-limite"><strong>Importante:</strong> este índice mede apenas a presença, a atualização e os prazos dos registros no BIRX Pets. Ele não avalia a saúde do animal, não prevê doenças e não substitui consulta veterinária.</p>
+        <section><div class="bem-estar-cabecalho"><div><span>5 ÁREAS ACOMPANHADAS</span><h3>Como o índice foi calculado</h3></div></div><div id="bemEstarIndicadores" class="bem-estar-indicadores"></div></section>
+        <section id="bemEstarAlertasSecao" class="bem-estar-secao"><div class="bem-estar-cabecalho"><div><span>PRÓXIMAS AÇÕES</span><h3>Dados para revisar</h3></div></div><div id="bemEstarAlertas" class="bem-estar-alertas"></div></section>
+        <section id="bemEstarTendenciasSecao" class="bem-estar-secao"><div class="bem-estar-cabecalho"><div><span>SEM DIAGNÓSTICO</span><h3>Tendências observadas nos registros</h3></div></div><div id="bemEstarTendencias" class="bem-estar-tendencias"></div></section>
+        <section class="bem-estar-secao"><div class="bem-estar-cabecalho"><div><span>FONTES CONFIÁVEIS</span><h3>Saiba mais</h3></div></div><p class="bem-estar-fontes-aviso">Os links abaixo orientam conversas com profissionais. Recomendações individuais dependem de avaliação veterinária.</p><div id="bemEstarFontes" class="bem-estar-fontes"></div></section>
+      </div>
+    </div>
+  </div>
+
   <div id="modalModoGato" class="modal" hidden>
     <div class="modal-overlay" data-fechar-modo-gato></div>
     <div class="modal-caixa modal-caixa-modo-gato" role="dialog" aria-modal="true" aria-labelledby="tituloModoGato">
@@ -975,6 +994,7 @@
   <script src="/js/tutor-alimentacao.js?v=4.3"></script>
   <script src="/js/tutor-avistamentos.js?v=4.5"></script>
   <script src="/js/tutor-modo-gato.js?v=4.8"></script>
+  <script src="/js/tutor-bem-estar.js?v=4.9"></script>
   <script src="/js/tutor-despesas.js?v=3.13"></script>
   <script src="/js/tutor-preventivos.js?v=3.14"></script>
   <script src="/js/tutor-diario.js?v=3.15"></script>

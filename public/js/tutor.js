@@ -515,6 +515,10 @@ function acionarModulo(modulo) {
     window.dispatchEvent(new CustomEvent("birx:abrir-modo-gato", { detail: pet }));
     return;
   }
+  if (modulo === "bem-estar") {
+    window.dispatchEvent(new CustomEvent("birx:abrir-bem-estar", { detail: pet }));
+    return;
+  }
 }
 
 function montarLocalizacao(petOriginal) {
