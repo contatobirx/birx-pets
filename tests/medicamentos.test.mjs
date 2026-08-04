@@ -78,14 +78,16 @@ test("a busca de clínicas e compras também aceita CEP", () => {
   assert.match(ondeComprarApi, /viacep\.com\.br\/ws/);
   assert.match(ondeComprarApi, /buscaPorCep/);
   assert.match(ondeComprarJs, /CEP com 8 números/);
-  assert.match(html, /tutor-onde-comprar\.js\?v=2\.17\.2/);
+  assert.match(html, /tutor-onde-comprar\.js\?v=2\.17\.3/);
 });
 
 test("a busca de clínicas oferece pesquisa ampliada no Google Maps", () => {
   assert.match(html, /id="googleMapsClinicas"/);
+  assert.match(html, /id="mapaGoogleClinicas"/);
   assert.match(html, /Os resultados não são necessariamente parceiros verificados da BIRX/);
   assert.match(ondeComprarJs, /google\.com\/maps\/search\/\?api=1/);
-  assert.match(ondeComprarJs, /encodeURIComponent\(query\)/);
+  assert.match(ondeComprarJs, /api\/google-maps-embed/);
+  assert.match(ondeComprarJs, /encodeURIComponent\(googleQuery\(\)\)/);
   assert.match(ondeComprarJs, /mode!=="clinicas"/);
 });
 

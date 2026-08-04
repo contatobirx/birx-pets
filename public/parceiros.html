@@ -6,8 +6,7 @@
   <meta name="theme-color" content="#050505">
   <title>Rede de Parceiros | BIRX Pets</title>
   <meta name="description" content="Encontre clínicas, pet shops e outros serviços parceiros da BIRX Pets.">
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
-  <link rel="stylesheet" href="/css/rede-parceiros.css?v=4.7.1">
+  <link rel="stylesheet" href="/css/rede-parceiros.css?v=4.7.2">
 </head>
 <body>
   <header>
@@ -24,9 +23,9 @@
       <button>Buscar parceiros</button>
     </form>
     <div id="mensagem" class="mensagem" hidden></div>
-    <section id="resultado" class="resultado" hidden><div id="mapaParceiros" aria-label="Mapa da rede de parceiros"></div><div><h2 id="totalParceiros">Parceiros encontrados</h2><div id="listaParceiros" class="lista"></div></div></section>
+    <section id="resultado" class="resultado" hidden><iframe id="mapaParceiros" title="Clínicas veterinárias no Google Maps" loading="lazy" allowfullscreen referrerpolicy="strict-origin-when-cross-origin" src="/api/google-maps-embed?q=cl%C3%ADnica%20veterin%C3%A1ria%20Brasil"></iframe><div><h2 id="totalParceiros">Parceiros encontrados</h2><div id="listaParceiros" class="lista"></div></div></section>
     <section id="vazio" class="vazio" hidden><strong>Nenhum parceiro encontrado</strong><p>Tente ampliar a busca ou retirar algum filtro.</p></section>
-    <section class="google-maps-parceiros"><div><span>BUSCA AMPLIADA</span><h2>Não encontrou uma clínica parceira?</h2><p>Veja outras clínicas veterinárias no Google Maps. Os resultados externos não são parceiros verificados da BIRX.</p></div><a id="googleMapsParceiros" href="https://www.google.com/maps/search/?api=1&amp;query=cl%C3%ADnica%20veterin%C3%A1ria" target="_blank" rel="noopener noreferrer">Ver clínicas no Google Maps</a></section>
+    <section class="google-maps-parceiros"><div><span>GOOGLE MAPS</span><h2>Busca ampliada de clínicas</h2><p>O mapa mostra estabelecimentos do Google. Os resultados externos não são parceiros verificados da BIRX.</p></div><a id="googleMapsParceiros" href="https://www.google.com/maps/search/?api=1&amp;query=cl%C3%ADnica%20veterin%C3%A1ria" target="_blank" rel="noopener noreferrer">Abrir em tela cheia</a></section>
   </main>
   <dialog id="modalRelato">
     <form id="formRelato">
@@ -40,7 +39,6 @@
       <button>Enviar para conferência</button>
     </form>
   </dialog>
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
-  <script src="/js/rede-parceiros.js?v=4.7.1"></script>
+  <script src="/js/rede-parceiros.js?v=4.7.2"></script>
 </body>
 </html>
