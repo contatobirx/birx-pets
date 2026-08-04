@@ -17,12 +17,12 @@ export async function onRequestGet({request,env}){
   try{
     const url=new URL(request.url),search=clean(url.searchParams.get("busca"),100),like=`%${search}%`;
     const [orders,products,coupons,summary]=await Promise.all([
-      env.DB.prepare(`SELECT codigo,nome,email,telefone,cidade,estado,total_centavos AS totalCentavos,status_pagamento AS statusPagamento,status_pedido AS statusPedido,codigo_rastreio AS codigoRastreio,referencia_parceiro AS referenciaParceiro,criado_em AS criadoEm FROM loja_pedidos WHERE ?='' OR codigo LIKE ? OR nome LIKE ? OR email LIKE ? ORDER BY id DESC LIMIT 200`).bind(search,like,like,like).all(),
+      env.DB.prepare(`SELECT codigo,nome,email,telefone,cidade,estado,total_centavos AS totalCentavos,status_pagamento AS statusPagamento,status_pedido AS statusPedido,codigo_rastreio AS codigoRastreio,referencia_parceiro AS referenciaParceiro,modalidade_entrega AS modalidadeEntrega,frete_descricao AS freteDescricao,prazo_entrega_min_dias AS prazoEntregaMinDias,prazo_entrega_max_dias AS prazoEntregaMaxDias,comprovante_url AS comprovanteUrl,comprovante_enviado_em AS comprovanteEnviadoEm,criado_em AS criadoEm FROM loja_pedidos WHERE ?='' OR codigo LIKE ? OR nome LIKE ? OR email LIKE ? ORDER BY id DESC LIMIT 200`).bind(search,like,like,like).all(),
       env.DB.prepare(`SELECT id,slug,nome,categoria,preco_centavos AS precoCentavos,estoque,ativo,destaque FROM loja_produtos ORDER BY ordem,id`).all(),
       env.DB.prepare(`SELECT id,codigo,tipo,valor,minimo_centavos AS minimoCentavos,limite_usos AS limiteUsos,usos,ativo,valido_ate AS validoAte FROM loja_cupons ORDER BY id DESC`).all(),
-      env.DB.prepare(`SELECT COUNT(*) AS pedidos,SUM(CASE WHEN status_pagamento='pago' THEN total_centavos ELSE 0 END) AS recebido,SUM(CASE WHEN status_pagamento='aguardando' THEN 1 ELSE 0 END) AS aguardando,SUM(CASE WHEN status_pedido='enviado' THEN 1 ELSE 0 END) AS enviados FROM loja_pedidos`).first()
+      env.DB.prepare(`SELECT COUNT(*) AS pedidos,SUM(CASE WHEN status_pagamento='pago' THEN total_centavos ELSE 0 END) AS recebido,SUM(CASE WHEN status_pagamento='aguardando' THEN 1 ELSE 0 END) AS aguardando,SUM(CASE WHEN status_pedido='enviado' THEN 1 ELSE 0 END) AS enviados,SUM(CASE WHEN status_pagamento='aguardando' AND comprovante_enviado_em IS NOT NULL THEN 1 ELSE 0 END) AS comprovantes FROM loja_pedidos`).first()
     ]);
-    return json({sucesso:true,pedidos:orders.results||[],produtos:products.results||[],cupons:coupons.results||[],resumo:{pedidos:Number(summary?.pedidos||0),recebidoCentavos:Number(summary?.recebido||0),aguardando:Number(summary?.aguardando||0),enviados:Number(summary?.enviados||0)}});
+    return json({sucesso:true,pedidos:orders.results||[],produtos:products.results||[],cupons:coupons.results||[],resumo:{pedidos:Number(summary?.pedidos||0),recebidoCentavos:Number(summary?.recebido||0),aguardando:Number(summary?.aguardando||0),enviados:Number(summary?.enviados||0),comprovantes:Number(summary?.comprovantes||0)}});
   }catch(error){console.error("admin-loja GET",error);return json({sucesso:false,mensagem:"Não foi possível carregar a administração da loja."},500)}
 }
 
