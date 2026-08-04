@@ -511,6 +511,10 @@ function acionarModulo(modulo) {
     window.dispatchEvent(new CustomEvent("orbitek:clinicas-proximas"));
     return;
   }
+  if (modulo === "modo-gato") {
+    window.dispatchEvent(new CustomEvent("birx:abrir-modo-gato", { detail: pet }));
+    return;
+  }
 }
 
 function montarLocalizacao(petOriginal) {
@@ -2194,6 +2198,7 @@ function configurarEventos() {
     localStorage.setItem("orbitek_pet_ativo", estado.petAtivoTag);
     renderizarPainel2(estado.pets, "Tutor");
     const escolhido = dadosPet(petAtivo());
+    window.dispatchEvent(new CustomEvent("birx:pet-ativo-alterado", { detail: escolhido }));
     exibirMensagem(`${formatarTexto(escolhido.nome, "Pet")} selecionado para as ações do app.`);
   });
 
