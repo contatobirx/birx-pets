@@ -8,9 +8,11 @@
     content="width=device-width, initial-scale=1, viewport-fit=cover"
   >
 
+  <meta name="theme-color" content="#0057d9">
+
   <title>Birx Pets — Totem</title>
 
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="./style.css">
 </head>
 
 <body>
@@ -24,15 +26,26 @@
       playsinline
       preload="auto"
       disablepictureinpicture
+      controlslist="nodownload nofullscreen noremoteplayback"
     >
-      <source src="comercial.mp4" type="video/mp4">
+      <source
+        src="https://videos.birx.com.br/comercial.mp4"
+        type="video/mp4"
+      >
+
       Seu navegador não conseguiu reproduzir o vídeo.
     </video>
 
-    <section id="ending" class="ending" aria-hidden="true">
+    <section
+      id="ending"
+      class="ending"
+      aria-hidden="true"
+    >
+      <div class="ending__glow"></div>
+
       <img
         class="ending__logo"
-        src="logo.png"
+        src="./logo.png"
         alt="Birx Pets"
       >
 
@@ -44,11 +57,13 @@
         Identificação inteligente para pets
       </p>
 
-      <img
-        class="ending__qr"
-        src="qrcode.png"
-        alt="QR Code para conhecer a Birx Pets"
-      >
+      <div class="ending__qr-wrapper">
+        <img
+          class="ending__qr"
+          src="./qrcode.png"
+          alt="QR Code para conhecer a Birx Pets"
+        >
+      </div>
 
       <p class="ending__action">
         Aponte a câmera e conheça a Birx ID
@@ -59,12 +74,57 @@
       </p>
     </section>
 
-    <button id="startButton" class="start-button" type="button">
-      Toque para iniciar
+    <section
+      id="loadingScreen"
+      class="loading-screen"
+      aria-live="polite"
+    >
+      <img
+        class="loading-screen__logo"
+        src="./logo.png"
+        alt=""
+      >
+
+      <div class="loading-screen__spinner"></div>
+
+      <p>Carregando apresentação...</p>
+    </section>
+
+    <section
+      id="errorScreen"
+      class="error-screen"
+      aria-hidden="true"
+    >
+      <img
+        class="error-screen__logo"
+        src="./logo.png"
+        alt="Birx Pets"
+      >
+
+      <h2>Não foi possível carregar o vídeo.</h2>
+
+      <p>
+        Verifique a conexão com a internet e toque para tentar novamente.
+      </p>
+
+      <button id="retryButton" type="button">
+        Tentar novamente
+      </button>
+    </section>
+
+    <button
+      id="startButton"
+      class="start-button"
+      type="button"
+      aria-label="Iniciar apresentação"
+    >
+      <img src="./logo.png" alt="Birx Pets">
+
+      <span>Toque para iniciar</span>
     </button>
 
   </main>
 
-  <script src="script.js"></script>
+  <script src="./script.js"></script>
 </body>
 </html>

@@ -1,68 +1,48 @@
 "use strict";
 
+const VIDEO_URL =
+  "https://videos.birx.com.br/comercial.mp4";
+
+const ENDING_DURATION_MS = 7000;
+const VIDEO_LOAD_TIMEOUT_MS = 20000;
+
 const video = document.getElementById("totemVideo");
 const ending = document.getElementById("ending");
+const loadingScreen = document.getElementById("loadingScreen");
+const errorScreen = document.getElementById("errorScreen");
 const startButton = document.getElementById("startButton");
+const retryButton = document.getElementById("retryButton");
 
-const ENDING_DURATION = 7000;
 let endingTimer = null;
+let loadingTimer = null;
+let cycleRunning = false;
 
-function showStartButton() {
-  startButton.classList.add("is-visible");
+function showElement(element, className = "is-visible") {
+  element.classList.add(className);
 }
 
-function hideStartButton() {
-  startButton.classList.remove("is-visible");
+function hideElement(element, className = "is-visible") {
+  element.classList.remove(className);
 }
 
-function hideEnding() {
-  ending.classList.remove("is-visible");
-  ending.setAttribute("aria-hidden", "true");
+function showLoading() {
+  loadingScreen.classList.remove("is-hidden");
 }
 
-function showEnding() {
-  ending.classList.add("is-visible");
-  ending.setAttribute("aria-hidden", "false");
+function hideLoading() {
+  loadingScreen.classList.add("is-hidden");
 }
 
-async function playVideo() {
-  clearTimeout(endingTimer);
-  hideEnding();
+function showError() {
+  clearTimeout(loadingTimer);
 
-  video.currentTime = 0;
-  video.muted = true;
+  hideLoading();
+  hideElement(startButton);
+  showElement(errorScreen);
 
-  try {
-    await video.play();
-    hideStartButton();
-  } catch (error) {
-    console.warn("O navegador bloqueou o autoplay:", error);
-    showStartButton();
-  }
+  errorScreen.setAttribute("aria-hidden", "false");
 }
 
-function finishVideo() {
-  video.pause();
-  showEnding();
-
-  endingTimer = setTimeout(() => {
-    playVideo();
-  }, ENDING_DURATION);
-}
-
-video.addEventListener("ended", finishVideo);
-
-video.addEventListener("error", () => {
-  console.error("Não foi possível carregar o arquivo comercial.mp4.");
-  showStartButton();
-});
-
-startButton.addEventListener("click", playVideo);
-
-document.addEventListener("visibilitychange", () => {
-  if (!document.hidden && !ending.classList.contains("is-visible")) {
-    video.play().catch(showStartButton);
-  }
-});
-
-playVideo();
+function hideError() {
+  hideElement(errorScreen);
+  error
