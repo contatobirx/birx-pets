@@ -14,6 +14,7 @@ test("a Sprint 4.10 cria catálogo comercial e carrinho persistente",()=>{
   assert.match(shop,/data-filtro="birx-id"/);
   assert.match(shop,/data-filtro="impressos-3d"/);
   assert.match(shopJs,/birx_loja_carrinho/);
+  assert.match(shopJs,/try\{localStorage\.setItem.+\}catch\{\}renderCart\(\)/);
   assert.match(shopJs,/config\.freteGratisAPartirCentavos/);
   assert.match(shopCss,/product-grid/);
   for(const slug of["birx-id-essential","birx-id-nfc","birx-id-smart","birx-cat","kit-protecao","pa-dosadora","porta-racao","porta-remedios","organizador-pet"])assert.match(migration,new RegExp(slug));
