@@ -32,6 +32,7 @@ test("o cliente envia comprovante protegido e acompanha a conferência",()=>{
   assert.match(trackingJs,/comprovante-pagamento/);
   for(const type of["image/jpeg","image/png","image/webp","application/pdf"])assert.match(proofApi,new RegExp(type.replace("/","\\/")));
   assert.match(proofApi,/5\*1024\*1024/);
+  assert.match(proofApi,/formData\(\)\}catch\{return json/);
   assert.match(proofApi,/LOWER\(email\)=\?/);
   assert.match(proofApi,/statusPagamento!=="aguardando"/);
   assert.match(migration,/comprovante_url/);

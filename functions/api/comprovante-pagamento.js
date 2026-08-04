@@ -20,7 +20,8 @@ async function notifyTeam(env,order){
 
 export async function onRequestPost({request,env}){
   try{
-    const form=await request.formData(),code=clean(form.get("codigo"),40).toUpperCase(),email=clean(form.get("email"),160).toLowerCase(),file=form.get("arquivo");
+    let form;try{form=await request.formData()}catch{return json({sucesso:false,mensagem:"Envie o comprovante pelo formulário do pedido."},400)}
+    const code=clean(form.get("codigo"),40).toUpperCase(),email=clean(form.get("email"),160).toLowerCase(),file=form.get("arquivo");
     if(!code||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))return json({sucesso:false,mensagem:"Informe o pedido e o e-mail da compra."},400);
     if(!file||!['image/jpeg','image/png','image/webp','application/pdf'].includes(file.type)||file.size<1||file.size>5*1024*1024)return json({sucesso:false,mensagem:"Envie uma imagem ou PDF de até 5 MB."},400);
     const order=await env.DB.prepare(`SELECT codigo,nome,email,status_pagamento AS statusPagamento,comprovante_url AS comprovanteUrl FROM loja_pedidos WHERE codigo=? AND LOWER(email)=? LIMIT 1`).bind(code,email).first();
