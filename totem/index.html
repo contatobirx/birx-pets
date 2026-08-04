@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1, viewport-fit=cover"
+  >
+
+  <title>Birx Pets — Totem</title>
+
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+  <main class="totem">
+
+    <video
+      id="totemVideo"
+      class="totem__video"
+      autoplay
+      muted
+      playsinline
+      preload="auto"
+      disablepictureinpicture
+    >
+      <source src="comercial.mp4" type="video/mp4">
+      Seu navegador não conseguiu reproduzir o vídeo.
+    </video>
+
+    <section id="ending" class="ending" aria-hidden="true">
+      <img
+        class="ending__logo"
+        src="logo.png"
+        alt="Birx Pets"
+      >
+
+      <h1 class="ending__title">
+        Proteja quem faz parte da sua família.
+      </h1>
+
+      <p class="ending__subtitle">
+        Identificação inteligente para pets
+      </p>
+
+      <img
+        class="ending__qr"
+        src="qrcode.png"
+        alt="QR Code para conhecer a Birx Pets"
+      >
+
+      <p class="ending__action">
+        Aponte a câmera e conheça a Birx ID
+      </p>
+
+      <p class="ending__site">
+        birxpets.com.br
+      </p>
+    </section>
+
+    <button id="startButton" class="start-button" type="button">
+      Toque para iniciar
+    </button>
+
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
