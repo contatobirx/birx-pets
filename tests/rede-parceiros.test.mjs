@@ -31,3 +31,10 @@ test("parceiros autenticados administram o perfil e relatos são protegidos", ()
   assert.match(api, /CF-Connecting-IP/);
   assert.match(migration, /parceiro_denuncias/);
 });
+
+test("a rede distingue parceiros BIRX de resultados externos do Google Maps", () => {
+  assert.match(html, /id="googleMapsParceiros"/);
+  assert.match(html, /não são parceiros verificados da BIRX/i);
+  assert.match(client, /google\.com\/maps\/search\/\?api=1/);
+  assert.match(client, /encodeURIComponent\(query\)/);
+});

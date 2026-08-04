@@ -30,7 +30,7 @@
   <link rel="stylesheet" href="/css/medicamentos.css?v=2.13" />
   <link rel="stylesheet" href="/css/agendamentos.css?v=2.18" />
   <link rel="stylesheet" href="/css/carteirinha.css?v=2.19" />
-  <link rel="stylesheet" href="/css/onde-comprar.css?v=2.17" />
+  <link rel="stylesheet" href="/css/onde-comprar.css?v=2.17.2" />
   <link rel="stylesheet" href="/css/pwa.css?v=3.0" />
   <link rel="stylesheet" href="/css/tutor-alimentacao.css?v=4.3" />
   <link rel="stylesheet" href="/css/avistamentos.css?v=4.5" />
@@ -776,6 +776,7 @@
       <div id="ondeComprarCarregando" class="onde-comprar-carregando" hidden><span class="saude-spinner"></span><div><strong>Buscando estabelecimentos próximos...</strong><small>Isso pode levar alguns segundos.</small></div></div>
       <div id="ondeComprarConteudo" class="onde-comprar-conteudo" hidden><div id="mapaOndeComprar" aria-label="Mapa de estabelecimentos próximos"></div><div class="onde-comprar-resultados"><div class="onde-comprar-resumo"><strong id="ondeComprarQuantidade">Locais encontrados</strong><small>Ordenados pela distância</small></div><div id="listaOndeComprar" class="lista-onde-comprar"></div></div></div>
       <div id="ondeComprarVazio" class="saude-vazio" hidden><div class="saude-vazio-icone">🔎</div><strong>Nenhum estabelecimento encontrado</strong><p>Tente novamente em outro local ou abra a pesquisa ampliada.</p></div>
+      <section id="googleMapsClinicas" class="google-maps-clinicas" hidden><div><span>BUSCA AMPLIADA</span><strong>Não encontrou uma clínica?</strong><p>Veja outras clínicas veterinárias no Google Maps. Os resultados não são necessariamente parceiros verificados da BIRX.</p></div><a id="abrirGoogleMapsClinicas" href="https://www.google.com/maps/search/?api=1&amp;query=cl%C3%ADnica%20veterin%C3%A1ria" target="_blank" rel="noopener noreferrer">Ver clínicas no Google Maps</a></section>
       <div class="onde-comprar-aviso"><strong>Antes de comprar:</strong> confirme por telefone se o produto, a apresentação e a dosagem estão disponíveis. Utilize medicamentos somente com orientação veterinária. <span>Dados de estabelecimentos: OpenStreetMap.</span></div>
     </div>
   </div>
@@ -998,7 +999,7 @@
   <script src="/js/tutor-despesas.js?v=3.13"></script>
   <script src="/js/tutor-preventivos.js?v=3.14"></script>
   <script src="/js/tutor-diario.js?v=3.15"></script>
-  <script src="/js/tutor-onde-comprar.js?v=2.17.1"></script>
+  <script src="/js/tutor-onde-comprar.js?v=2.17.2"></script>
   <script src="/js/tutor-push.js?v=2.14.1"></script>
   <script src="/js/timeline.js?v=1"></script>
   <script src="/js/core/ux.js?v=1"></script>
