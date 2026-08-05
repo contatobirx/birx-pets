@@ -3,185 +3,133 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#fffaf4">
+  <meta name="theme-color" content="#7048f6">
   <meta name="description" content="Demonstração interativa e somente leitura do painel Birx Pets.">
-  <title>Demonstração do app | Birx Pets</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
+  <title>Painel demonstrativo | Birx Pets</title>
   <link rel="stylesheet" href="./demo.css">
 </head>
 <body>
-  <div class="demo-shell">
-    <header class="topbar">
-      <a class="brand" href="/" aria-label="Birx Pets">
-        <img src="/assets/login.png" alt="Birx Pets">
-      </a>
-      <div class="demo-badge"><span></span> Modo demonstração</div>
-    </header>
+  <header class="hero">
+    <div class="hero-inner">
+      <div class="brand">BIRX Pets</div>
+      <div class="hero-actions">
+        <span class="demo-pill">● Modo demonstração</span>
+        <button class="mini-btn demo-write" type="button">Minha conta</button>
+      </div>
+      <div class="hero-copy">
+        <h1>Olá, tutor da Maya 👋</h1>
+        <p>Aqui está o resumo da conta e do seu pet.</p>
+      </div>
+    </div>
+  </header>
 
-    <main class="app-layout">
-      <aside class="sidebar" aria-label="Navegação da demonstração">
-        <section class="pet-summary">
-          <div class="pet-avatar"><img src="/assets/cachorro.png" alt="Bento, pet de demonstração"></div>
+  <main class="page-shell">
+    <section class="pet-card">
+      <div class="pet-main">
+        <span class="panel-label">PAINEL DO TUTOR</span>
+        <div class="pet-row">
+          <div class="pet-photo" aria-label="Avatar demonstrativo da Maya">🐶</div>
           <div>
-            <small>Pet de demonstração</small>
-            <h1>Bento</h1>
-            <span class="status">Birx ID ativa</span>
+            <span class="active-tag">● Tag ativa</span>
+            <h2>Maya</h2>
+            <p>Cachorro • SRD</p>
+            <small>Tag ORB-26-623939</small>
           </div>
-        </section>
-
-        <nav class="demo-nav" id="demoNav">
-          <button class="is-active" data-panel="overview"><span>🐾</span> Visão geral</button>
-          <button data-panel="health"><span>❤️</span> Saúde</button>
-          <button data-panel="weight"><span>⚖️</span> Peso</button>
-          <button data-panel="medications"><span>💊</span> Medicamentos</button>
-          <button data-panel="vaccines"><span>💉</span> Vacinas</button>
-          <button data-panel="documents"><span>📁</span> Documentos</button>
-          <button data-panel="alerts"><span>🔔</span> Avisos</button>
-        </nav>
-
-        <div class="read-only-note">
-          <strong>Somente visualização</strong>
-          <p>Os dados são fictícios e nenhuma alteração é salva.</p>
         </div>
-      </aside>
-
-      <section class="content" aria-live="polite">
-        <div class="content-header">
-          <div>
-            <small class="eyebrow">PAINEL DO TUTOR</small>
-            <h2 id="panelTitle">Visão geral</h2>
-          </div>
-          <button class="ghost-action demo-write" type="button">Editar informações</button>
+        <div class="pet-actions">
+          <button class="danger demo-write">+ Central de emergência</button>
+          <button class="light demo-write">✎ Editar perfil</button>
+          <button class="light demo-write">◉ Ver perfil público</button>
+          <button class="soft-danger demo-write">⚠ Ativar modo perdido</button>
+          <button class="light demo-write">↗ Transferir pet</button>
         </div>
+      </div>
+      <div class="protection-card">
+        <span class="shield">🛡️</span>
+        <small>PROTEÇÃO BIRX</small>
+        <h3>Maya está protegida 🐾</h3>
+        <p>Mantenha os dados atualizados para facilitar o contato em uma emergência.</p>
+      </div>
+    </section>
 
-        <section class="panel is-active" data-panel-content="overview">
-          <div class="welcome-card">
-            <div>
-              <span class="kicker">PROTEÇÃO ATIVA</span>
-              <h3>Olá! O Bento está protegido 💙</h3>
-              <p>Perfil digital atualizado e pronto para ajudar no reencontro.</p>
-            </div>
-            <div class="tag-card"><span>⌁</span><div><strong>Birx ID</strong><small>NFC + QR Code</small></div><b>ATIVA</b></div>
+    <section class="status-grid">
+      <article><span>🏷️</span><div><small>Status da tag</small><strong>Ativa</strong></div></article>
+      <article><span>✅</span><div><small>Perfil completo</small><strong>100%</strong></div></article>
+      <article><span>📍</span><div><small>Localização</small><strong>Curitiba • PR</strong></div></article>
+      <article><span>🕘</span><div><small>Última atualização</small><strong>Agora</strong></div></article>
+    </section>
+
+    <section class="dashboard-grid">
+      <article class="card profile-card">
+        <div class="section-kicker">QUALIDADE DO PERFIL</div>
+        <div class="profile-score"><strong>100%</strong><a href="#" class="demo-write">Dados essenciais</a></div>
+        <div class="score-line"><span></span></div>
+        <p>Perfil completo! Os dados essenciais estão prontos para uma emergência.</p>
+        <div class="chips"><span>✓ Tag ativada</span><span>✓ Dados básicos</span><span>✓ Foto</span><span>✓ Contato</span><span>✓ Localização</span><span>✓ Raça</span></div>
+      </article>
+
+      <article class="card pending-card">
+        <div class="section-kicker">PRÓXIMAS AÇÕES</div>
+        <h3>Complete o que está pendente</h3>
+        <div class="ok-box"><span>✓</span><div><strong>Tudo certo!</strong><small>Os dados essenciais do perfil estão completos.</small></div></div>
+      </article>
+
+      <article class="card quick-card">
+        <div class="section-kicker">AÇÕES RÁPIDAS</div>
+        <h3>Cuide de tudo em um só lugar</h3>
+        <div class="quick-grid" id="demoNav">
+          <button data-panel="emergency"><span>➕</span><div><strong>Emergência</strong><small>Informações e contatos rápidos</small></div><b>›</b></button>
+          <button data-panel="health"><span>❤️</span><div><strong>Saúde</strong><small>Informações importantes</small></div><b>›</b></button>
+          <button data-panel="id"><span>🪪</span><div><strong>Carteirinha digital</strong><small>Dados essenciais do pet</small></div><b>›</b></button>
+          <button data-panel="vaccines"><span>💉</span><div><strong>Vacinas</strong><small>Carteira de vacinação</small></div><b>›</b></button>
+          <button data-panel="documents"><span>📄</span><div><strong>Documentos</strong><small>Receitas, exames e PDFs</small></div><b>›</b></button>
+          <button data-panel="timeline"><span>🕘</span><div><strong>Timeline</strong><small>Histórico do pet</small></div><b>›</b></button>
+          <button data-panel="access"><span>📍</span><div><strong>Acessos</strong><small>Leituras e localização</small></div><b>›</b></button>
+          <button data-panel="sightings"><span>👀</span><div><strong>Avistamentos</strong><small>Relatos e mapa</small></div><b>›</b></button>
+          <button data-panel="medications"><span>💊</span><div><strong>Medicamentos</strong><small>Tratamentos e horários</small></div><b>›</b></button>
+          <button data-panel="weight"><span>⚖️</span><div><strong>Peso</strong><small>Evolução e histórico</small></div><b>›</b></button>
+          <button data-panel="appointments"><span>🗓️</span><div><strong>Agendamentos</strong><small>Consultas, exames e vacinas</small></div><b>›</b></button>
+          <button data-panel="routine"><span>⏰</span><div><strong>Rotinas e lembretes</strong><small>Cuidados recorrentes</small></div><b>›</b></button>
+        </div>
+      </article>
+    </section>
+
+    <section class="stats-row">
+      <article><small>Pets cadastrados</small><strong>1</strong></article>
+      <article><small>Tags ativas</small><strong>1</strong></article>
+      <article><small>Em modo perdido</small><strong>0</strong></article>
+      <article><small>Cadastros neste mês</small><strong>0</strong></article>
+    </section>
+
+    <section class="demo-panel-wrap">
+      <div class="demo-panel-head">
+        <div><span class="section-kicker">PRÉVIA INTERATIVA</span><h2 id="panelTitle">Saúde</h2></div>
+        <button class="close-panel" id="closePanel" type="button">Fechar prévia</button>
+      </div>
+
+      <div class="demo-panel" id="demoPanel">
+        <section class="panel is-active" data-panel-content="health">
+          <div class="panel-grid">
+            <article class="feature-card"><span>❤️</span><small>ÍNDICE DE BEM-ESTAR</small><strong>92/100</strong><p>Vacinas em dia, peso estável e rotina acompanhada.</p></article>
+            <article class="list-card"><h3>Resumo de saúde</h3><div><span>💉</span><p><strong>Vacina V10</strong><small>Próxima dose em 12 dias</small></p><b>EM DIA</b></div><div><span>💊</span><p><strong>Apoquel</strong><small>Próxima dose às 20:00</small></p><b>PRÓXIMA</b></div></article>
           </div>
-
-          <div class="stats-grid">
-            <article><span>📸</span><strong>5</strong><small>Fotos</small></article>
-            <article><span>📁</span><strong>3</strong><small>Documentos</small></article>
-            <article><span>🩺</span><strong>8</strong><small>Eventos de saúde</small></article>
-            <article><span>🔔</span><strong>2</strong><small>Lembretes ativos</small></article>
-          </div>
-
-          <div class="section-grid">
-            <article class="card">
-              <div class="card-heading"><div><small>INFORMAÇÕES</small><h3>Sobre o Bento</h3></div><button class="icon-button demo-write">✎</button></div>
-              <dl class="details-list">
-                <div><dt>Raça</dt><dd>Golden Retriever</dd></div>
-                <div><dt>Idade</dt><dd>4 anos</dd></div>
-                <div><dt>Sexo</dt><dd>Macho</dd></div>
-                <div><dt>Cor</dt><dd>Dourado</dd></div>
-                <div><dt>Microchip</dt><dd>963001234567890</dd></div>
-              </dl>
-            </article>
-
-            <article class="card">
-              <div class="card-heading"><div><small>ACESSO RÁPIDO</small><h3>Cuidados do pet</h3></div></div>
-              <div class="shortcut-grid">
-                <button data-go="vaccines"><span>💉</span><strong>Vacinas</strong><small>Em dia</small></button>
-                <button data-go="medications"><span>💊</span><strong>Remédios</strong><small>1 ativo</small></button>
-                <button data-go="weight"><span>⚖️</span><strong>Peso</strong><small>28,4 kg</small></button>
-                <button data-go="documents"><span>📁</span><strong>Documentos</strong><small>3 arquivos</small></button>
-              </div>
-            </article>
-          </div>
         </section>
+        <section class="panel" data-panel-content="medications" hidden><article class="list-card"><h3>Medicamentos</h3><div><span>💊</span><p><strong>Apoquel 16 mg</strong><small>1 comprimido todos os dias às 20:00</small></p><b>72%</b></div><div><span>🦟</span><p><strong>Antipulgas</strong><small>Próxima aplicação em 15/08/2026</small></p><b>AGENDADO</b></div></article></section>
+        <section class="panel" data-panel-content="vaccines" hidden><article class="list-card"><h3>Vacinas</h3><div><span>💉</span><p><strong>V10</strong><small>Aplicada em 15/07/2026</small></p><b>EM DIA</b></div><div><span>💉</span><p><strong>Antirrábica</strong><small>Aplicada em 10/02/2026</small></p><b>EM DIA</b></div></article></section>
+        <section class="panel" data-panel-content="weight" hidden><article class="feature-card"><span>⚖️</span><small>PESO ATUAL</small><strong>28,4 kg</strong><p>Variação de +0,2 kg nos últimos 30 dias.</p><div class="fake-chart"><i></i><i></i><i></i><i></i><i></i><i></i></div></article></section>
+        <section class="panel" data-panel-content="documents" hidden><article class="list-card"><h3>Documentos</h3><div><span>📄</span><p><strong>Carteira de vacinação</strong><small>PDF • atualizado em 15/07/2026</small></p><b>VER</b></div><div><span>🧾</span><p><strong>Exame de sangue</strong><small>PDF • 02/06/2026</small></p><b>VER</b></div></article></section>
+        <section class="panel" data-panel-content="id" hidden><article class="feature-card"><span>🪪</span><small>CARTEIRINHA DIGITAL</small><strong>Maya</strong><p>SRD • Curitiba/PR • Tag ORB-26-623939</p></article></section>
+        <section class="panel" data-panel-content="timeline" hidden><article class="list-card"><h3>Timeline</h3><div><span>💊</span><p><strong>Dose registrada</strong><small>Apoquel • hoje às 08:00</small></p><b>HOJE</b></div><div><span>⚖️</span><p><strong>Pesagem</strong><small>28,4 kg • 01/08/2026</small></p><b>AGO</b></div></article></section>
+        <section class="panel" data-panel-content="access" hidden><article class="list-card"><h3>Acessos da tag</h3><div><span>📡</span><p><strong>Leitura NFC</strong><small>Curitiba • hoje às 10:42</small></p><b>AGORA</b></div></article></section>
+        <section class="panel" data-panel-content="sightings" hidden><article class="feature-card"><span>👀</span><small>AVISTAMENTOS</small><strong>Nenhum relato ativo</strong><p>Aqui aparecem relatos e localizações quando o modo perdido está ativado.</p></article></section>
+        <section class="panel" data-panel-content="appointments" hidden><article class="list-card"><h3>Agendamentos</h3><div><span>🩺</span><p><strong>Consulta de rotina</strong><small>18/08/2026 às 14:30</small></p><b>AGENDADA</b></div></article></section>
+        <section class="panel" data-panel-content="routine" hidden><article class="list-card"><h3>Rotinas e lembretes</h3><div><span>⏰</span><p><strong>Apoquel</strong><small>Todos os dias às 20:00</small></p><b>ATIVO</b></div><div><span>🍽️</span><p><strong>Alimentação</strong><small>07:30 e 18:30</small></p><b>ATIVO</b></div></article></section>
+        <section class="panel" data-panel-content="emergency" hidden><article class="feature-card emergency"><span>➕</span><small>CENTRAL DE EMERGÊNCIA</small><strong>Contatos rápidos</strong><p>Tutor principal, veterinário e endereço aparecem aqui em uma situação real.</p><button class="demo-write">Simular ligação</button></article></section>
+      </div>
+    </section>
+  </main>
 
-        <section class="panel" data-panel-content="health" hidden>
-          <div class="section-grid">
-            <article class="card health-score">
-              <small>RESUMO DE SAÚDE</small>
-              <div class="score-ring"><strong>92</strong><span>/100</span></div>
-              <h3>Cuidados em dia</h3>
-              <p>Vacinas atualizadas, peso estável e tratamento acompanhado.</p>
-            </article>
-            <article class="card timeline-card">
-              <div class="card-heading"><div><small>HISTÓRICO</small><h3>Últimos eventos</h3></div><button class="ghost-action demo-write">Adicionar</button></div>
-              <div class="timeline">
-                <div><span>💉</span><div><strong>Vacina V10</strong><small>Aplicada em 15/07/2026</small></div><b>Concluída</b></div>
-                <div><span>⚖️</span><div><strong>Pesagem</strong><small>28,4 kg em 01/08/2026</small></div><b>Estável</b></div>
-                <div><span>💊</span><div><strong>Apoquel</strong><small>Tratamento em andamento</small></div><b>72%</b></div>
-              </div>
-            </article>
-          </div>
-        </section>
-
-        <section class="panel" data-panel-content="weight" hidden>
-          <article class="card">
-            <div class="card-heading"><div><small>ACOMPANHAMENTO</small><h3>Evolução do peso</h3></div><button class="ghost-action demo-write">Registrar peso</button></div>
-            <div class="weight-highlight"><div><span>Peso atual</span><strong>28,4 kg</strong><small>Atualizado em 01/08/2026</small></div><div class="weight-trend">↗ <strong>+0,2 kg</strong><small>nos últimos 30 dias</small></div></div>
-            <div class="chart" aria-label="Gráfico demonstrativo de peso">
-              <div class="grid-line"></div><div class="grid-line"></div><div class="grid-line"></div>
-              <svg viewBox="0 0 600 220" role="img" aria-label="Peso estável entre 27,8 e 28,4 quilos">
-                <polyline points="20,170 110,150 200,155 290,120 380,125 470,90 580,78" fill="none" stroke="#087ce8" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
-                <g fill="#087ce8"><circle cx="20" cy="170" r="8"/><circle cx="110" cy="150" r="8"/><circle cx="200" cy="155" r="8"/><circle cx="290" cy="120" r="8"/><circle cx="380" cy="125" r="8"/><circle cx="470" cy="90" r="8"/><circle cx="580" cy="78" r="8"/></g>
-              </svg>
-              <div class="chart-labels"><span>Fev</span><span>Mar</span><span>Abr</span><span>Mai</span><span>Jun</span><span>Jul</span><span>Ago</span></div>
-            </div>
-          </article>
-        </section>
-
-        <section class="panel" data-panel-content="medications" hidden>
-          <article class="card">
-            <div class="card-heading"><div><small>TRATAMENTOS</small><h3>Medicamentos</h3></div><button class="ghost-action demo-write">Adicionar medicamento</button></div>
-            <div class="medicine-list">
-              <div class="medicine active"><span class="medicine-icon">💊</span><div><strong>Apoquel 16 mg</strong><small>1 comprimido • todos os dias às 20:00</small><div class="progress"><span style="width:72%"></span></div><em>Tratamento 72% concluído</em></div><b>ATIVO</b></div>
-              <div class="medicine"><span class="medicine-icon">🦟</span><div><strong>Antipulgas</strong><small>Próxima aplicação em 15/08/2026</small></div><b>AGENDADO</b></div>
-            </div>
-          </article>
-        </section>
-
-        <section class="panel" data-panel-content="vaccines" hidden>
-          <article class="card">
-            <div class="card-heading"><div><small>CARTEIRA DE VACINAÇÃO</small><h3>Vacinas do Bento</h3></div><button class="ghost-action demo-write">Registrar vacina</button></div>
-            <div class="vaccine-grid">
-              <div><span>💉</span><strong>V10</strong><small>Aplicada em 15/07/2026</small><b>EM DIA</b></div>
-              <div><span>💉</span><strong>Antirrábica</strong><small>Aplicada em 10/02/2026</small><b>EM DIA</b></div>
-              <div><span>💉</span><strong>Gripe canina</strong><small>Reforço em 22/09/2026</small><b class="soon">PRÓXIMA</b></div>
-            </div>
-          </article>
-        </section>
-
-        <section class="panel" data-panel-content="documents" hidden>
-          <article class="card">
-            <div class="card-heading"><div><small>ARQUIVOS DO PET</small><h3>Documentos</h3></div><button class="ghost-action demo-write">Enviar documento</button></div>
-            <div class="document-list">
-              <button class="demo-document"><span>📄</span><div><strong>Carteira de vacinação</strong><small>PDF • atualizado em 15/07/2026</small></div><b>Visualizar</b></button>
-              <button class="demo-document"><span>🧾</span><div><strong>Exame de sangue</strong><small>PDF • 02/06/2026</small></div><b>Visualizar</b></button>
-              <button class="demo-document"><span>🪪</span><div><strong>Registro do microchip</strong><small>Imagem • 18/01/2026</small></div><b>Visualizar</b></button>
-            </div>
-          </article>
-        </section>
-
-        <section class="panel" data-panel-content="alerts" hidden>
-          <article class="card">
-            <div class="card-heading"><div><small>CENTRAL DE AVISOS</small><h3>Nada passa despercebido</h3></div><button class="ghost-action demo-write">Configurar</button></div>
-            <div class="notice-list">
-              <div class="new"><span>💊</span><div><strong>Hora do medicamento</strong><small>Apoquel — 1 comprimido</small></div><b>agora</b></div>
-              <div><span>📡</span><div><strong>Tag acessada</strong><small>A Birx ID de Bento foi aproximada</small></div><b>10:42</b></div>
-              <div><span>💉</span><div><strong>Vacina próxima</strong><small>Reforço da gripe canina em 48 dias</small></div><b>ontem</b></div>
-            </div>
-          </article>
-        </section>
-      </section>
-    </main>
-  </div>
-
-  <div class="toast" id="demoToast" role="status" aria-live="polite">
-    <strong>Modo demonstração</strong>
-    <span>Esta ação está bloqueada e nenhuma informação será alterada.</span>
-  </div>
-
+  <div class="toast" id="demoToast" role="status"><strong>Modo demonstração</strong><span>Nenhuma alteração será salva.</span></div>
   <script src="./demo.js"></script>
 </body>
 </html>
