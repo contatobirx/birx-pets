@@ -123,19 +123,27 @@
     ctx.fillStyle = "#FFFFFF";
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
-    ctx.font = "700 94px Arial, sans-serif";
-    ctx.fillText("SCAN", 450, 112);
+    ctx.font = "700 82px Arial, sans-serif";
+    ctx.fillText("SCAN", 450, 105);
 
-    const qrSize = showCode ? 590 : 625;
+    // Mantém o QR inteiro dentro da área segura do círculo.
+    // O tamanho anterior encostava nas bordas e os cantos saíam do preto.
+    const qrSize = showCode ? 500 : 540;
     const qrX = (900 - qrSize) / 2;
-    const qrY = showCode ? 190 : 188;
+    const qrY = showCode ? 205 : 220;
+
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(450, 450, 420, 0, Math.PI * 2);
+    ctx.clip();
     ctx.imageSmoothingEnabled = false;
     ctx.drawImage(qrCanvas, qrX, qrY, qrSize, qrSize);
+    ctx.restore();
 
     if (showCode) {
       ctx.fillStyle = "#FFFFFF";
-      ctx.font = "500 34px Arial, sans-serif";
-      ctx.fillText(codigo, 450, 826);
+      ctx.font = "500 30px Arial, sans-serif";
+      ctx.fillText(codigo, 450, 785);
     }
 
     return sticker.toDataURL("image/png");
