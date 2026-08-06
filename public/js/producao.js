@@ -167,7 +167,7 @@
         ui.printArea.appendChild(label);
       }
 
-      notify(`${data.quantidade} etiquetas preparadas. Na janela de impressão, escolha “Salvar como PDF”, escala 100% e margens: nenhuma.`);
+      notify(`${data.quantidade} etiquetas preparadas. Na janela de impressão, escolha “Salvar como PDF”, escala 100% e margens: padrão.`);
       await wait(150);
       window.print();
     } catch (error) {
