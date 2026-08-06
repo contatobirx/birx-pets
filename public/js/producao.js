@@ -63,30 +63,82 @@
 
   function wait(ms) { return new Promise((resolve) => setTimeout(resolve, ms)); }
 
-  async function buildQr(link) {
+  async function buildSticker(link, codigo, showCode) {
     const holder = document.createElement("div");
     holder.className = "qr-temp";
     document.body.appendChild(holder);
-    new QRCode(holder, { text: link, width: 360, height: 360, correctLevel: QRCode.CorrectLevel.M });
-    await wait(25);
-    const source = holder.querySelector("canvas");
-    if (!source) { holder.remove(); throw new Error("Não foi possível criar um QR Code."); }
 
-    const out = document.createElement("canvas");
-    out.width = source.width; out.height = source.height;
-    const ctx = out.getContext("2d", { willReadFrequently: true });
-    ctx.drawImage(source, 0, 0);
-    const image = ctx.getImageData(0, 0, out.width, out.height);
-    for (let i = 0; i < image.data.length; i += 4) {
-      const dark = image.data[i] < 128;
-      image.data[i] = dark ? 255 : 0;
-      image.data[i + 1] = dark ? 255 : 0;
-      image.data[i + 2] = dark ? 255 : 0;
-      image.data[i + 3] = 255;
+    new QRCode(holder, {
+      text: link,
+      width: 512,
+      height: 512,
+      correctLevel: QRCode.CorrectLevel.M,
+    });
+
+    await wait(35);
+    const source = holder.querySelector("canvas");
+    if (!source) {
+      holder.remove();
+      throw new Error("Não foi possível criar um QR Code.");
     }
-    ctx.putImageData(image, 0, 0);
+
+    // Converte o QR para módulos brancos com fundo transparente.
+    const qrCanvas = document.createElement("canvas");
+    qrCanvas.width = source.width;
+    qrCanvas.height = source.height;
+    const qrCtx = qrCanvas.getContext("2d", { willReadFrequently: true });
+    qrCtx.drawImage(source, 0, 0);
+    const image = qrCtx.getImageData(0, 0, qrCanvas.width, qrCanvas.height);
+
+    for (let i = 0; i < image.data.length; i += 4) {
+      const isDarkModule = image.data[i] < 128;
+      if (isDarkModule) {
+        image.data[i] = 255;
+        image.data[i + 1] = 255;
+        image.data[i + 2] = 255;
+        image.data[i + 3] = 255;
+      } else {
+        image.data[i] = 255;
+        image.data[i + 1] = 255;
+        image.data[i + 2] = 255;
+        image.data[i + 3] = 0;
+      }
+    }
+    qrCtx.putImageData(image, 0, 0);
     holder.remove();
-    return out.toDataURL("image/png");
+
+    // Renderiza o adesivo inteiro como imagem. Assim o círculo preto
+    // aparece no PDF mesmo quando "gráficos de plano de fundo" está desligado.
+    const sticker = document.createElement("canvas");
+    sticker.width = 900;
+    sticker.height = 900;
+    const ctx = sticker.getContext("2d");
+    ctx.clearRect(0, 0, sticker.width, sticker.height);
+
+    ctx.fillStyle = "#000000";
+    ctx.beginPath();
+    ctx.arc(450, 450, 444, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = "#FFFFFF";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.font = "700 94px Arial, sans-serif";
+    ctx.fillText("SCAN", 450, 112);
+
+    const qrSize = showCode ? 590 : 625;
+    const qrX = (900 - qrSize) / 2;
+    const qrY = showCode ? 190 : 188;
+    ctx.imageSmoothingEnabled = false;
+    ctx.drawImage(qrCanvas, qrX, qrY, qrSize, qrSize);
+
+    if (showCode) {
+      ctx.fillStyle = "#FFFFFF";
+      ctx.font = "500 34px Arial, sans-serif";
+      ctx.fillText(codigo, 450, 826);
+    }
+
+    return sticker.toDataURL("image/png");
   }
 
   async function generatePrint() {
@@ -107,14 +159,11 @@
         label.className = "adesivo-print";
         if (i > 0 && i % 48 === 0) label.classList.add("nova-pagina");
 
-        const scan = document.createElement("div"); scan.className = "scan-print"; scan.textContent = "SCAN";
-        const img = document.createElement("img"); img.className = "qr-print"; img.alt = `QR ${tag.codigo}`;
-        img.src = await buildQr(tag.link);
-        label.append(scan, img);
-        if (ui.showCode.checked) {
-          const code = document.createElement("div"); code.className = "codigo-print"; code.textContent = tag.codigo;
-          label.appendChild(code);
-        }
+        const img = document.createElement("img");
+        img.className = "sticker-print";
+        img.alt = `Adesivo QR ${tag.codigo}`;
+        img.src = await buildSticker(tag.link, tag.codigo, ui.showCode.checked);
+        label.appendChild(img);
         ui.printArea.appendChild(label);
       }
 

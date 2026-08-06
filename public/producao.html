@@ -14,11 +14,9 @@
   body>*:not(.area-impressao){display:none!important}
   html,body{margin:0!important;padding:0!important;background:#fff!important;width:210mm!important}
   .area-impressao{display:grid!important;grid-template-columns:repeat(6,30mm);grid-auto-rows:30mm;column-gap:2mm;row-gap:3mm;width:190mm;margin:0 auto;padding-top:1.5mm;align-content:start;justify-content:center}
-  .adesivo-print{position:relative;width:30mm;height:30mm;border-radius:50%;overflow:hidden;background:#000;break-inside:avoid;page-break-inside:avoid}
+  .adesivo-print{position:relative;width:30mm;height:30mm;break-inside:avoid;page-break-inside:avoid;-webkit-print-color-adjust:exact;print-color-adjust:exact}
   .adesivo-print.nova-pagina{break-before:page;page-break-before:always}
-  .scan-print{position:absolute;top:1.6mm;left:0;width:100%;color:#fff;text-align:center;font:700 3.4mm/1 Arial,sans-serif;letter-spacing:.25mm}
-  .qr-print{position:absolute;left:5mm;top:7.5mm;width:20mm;height:20mm;image-rendering:pixelated}
-  .codigo-print{position:absolute;left:1.5mm;right:1.5mm;bottom:1mm;color:#fff;text-align:center;font:500 1.45mm/1 Arial,sans-serif;white-space:nowrap;overflow:hidden}
+  .sticker-print{display:block;width:30mm;height:30mm;object-fit:contain;image-rendering:auto;-webkit-print-color-adjust:exact;print-color-adjust:exact}
 }
 
   </style>
@@ -125,6 +123,6 @@
   <section id="areaImpressao" class="area-impressao" aria-hidden="true"></section>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-  <script src="/js/producao.js?v=1.2"></script>
+  <script src="/js/producao.js?v=1.3"></script>
 </body>
 </html>
