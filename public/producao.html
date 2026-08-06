@@ -61,10 +61,10 @@
           <div class="icone">QR</div>
           <div>
             <h3>Adesivos redondos</h3>
-            <p>PDF A4 em escala real, círculos de 30 mm, fundo preto e QR branco.</p>
+            <p>Folha A4 em escala real, círculos de 30 mm, fundo preto e QR branco. Salve como PDF pelo navegador.</p>
             <label class="checkbox"><input id="mostrarCodigo" type="checkbox"> Mostrar código pequeno no adesivo</label>
           </div>
-          <button id="gerarAdesivos" type="button">Gerar PDF para gráfica</button>
+          <button id="gerarAdesivos" type="button">Preparar impressão / PDF</button>
         </article>
 
         <article class="card acao">
@@ -99,13 +99,16 @@
 
       <section class="card instrucoes">
         <h3>Especificação do PDF de adesivos</h3>
-        <p><strong>Formato:</strong> A4, 6 colunas × 8 linhas, até 48 adesivos por página.</p>
+        <p><strong>Formato:</strong> A4, 6 colunas × 8 linhas, até 48 adesivos por página. O Chrome gera o PDF pela opção “Salvar como PDF”.</p>
         <p><strong>Tamanho final:</strong> 30 mm, com pequena sangria preta para o recorte eletrônico.</p>
         <p><strong>Orientação à gráfica:</strong> imprimir em escala 100%, sem “ajustar à página”, em vinil fosco com recorte kiss cut.</p>
       </section>
     </div>
   </main>
 
-  <script src="/js/producao.js?v=1.0"></script>
+  <section id="areaImpressao" class="area-impressao" aria-hidden="true"></section>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script src="/js/producao.js?v=1.1"></script>
 </body>
 </html>
