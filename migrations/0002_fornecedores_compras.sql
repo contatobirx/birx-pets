@@ -5,16 +5,20 @@ CREATE TABLE IF NOT EXISTS fornecedores (
   nome TEXT NOT NULL,
   cnpj TEXT,
   contato TEXT,
+  telefone TEXT,
   whatsapp TEXT,
   email TEXT,
   site TEXT,
   observacoes TEXT,
-  ativo INTEGER NOT NULL DEFAULT 1,
+  ativo INTEGER NOT NULL DEFAULT 1 CHECK (ativo IN (0,1)),
   criado_em TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
   atualizado_em TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 CREATE INDEX IF NOT EXISTS idx_fornecedores_nome ON fornecedores(nome);
 CREATE INDEX IF NOT EXISTS idx_fornecedores_ativo ON fornecedores(ativo);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_fornecedores_cnpj
+  ON fornecedores(cnpj)
+  WHERE cnpj IS NOT NULL AND TRIM(cnpj) <> '' AND ativo = 1;
 
 CREATE TABLE IF NOT EXISTS compras (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -37,9 +41,9 @@ CREATE TABLE IF NOT EXISTS compra_itens (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   compra_id INTEGER NOT NULL,
   material_id INTEGER NOT NULL,
-  quantidade REAL NOT NULL,
-  valor_unitario REAL NOT NULL,
-  total REAL NOT NULL,
+  quantidade REAL NOT NULL CHECK (quantidade > 0),
+  valor_unitario REAL NOT NULL CHECK (valor_unitario >= 0),
+  total REAL NOT NULL CHECK (total >= 0),
   FOREIGN KEY (compra_id) REFERENCES compras(id) ON DELETE CASCADE,
   FOREIGN KEY (material_id) REFERENCES materiais(id)
 );
