@@ -17,9 +17,9 @@
 
       <nav class="menu">
         <a class="menu-item active" href="/admin/" aria-current="page"><span>⌂</span>Dashboard</a>
+        <a class="menu-item" href="/admin/materiais.html"><span>▦</span>Materiais</a>
         <a class="menu-item" href="/admin-tags.html"><span>⌁</span>Tags</a>
         <a class="menu-item" href="/producao.html"><span>⚙</span>Produção</a>
-        <a class="menu-item disabled" href="#" data-future><span>▦</span>Materiais <small>em breve</small></a>
         <a class="menu-item disabled" href="#" data-future><span>▣</span>Estoque <small>em breve</small></a>
         <a class="menu-item disabled" href="#" data-future><span>🛒</span>Compras <small>em breve</small></a>
         <a class="menu-item disabled" href="#" data-future><span>◇</span>Produtos <small>em breve</small></a>
@@ -51,62 +51,33 @@
         <div>
           <span class="eyebrow">CENTRAL DE OPERAÇÕES</span>
           <h2>Visão geral da BIRX Pets</h2>
-          <p>Use este painel para acompanhar a operação e acessar rapidamente os módulos de tags e produção.</p>
+          <p>Use este painel para acompanhar a operação e acessar rapidamente os módulos de tags, produção e materiais.</p>
         </div>
         <div class="welcome-badge">BIRX<br><strong>ADMIN</strong></div>
       </section>
 
       <section class="stats-grid" aria-label="Resumo operacional">
-        <article class="stat-card">
-          <div class="stat-icon">🏷</div>
-          <div><span>Tags cadastradas</span><strong>—</strong><small>Integração com D1 na próxima etapa</small></div>
-        </article>
-        <article class="stat-card">
-          <div class="stat-icon">⚙</div>
-          <div><span>Em produção</span><strong>—</strong><small>Acompanhe pelo módulo Produção</small></div>
-        </article>
-        <article class="stat-card">
-          <div class="stat-icon">▣</div>
-          <div><span>Valor em estoque</span><strong>R$ —</strong><small>Disponível após o módulo Estoque</small></div>
-        </article>
-        <article class="stat-card">
-          <div class="stat-icon">R$</div>
-          <div><span>Custo médio</span><strong>R$ —</strong><small>Disponível após Precificação</small></div>
-        </article>
+        <article class="stat-card"><div class="stat-icon">🏷</div><div><span>Tags cadastradas</span><strong>—</strong><small>Integração com D1 na próxima etapa</small></div></article>
+        <article class="stat-card"><div class="stat-icon">⚙</div><div><span>Em produção</span><strong>—</strong><small>Acompanhe pelo módulo Produção</small></div></article>
+        <article class="stat-card"><div class="stat-icon">▦</div><div><span>Materiais</span><strong>Ativo</strong><small>Cadastro e saldo disponíveis</small></div></article>
+        <article class="stat-card"><div class="stat-icon">R$</div><div><span>Custo médio</span><strong>R$ —</strong><small>Disponível após Precificação</small></div></article>
       </section>
 
       <section class="content-grid">
         <article class="panel">
-          <div class="panel-header">
-            <div>
-              <span class="eyebrow">ACESSO RÁPIDO</span>
-              <h3>Operação de tags</h3>
-            </div>
-          </div>
+          <div class="panel-header"><div><span class="eyebrow">ACESSO RÁPIDO</span><h3>Operação</h3></div></div>
           <div class="quick-actions">
-            <a href="/admin-tags.html" class="action-card">
-              <span class="action-icon">⌁</span>
-              <div><strong>Preparação de Tags</strong><small>Criar lotes, gravar, testar e acompanhar ativações.</small></div>
-              <b>→</b>
-            </a>
-            <a href="/producao.html" class="action-card">
-              <span class="action-icon">⚙</span>
-              <div><strong>Produção</strong><small>Gerar adesivos, conferir lotes e preparar impressão.</small></div>
-              <b>→</b>
-            </a>
+            <a href="/admin/materiais.html" class="action-card"><span class="action-icon">▦</span><div><strong>Materiais</strong><small>Cadastre insumos, saldos, custos médios e estoque mínimo.</small></div><b>→</b></a>
+            <a href="/admin-tags.html" class="action-card"><span class="action-icon">⌁</span><div><strong>Preparação de Tags</strong><small>Criar lotes, gravar, testar e acompanhar ativações.</small></div><b>→</b></a>
+            <a href="/producao.html" class="action-card"><span class="action-icon">⚙</span><div><strong>Produção</strong><small>Gerar adesivos, conferir lotes e preparar impressão.</small></div><b>→</b></a>
           </div>
         </article>
 
         <article class="panel roadmap-panel">
-          <div class="panel-header">
-            <div>
-              <span class="eyebrow">PRÓXIMAS ETAPAS</span>
-              <h3>Evolução do sistema</h3>
-            </div>
-          </div>
+          <div class="panel-header"><div><span class="eyebrow">PRÓXIMAS ETAPAS</span><h3>Evolução do sistema</h3></div></div>
           <div class="roadmap">
-            <div class="roadmap-item done"><i></i><div><strong>Base administrativa</strong><small>Dashboard e navegação</small></div><span>Agora</span></div>
-            <div class="roadmap-item"><i></i><div><strong>Materiais e estoque</strong><small>Cadastro, saldo e movimentações</small></div></div>
+            <div class="roadmap-item done"><i></i><div><strong>Base administrativa</strong><small>Dashboard e navegação</small></div><span>Concluído</span></div>
+            <div class="roadmap-item done"><i></i><div><strong>Materiais</strong><small>Cadastro, saldo e histórico</small></div><span>Agora</span></div>
             <div class="roadmap-item"><i></i><div><strong>Compras e fornecedores</strong><small>Custos reais e notas fiscais</small></div></div>
             <div class="roadmap-item"><i></i><div><strong>Produtos e precificação</strong><small>Composição, margem e preço sugerido</small></div></div>
           </div>
@@ -114,17 +85,12 @@
       </section>
 
       <section class="panel status-panel">
-        <div class="panel-header">
-          <div>
-            <span class="eyebrow">STATUS</span>
-            <h3>Módulos do sistema</h3>
-          </div>
-        </div>
+        <div class="panel-header"><div><span class="eyebrow">STATUS</span><h3>Módulos do sistema</h3></div></div>
         <div class="module-grid">
           <div class="module ready"><span>Tags</span><strong>Operacional</strong></div>
           <div class="module ready"><span>Produção</span><strong>Operacional</strong></div>
-          <div class="module pending"><span>Materiais</span><strong>Próximo</strong></div>
-          <div class="module pending"><span>Compras</span><strong>Planejado</strong></div>
+          <div class="module ready"><span>Materiais</span><strong>Implementado</strong></div>
+          <div class="module pending"><span>Compras</span><strong>Próximo</strong></div>
           <div class="module pending"><span>Estoque</span><strong>Planejado</strong></div>
           <div class="module pending"><span>Precificação</span><strong>Planejado</strong></div>
         </div>
