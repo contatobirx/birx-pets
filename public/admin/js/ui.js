@@ -1,6 +1,6 @@
 window.BirxAdmin = (() => {
   const keyName = "orbitek_tag_admin";
-  const schemaKey = "birx_admin_schema_ready_v9";
+  const schemaKey = "birx_admin_schema_ready_v10";
   const money = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
   const qty = new Intl.NumberFormat("pt-BR", { maximumFractionDigits: 2 });
   const escapeHtml = (value) => String(value ?? "").replace(/[&<>'\"]/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '\"': "&quot;" }[char]));
