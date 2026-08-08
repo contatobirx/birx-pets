@@ -87,7 +87,19 @@ const statements = [
     FOREIGN KEY (impressora_id) REFERENCES impressoras_3d(id) ON DELETE SET NULL
   )`,
   `CREATE INDEX IF NOT EXISTS idx_ordens_status ON ordens_impressao(status, criado_em DESC)`,
-  `CREATE INDEX IF NOT EXISTS idx_ordens_impressora ON ordens_impressao(impressora_id, status)`
+  `CREATE INDEX IF NOT EXISTS idx_ordens_impressora ON ordens_impressao(impressora_id, status)`,
+  `CREATE TABLE IF NOT EXISTS ordem_material_reservas (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    ordem_id INTEGER NOT NULL,
+    material_id INTEGER NOT NULL,
+    quantidade REAL NOT NULL CHECK (quantidade > 0),
+    criado_em TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (ordem_id) REFERENCES ordens_impressao(id) ON DELETE CASCADE,
+    FOREIGN KEY (material_id) REFERENCES materiais(id) ON DELETE RESTRICT,
+    UNIQUE(ordem_id, material_id)
+  )`,
+  `CREATE INDEX IF NOT EXISTS idx_reservas_material ON ordem_material_reservas(material_id)`,
+  `CREATE INDEX IF NOT EXISTS idx_reservas_ordem ON ordem_material_reservas(ordem_id)`
 ];
 
 const filamentos = [
