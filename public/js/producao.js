@@ -7,6 +7,7 @@
     accessMessage: $("mensagemAcesso"), panel: $("painel"), batch: $("lote"),
     refresh: $("atualizarLotes"), summary: $("resumoLote"), total: $("quantidadeLote"),
     nfc: $("quantidadeNfc"), stock: $("quantidadeEstoque"), active: $("quantidadeAtivadas"),
+    written: $("quantidadeGravadas"), tested: $("quantidadeTestadas"),
     showCode: $("mostrarCodigo"), labels: $("gerarAdesivos"), conference: $("gerarConferencia"),
     message: $("mensagem"), printArea: $("areaImpressao"),
   };
@@ -36,10 +37,12 @@
     const batch = selectedBatch();
     ui.summary.hidden = !batch;
     if (!batch) return;
-    ui.total.textContent = Number(batch.quantidade || 0);
-    ui.nfc.textContent = Number(batch.quantidadeNfc || 0);
     ui.stock.textContent = Number(batch.estoque || 0);
+    ui.total.textContent = Number(batch.quantidade || 0);
+    ui.written.textContent = Number(batch.gravadas || 0);
+    ui.tested.textContent = Number(batch.testadas || 0);
     ui.active.textContent = Number(batch.ativadas || 0);
+    ui.nfc.textContent = Number(batch.quantidadeNfc || 0);
   }
 
   async function loadBatches() {
@@ -51,7 +54,12 @@
       const data = await api(`/api/producao/lotes?_=${Date.now()}`);
       batches = data.lotes || [];
       ui.batch.innerHTML = batches.length
-        ? `<option value="">Selecione um lote</option>${batches.map((item) => `<option value="${String(item.lote).replaceAll('"', '&quot;')}">${item.lote} — ${item.quantidade} tags</option>`).join("")}`
+        ? `<option value="">Selecione um lote</option>${batches.map((item) => {
+            const lote = String(item.lote).replaceAll('"', '&quot;');
+            const estoque = Number(item.estoque || 0);
+            const total = Number(item.quantidade || 0);
+            return `<option value="${lote}">${item.lote} — ${estoque} em estoque (${total} total)</option>`;
+          }).join("")}`
         : `<option value="">Nenhum lote cadastrado</option>`;
       if (previous && batches.some((item) => item.lote === previous)) ui.batch.value = previous;
       renderSummary();
@@ -82,7 +90,6 @@
       throw new Error("Não foi possível criar um QR Code.");
     }
 
-    // Converte o QR para módulos brancos com fundo transparente.
     const qrCanvas = document.createElement("canvas");
     qrCanvas.width = source.width;
     qrCanvas.height = source.height;
@@ -107,8 +114,6 @@
     qrCtx.putImageData(image, 0, 0);
     holder.remove();
 
-    // Renderiza o adesivo inteiro como imagem. Assim o círculo preto
-    // aparece no PDF mesmo quando "gráficos de plano de fundo" está desligado.
     const sticker = document.createElement("canvas");
     sticker.width = 900;
     sticker.height = 900;
@@ -126,8 +131,6 @@
     ctx.font = "700 82px Arial, sans-serif";
     ctx.fillText("SCAN", 450, 105);
 
-    // Mantém o QR inteiro dentro da área segura do círculo.
-    // O tamanho anterior encostava nas bordas e os cantos saíam do preto.
     const qrSize = showCode ? 500 : 540;
     const qrX = (900 - qrSize) / 2;
     const qrY = showCode ? 205 : 220;
