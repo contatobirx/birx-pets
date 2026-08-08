@@ -21,11 +21,11 @@ export async function onRequestPost({request,env}){
       const uid=clean(body.uid,40).toUpperCase();
       if(!uid)return json({sucesso:false,mensagem:'UID não informado pela gravadora.'},400);
       const tag=await env.DB.prepare('SELECT codigo,ativada,nfc_secret,nfc_uid,nfc_protegida_em,COALESCE(preparo_status,\'estoque\') AS preparo_status FROM tags WHERE UPPER(nfc_uid)=? LIMIT 1').bind(uid).first();
-      if(!tag)return json({sucesso:false,mensagem:`UID ${uid} não está vinculado a nenhuma tag BIRX gravada.`},404);
+      if(!tag)return json({sucesso:true,modo:'orfa',uid,mensagem:`UID ${uid} não está no banco. A gravadora poderá zerá-la somente se estiver sem proteção.`});
       if(Number(tag.ativada)===1)return json({sucesso:false,mensagem:`${tag.codigo} está ATIVADA. Não será zerada. Use Regravar NFC para substituir uma tag perdida.`},409);
       if(!tag.nfc_secret||!tag.nfc_protegida_em)return json({sucesso:false,mensagem:`${tag.codigo} não possui credenciais protegidas completas para zerar.`},409);
       const saved=await credentials(env,tag);
-      return json({sucesso:true,codigo:tag.codigo,uid:clean(tag.nfc_uid,40).toUpperCase(),status:tag.preparo_status,pwd:saved.pwd,pack:saved.pack});
+      return json({sucesso:true,modo:'vinculada',codigo:tag.codigo,uid:clean(tag.nfc_uid,40).toUpperCase(),status:tag.preparo_status,pwd:saved.pwd,pack:saved.pack});
     }
 
     const codigo=clean(body.codigo,40).toUpperCase();
@@ -59,11 +59,8 @@ export async function onRequestPost({request,env}){
     if(acao==='confirmar-regravacao'){
       const uid=clean(body.uid,40).toUpperCase();
       if(!uid)return json({sucesso:false,mensagem:'UID não informado pela gravadora.'},400);
-      if(Number(tag.ativada)===1){
-        await env.DB.prepare('UPDATE tags SET nfc_uid=?,gravada_em=CURRENT_TIMESTAMP,nfc_protegida_em=CURRENT_TIMESTAMP WHERE codigo=?').bind(uid,codigo).run();
-      }else{
-        await env.DB.prepare("UPDATE tags SET nfc_uid=?,preparo_status='gravada',gravada_em=CURRENT_TIMESTAMP,testada_em=NULL,nfc_protegida_em=CURRENT_TIMESTAMP WHERE codigo=?").bind(uid,codigo).run();
-      }
+      if(Number(tag.ativada)===1){await env.DB.prepare('UPDATE tags SET nfc_uid=?,gravada_em=CURRENT_TIMESTAMP,nfc_protegida_em=CURRENT_TIMESTAMP WHERE codigo=?').bind(uid,codigo).run();}
+      else{await env.DB.prepare("UPDATE tags SET nfc_uid=?,preparo_status='gravada',gravada_em=CURRENT_TIMESTAMP,testada_em=NULL,nfc_protegida_em=CURRENT_TIMESTAMP WHERE codigo=?").bind(uid,codigo).run();}
       return json({sucesso:true,mensagem:'Regravação NFC confirmada.',uid});
     }
 
