@@ -89,6 +89,36 @@ void programTag(const String&url,const String&pwdHex,const String&packHex){
   Serial.print("{\"ok\":true,\"uid\":\"");Serial.print(uid);Serial.println("\",\"protected\":true}");
 }
 
+void zeroOpenTag(const String&uidExpected){
+  uint8_t info[10],len;
+  progress("Confirmando tag nao vinculada...");
+  if(!selectTag(info,len)){fail("Tag nao encontrada");return;}
+  String uid=uidFromInfo(info,len),expected=uidExpected;expected.toUpperCase();
+  if(expected.length()&&uid!=expected){fail("UID mudou. Nenhuma alteracao foi feita.");return;}
+
+  uint8_t cfg[16];
+  if(!nfc.mifareBlockRead(0x83,cfg)){fail("Falha ao ler configuracao da tag");return;}
+  if(cfg[3]!=0xFF){fail("Tag nao vinculada esta protegida. Sem a senha correta ela nao pode ser zerada com seguranca.");return;}
+
+  progress("Tag livre. Apagando NDEF antigo...");
+  uint8_t emptyNdef[4]={0x03,0x00,0xFE,0x00};
+  if(!selectTag(info,len)||!nfc.page(0x04,emptyNdef)){fail("Falha ao apagar NDEF da tag livre");return;}
+
+  progress("Restaurando PWD e PACK padrao...");
+  uint8_t defaultPwd[4]={0xFF,0xFF,0xFF,0xFF};
+  uint8_t defaultPack[4]={0x00,0x00,0x00,0x00};
+  if(!selectTag(info,len)||!nfc.page(0x85,defaultPwd)){fail("Falha ao restaurar PWD padrao");return;}
+  if(!selectTag(info,len)||!nfc.page(0x86,defaultPack)){fail("Falha ao restaurar PACK padrao");return;}
+
+  progress("Verificando tag limpa...");
+  if(!selectTag(info,len)){fail("Tag perdida na verificacao final");return;}
+  uint8_t verifyCfg[16],check[16];
+  if(!nfc.mifareBlockRead(0x83,verifyCfg)||verifyCfg[3]!=0xFF){fail("A tag nao ficou livre");return;}
+  if(!selectTag(info,len)||!nfc.mifareBlockRead(0x04,check)||check[0]!=0x03||check[1]!=0x00||check[2]!=0xFE){fail("NDEF vazio nao foi confirmado");return;}
+
+  Serial.print("{\"ok\":true,\"uid\":\"");Serial.print(uid);Serial.println("\",\"zeroed\":true,\"orphan\":true,\"protected\":false}");
+}
+
 void zeroTag(const String&pwdHex,const String&packHex,const String&uidExpected){
   uint8_t pwd[4],pack[2],info[10],len;
   if(!fromHex(pwdHex,pwd,4)||!fromHex(packHex,pack,2)){fail("Credenciais invalidas");return;}
@@ -127,7 +157,7 @@ void zeroTag(const String&pwdHex,const String&packHex,const String&uidExpected){
   Serial.print("{\"ok\":true,\"uid\":\"");Serial.print(uid);Serial.println("\",\"zeroed\":true,\"protected\":false}");
 }
 
-void setup(){Serial.begin(115200);Serial.setTimeout(3000);SPI.begin(18,19,23);nfc.begin();nfc.reset();nfc.setupRF();Serial.println("{\"type\":\"ready\",\"device\":\"BIRX-NFC\",\"fw\":\"1.6\"}");}
+void setup(){Serial.begin(115200);Serial.setTimeout(3000);SPI.begin(18,19,23);nfc.begin();nfc.reset();nfc.setupRF();Serial.println("{\"type\":\"ready\",\"device\":\"BIRX-NFC\",\"fw\":\"1.7\"}");}
 void loop(){
   if(!Serial.available())return;
   String j=Serial.readStringUntil('\n');j.trim();
@@ -137,6 +167,10 @@ void loop(){
     String url=field(j,"url"),pwd=field(j,"pwd"),pack=field(j,"pack");
     if(!url.startsWith("https://")){fail("URL invalida");return;}
     programTag(url,pwd,pack);return;
+  }
+  if(cmd=="zero-open"){
+    String uidExpected=field(j,"uidExpected");
+    zeroOpenTag(uidExpected);return;
   }
   if(cmd=="zero"){
     String pwd=field(j,"pwd"),pack=field(j,"pack"),uidExpected=field(j,"uidExpected");
