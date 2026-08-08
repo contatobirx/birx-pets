@@ -55,10 +55,11 @@
       batches = data.lotes || [];
       ui.batch.innerHTML = batches.length
         ? `<option value="">Selecione um lote</option>${batches.map((item) => {
-            const lote = String(item.lote).replaceAll('"', '&quot;');
+            const value = String(item.lote).replaceAll('"', '&quot;');
+            const label = String(item.nomeLote || item.lote || 'Sem lote');
             const estoque = Number(item.estoque || 0);
             const total = Number(item.quantidade || 0);
-            return `<option value="${lote}">${item.lote} — ${estoque} em estoque (${total} total)</option>`;
+            return `<option value="${value}">${label} — ${estoque} em estoque (${total} total)</option>`;
           }).join("")}`
         : `<option value="">Nenhum lote cadastrado</option>`;
       if (previous && batches.some((item) => item.lote === previous)) ui.batch.value = previous;
