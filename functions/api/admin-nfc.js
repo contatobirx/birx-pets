@@ -24,7 +24,7 @@ export async function onRequestPost({request,env}){
       await key(env);
       let pwdHex,packHex;
       if(tag.nfc_secret){
-        if(tag.nfc_protegida_em)return json({sucesso:false,mensagem:'Esta tag já foi gravada e protegida. Use Regravar NFC.'},409);
+        if(tag.nfc_protegida_em)return json({sucesso:false,mensagem:'Esta tag já foi gravada e protegida. Use Zerar NFC para liberá-la.'},409);
         const saved=await credentials(env,tag);pwdHex=saved.pwd;packHex=saved.pack;
       }else{
         pwdHex=hex(crypto.getRandomValues(new Uint8Array(4)));
@@ -34,18 +34,24 @@ export async function onRequestPost({request,env}){
       }
       return json({sucesso:true,modo:'gravar',codigo,url,pwd:pwdHex,pack:packHex});
     }
-    if(acao==='regravar'){
-      if(Number(tag.ativada)===1)return json({sucesso:false,mensagem:'Por segurança, uma tag já ativada não pode ser regravada por esta rotina.'},409);
-      if(!tag.nfc_secret||!tag.nfc_protegida_em)return json({sucesso:false,mensagem:'Esta tag ainda não possui uma gravação protegida para regravar.'},409);
+    if(acao==='zerar'){
+      if(Number(tag.ativada)===1)return json({sucesso:false,mensagem:'Por segurança, uma tag já ativada não pode ser zerada por esta rotina.'},409);
+      if(!tag.nfc_secret||!tag.nfc_protegida_em||!tag.nfc_uid)return json({sucesso:false,mensagem:'Esta tag não possui uma gravação protegida completa para zerar.'},409);
       const saved=await credentials(env,tag);
-      return json({sucesso:true,modo:'regravar',codigo,url,pwd:saved.pwd,pack:saved.pack,uidEsperado:clean(tag.nfc_uid,40).toUpperCase()});
+      return json({sucesso:true,modo:'zerar',codigo,pwd:saved.pwd,pack:saved.pack,uidEsperado:clean(tag.nfc_uid,40).toUpperCase()});
+    }
+    if(acao==='confirmar-zero'){
+      const uid=clean(body.uid,40).toUpperCase();
+      if(!uid)return json({sucesso:false,mensagem:'UID não informado pela gravadora.'},400);
+      if(tag.nfc_uid&&clean(tag.nfc_uid,40).toUpperCase()!==uid)return json({sucesso:false,mensagem:'O UID zerado não corresponde à tag cadastrada. O banco não foi alterado.'},409);
+      await env.DB.prepare("UPDATE tags SET nfc_uid=NULL,nfc_secret=NULL,nfc_protegida_em=NULL,preparo_status='estoque',gravada_em=NULL,testada_em=NULL,vendida_em=NULL WHERE codigo=?").bind(codigo).run();
+      return json({sucesso:true,mensagem:'Tag NFC zerada e devolvida ao estoque.',uid});
     }
     if(acao==='confirmar'){
-      const uid=clean(body.uid,40).toUpperCase(),modo=clean(body.modo,20);
+      const uid=clean(body.uid,40).toUpperCase();
       if(!uid)return json({sucesso:false,mensagem:'UID não informado pela gravadora.'},400);
-      if(modo==='regravar'&&tag.nfc_uid&&clean(tag.nfc_uid,40).toUpperCase()!==uid)return json({sucesso:false,mensagem:'O UID lido não corresponde à tag cadastrada. A confirmação foi bloqueada.'},409);
       await env.DB.prepare("UPDATE tags SET nfc_uid=?,preparo_status='gravada',gravada_em=CURRENT_TIMESTAMP,testada_em=NULL,nfc_protegida_em=CURRENT_TIMESTAMP WHERE codigo=?").bind(uid,codigo).run();
-      return json({sucesso:true,mensagem:modo==='regravar'?'Regravação NFC confirmada.':'Gravação NFC confirmada.',uid});
+      return json({sucesso:true,mensagem:'Gravação NFC confirmada.',uid});
     }
     return json({sucesso:false,mensagem:'Ação inválida.'},400);
   }catch(error){
