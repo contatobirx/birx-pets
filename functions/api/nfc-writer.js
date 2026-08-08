@@ -32,7 +32,7 @@ async function decrypt(env,value){
 async function setup(env){
   const cols=await env.DB.prepare('PRAGMA table_info(tags)').all();
   const names=new Set((cols.results||[]).map(x=>x.name));
-  for(const[name,type]of[['nfc_uid','TEXT'],['nfc_secret','TEXT'],['nfc_protegida_em','TEXT'],['preparo_status',"TEXT DEFAULT 'estoque'"],['gravada_em','TEXT']]){
+  for(const[name,type]of[['nfc_uid','TEXT'],['nfc_secret','TEXT'],['nfc_protegida_em','TEXT'],['preparo_status',"TEXT DEFAULT 'estoque'"],['gravada_em','TEXT'],['testada_em','TEXT'],['vendida_em','TEXT']]){
     if(!names.has(name))await env.DB.prepare(`ALTER TABLE tags ADD COLUMN ${name} ${type}`).run();
   }
 }
@@ -52,7 +52,7 @@ export async function onRequestPost({request,env}){
     const acao=clean(body.acao,30);
 
     if(acao==='status'){
-      return json({sucesso:true,device:'BIRX-NFC-WIFI',api:'1.0'});
+      return json({sucesso:true,device:'BIRX-NFC-WIFI',api:'1.1'});
     }
 
     if(acao==='proxima'){
@@ -78,14 +78,7 @@ export async function onRequestPost({request,env}){
         if(current?.nfc_secret!==secret){const saved=await credentials(env,current);pwd=saved.pwd;pack=saved.pack;}
       }
 
-      return json({
-        sucesso:true,
-        codigo:tag.codigo,
-        url:`https://pets.birx.com.br/q/${encodeURIComponent(tag.codigo)}`,
-        pwd,pack,
-        modelo:tag.modelo||'nfc',
-        lote:tag.lote||''
-      });
+      return json({sucesso:true,codigo:tag.codigo,url:`https://pets.birx.com.br/q/${encodeURIComponent(tag.codigo)}`,pwd,pack,modelo:tag.modelo||'nfc',lote:tag.lote||''});
     }
 
     if(acao==='confirmar'){
@@ -97,10 +90,31 @@ export async function onRequestPost({request,env}){
       if(Number(tag.ativada)===1)return json({sucesso:false,mensagem:'Esta tag já foi ativada.'},409);
       if(!tag.nfc_secret)return json({sucesso:false,mensagem:'A tag não possui credencial NFC reservada.'},409);
       if(tag.preparo_status!=='estoque'&&clean(tag.nfc_uid,40).toUpperCase()!==uid)return json({sucesso:false,mensagem:'Esta tag já foi confirmada com outro UID.'},409);
-
-      await env.DB.prepare(`UPDATE tags SET nfc_uid=?,preparo_status='gravada',gravada_em=CURRENT_TIMESTAMP,
-        testada_em=NULL,nfc_protegida_em=CURRENT_TIMESTAMP WHERE codigo=?`).bind(uid,codigo).run();
+      await env.DB.prepare(`UPDATE tags SET nfc_uid=?,preparo_status='gravada',gravada_em=CURRENT_TIMESTAMP,testada_em=NULL,nfc_protegida_em=CURRENT_TIMESTAMP WHERE codigo=?`).bind(uid,codigo).run();
       return json({sucesso:true,mensagem:'Gravação confirmada.',codigo,uid});
+    }
+
+    if(acao==='identificar-zero'){
+      const uid=clean(body.uid,40).toUpperCase();
+      if(!uid)return json({sucesso:false,mensagem:'UID não informado.'},400);
+      const tag=await env.DB.prepare(`SELECT codigo,ativada,nfc_secret,nfc_uid,nfc_protegida_em,COALESCE(preparo_status,'estoque') AS preparo_status FROM tags WHERE UPPER(nfc_uid)=? LIMIT 1`).bind(uid).first();
+      if(!tag)return json({sucesso:false,mensagem:'Este UID não está vinculado a uma tag BIRX gravada.'},404);
+      if(Number(tag.ativada)===1)return json({sucesso:false,mensagem:`${tag.codigo} está ATIVADA e não pode ser zerada por esta rotina.`},409);
+      if(!tag.nfc_secret)return json({sucesso:false,mensagem:'A credencial NFC desta tag não está disponível.'},409);
+      const saved=await credentials(env,tag);
+      return json({sucesso:true,codigo:tag.codigo,uid:clean(tag.nfc_uid,40).toUpperCase(),status:tag.preparo_status,pwd:saved.pwd,pack:saved.pack});
+    }
+
+    if(acao==='confirmar-zero'){
+      const codigo=clean(body.codigo,40).toUpperCase();
+      const uid=clean(body.uid,40).toUpperCase();
+      if(!codigo||!uid)return json({sucesso:false,mensagem:'Código ou UID não informado.'},400);
+      const tag=await env.DB.prepare(`SELECT codigo,ativada,nfc_uid FROM tags WHERE codigo=? LIMIT 1`).bind(codigo).first();
+      if(!tag)return json({sucesso:false,mensagem:'Código não encontrado.'},404);
+      if(Number(tag.ativada)===1)return json({sucesso:false,mensagem:'Uma tag ativada não pode voltar ao estoque.'},409);
+      if(clean(tag.nfc_uid,40).toUpperCase()!==uid)return json({sucesso:false,mensagem:'O UID zerado não corresponde ao vínculo do site. O banco não foi alterado.'},409);
+      await env.DB.prepare(`UPDATE tags SET nfc_uid=NULL,nfc_secret=NULL,nfc_protegida_em=NULL,preparo_status='estoque',gravada_em=NULL,testada_em=NULL,vendida_em=NULL WHERE codigo=?`).bind(codigo).run();
+      return json({sucesso:true,mensagem:'Tag zerada e código devolvido ao estoque.',codigo,uid});
     }
 
     return json({sucesso:false,mensagem:'Ação inválida.'},400);
