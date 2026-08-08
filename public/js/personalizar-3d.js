@@ -1,116 +1,111 @@
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.180.0/+esm';
 import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/controls/OrbitControls.js/+esm';
+import { ThreeMFLoader } from 'https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/loaders/3MFLoader.js/+esm';
 
 const $=id=>document.getElementById(id);
 const state={shape:'redonda',sizeMm:30,color:'#151515',colorName:'Preto',name:'THOR'};
 const holder=$('viewer3d');
+let root,modelRoot,nameMask,namePlane,modelBox,frontZ=0,modelScale=1;
 
 function showLoadError(message){
   const loading=$('viewerLoading');
-  if(loading){
-    loading.textContent=message||'Não foi possível carregar a visualização 3D. Atualize a página.';
-    loading.style.color='#b42318';
-  }
+  if(loading){loading.textContent=message||'Não foi possível carregar a visualização 3D.';loading.style.color='#b42318'}
 }
+function texture(canvas){const t=new THREE.CanvasTexture(canvas);t.colorSpace=THREE.SRGBColorSpace;t.needsUpdate=true;return t}
+function luminance(color){return .2126*color.r+.7152*color.g+.0722*color.b}
 
 try{
   const scene=new THREE.Scene();
-  const camera=new THREE.PerspectiveCamera(36,1,.1,100);
-  camera.position.set(0,.15,6.6);
+  const camera=new THREE.PerspectiveCamera(34,1,.1,100);
+  camera.position.set(0,.1,7.2);
   const renderer=new THREE.WebGLRenderer({antialias:true,alpha:true,preserveDrawingBuffer:true});
-  renderer.setPixelRatio(Math.min(devicePixelRatio,2));
-  renderer.outputColorSpace=THREE.SRGBColorSpace;
-  renderer.shadowMap.enabled=true;
+  renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.shadowMap.enabled=true;
   holder.appendChild(renderer.domElement);
-  $('viewerLoading')?.remove();
 
-  const controls=new OrbitControls(camera,renderer.domElement);
-  controls.enableDamping=true;
-  controls.minDistance=4.2;
-  controls.maxDistance=9;
-  controls.autoRotate=false;
+  const controls=new OrbitControls(camera,renderer.domElement);controls.enableDamping=true;controls.minDistance=3.5;controls.maxDistance=11;controls.target.set(0,.12,0);
+  scene.add(new THREE.HemisphereLight(0xffffff,0x667188,2.4));
+  const key=new THREE.DirectionalLight(0xffffff,4.2);key.position.set(4,5,7);scene.add(key);
+  const fill=new THREE.DirectionalLight(0xc8d8ff,1.45);fill.position.set(-5,2,3);scene.add(fill);
+  const rim=new THREE.DirectionalLight(0xffffff,1.4);rim.position.set(0,-3,-5);scene.add(rim);
 
-  scene.add(new THREE.HemisphereLight(0xffffff,0x758097,2.3));
-  const key=new THREE.DirectionalLight(0xffffff,4.5);key.position.set(4,5,6);scene.add(key);
-  const fill=new THREE.DirectionalLight(0xbfd4ff,1.4);fill.position.set(-5,1,2);scene.add(fill);
-  const rim=new THREE.DirectionalLight(0xffffff,1.5);rim.position.set(0,-4,-4);scene.add(rim);
+  root=new THREE.Group();root.rotation.x=-.06;scene.add(root);
 
-  const root=new THREE.Group();root.rotation.x=-.08;scene.add(root);
-  let tagMesh,frontPlane,backPlane,loopOuter,loopInner;
+  function styleModel(){
+    if(!modelRoot)return;
+    modelRoot.traverse(obj=>{
+      if(!obj.isMesh)return;
+      obj.castShadow=true;obj.receiveShadow=true;
+      const materials=Array.isArray(obj.material)?obj.material:[obj.material];
+      obj.material=materials.map(mat=>{
+        const m=mat?.clone?.()||new THREE.MeshStandardMaterial();
+        if(m.color){
+          const bright=luminance(m.color)>.58;
+          if(bright){m.color.set('#f5f5f2');m.roughness=.48;m.metalness=.02}
+          else{m.color.set(state.color);m.roughness=.46;m.metalness=.01}
+        }
+        return m;
+      });
+      if(!Array.isArray(obj.material))obj.material=obj.material[0];
+    });
+  }
 
-  function makeFrontTexture(){
-    const c=document.createElement('canvas');c.width=1024;c.height=1024;
-    const x=c.getContext('2d');x.clearRect(0,0,1024,1024);x.textAlign='center';x.textBaseline='middle';
-    x.fillStyle='rgba(255,255,255,.97)';
-    x.font='900 170px Arial';x.fillText('✦',512,300);
-    const name=(state.name||'PET').toUpperCase();
-    let fontSize=160;if(name.length>8)fontSize=125;if(name.length>10)fontSize=108;
-    x.font=`900 ${fontSize}px Arial`;
-    x.fillText(name,512,560);
-    x.font='700 42px Arial';x.fillText('BIRX ID',512,700);
+  function makeNameTexture(){
+    const c=document.createElement('canvas');c.width=1200;c.height=460;const x=c.getContext('2d');x.clearRect(0,0,c.width,c.height);x.textAlign='center';x.textBaseline='middle';
+    x.fillStyle='rgba(248,248,245,.99)';const name=(state.name||'PET').toUpperCase();let size=210;if(name.length>6)size=180;if(name.length>8)size=150;if(name.length>10)size=125;
+    x.font=`900 ${size}px Arial, sans-serif`;x.fillText(name,600,230);
     return texture(c);
   }
 
-  function makeBackTexture(){
-    const c=document.createElement('canvas');c.width=1024;c.height=1024;
-    const x=c.getContext('2d');x.clearRect(0,0,1024,1024);x.textAlign='center';x.textBaseline='middle';
-    x.fillStyle='rgba(255,255,255,.97)';x.font='900 125px Arial';x.fillText('SCAN',512,205);
-    const size=430,startX=(1024-size)/2,startY=300,cell=size/17;
-    const finder=(ox,oy)=>{x.strokeStyle='rgba(255,255,255,.98)';x.lineWidth=26;x.strokeRect(startX+ox*cell,startY+oy*cell,6*cell,6*cell);x.strokeRect(startX+(ox+2)*cell,startY+(oy+2)*cell,2*cell,2*cell)};
-    finder(0,0);finder(11,0);finder(0,11);
-    for(let r=0;r<17;r++)for(let col=0;col<17;col++){
-      const inFinder=(r<6&&col<6)||(r<6&&col>10)||(r>10&&col<6);if(inFinder)continue;
-      const on=((r*13+col*7+r*col)%5)<2;if(on)x.fillRect(startX+col*cell,startY+r*cell,cell*.78,cell*.78);
-    }
-    x.font='700 34px Arial';x.fillText('NFC + QR CODE',512,820);
-    return texture(c);
-  }
-
-  function texture(canvas){const t=new THREE.CanvasTexture(canvas);t.colorSpace=THREE.SRGBColorSpace;t.needsUpdate=true;return t}
-
-  function dispose(obj){if(!obj)return;root.remove(obj);obj.geometry?.dispose();if(obj.material){if(obj.material.map)obj.material.map.dispose();obj.material.dispose()}}
-  function clear(){[tagMesh,frontPlane,backPlane,loopOuter,loopInner].forEach(dispose)}
-
-  function build(){
-    clear();
-    const radius=1.5;
-    const shape=new THREE.Shape();shape.absarc(0,0,radius,0,Math.PI*2,false);
-    const geom=new THREE.ExtrudeGeometry(shape,{depth:.22,bevelEnabled:true,bevelSegments:4,steps:1,bevelSize:.045,bevelThickness:.04,curveSegments:96});geom.center();
-    const bodyMat=new THREE.MeshPhysicalMaterial({color:new THREE.Color(state.color),roughness:.42,metalness:.015,clearcoat:.18,clearcoatRoughness:.35});
-    tagMesh=new THREE.Mesh(geom,bodyMat);root.add(tagMesh);
-
-    const planeGeom=new THREE.PlaneGeometry(2.45,2.45);
-    frontPlane=new THREE.Mesh(planeGeom,new THREE.MeshBasicMaterial({map:makeFrontTexture(),transparent:true,depthWrite:false}));frontPlane.position.z=.155;root.add(frontPlane);
-    backPlane=new THREE.Mesh(planeGeom.clone(),new THREE.MeshBasicMaterial({map:makeBackTexture(),transparent:true,depthWrite:false}));backPlane.position.z=-.155;backPlane.rotation.y=Math.PI;root.add(backPlane);
-
-    const outer=new THREE.TorusGeometry(.32,.11,24,64,Math.PI);
-    loopOuter=new THREE.Mesh(outer,bodyMat.clone());loopOuter.rotation.z=Math.PI;loopOuter.position.set(0,1.49,.02);root.add(loopOuter);
-    const bridgeGeom=new THREE.BoxGeometry(.86,.18,.26);loopInner=new THREE.Mesh(bridgeGeom,bodyMat.clone());loopInner.position.set(0,1.36,0);root.add(loopInner);
+  function rebuildCustomization(){
+    if(!modelBox||!root)return;
+    if(nameMask){root.remove(nameMask);nameMask.geometry.dispose();nameMask.material.dispose()}
+    if(namePlane){root.remove(namePlane);namePlane.geometry.dispose();namePlane.material.map?.dispose();namePlane.material.dispose()}
+    const size=new THREE.Vector3();modelBox.getSize(size);
+    const width=size.x*.72,height=size.y*.30;
+    const maskGeom=new THREE.PlaneGeometry(width,height);
+    const maskMat=new THREE.MeshBasicMaterial({color:new THREE.Color(state.color),polygonOffset:true,polygonOffsetFactor:-4,polygonOffsetUnits:-4});
+    nameMask=new THREE.Mesh(maskGeom,maskMat);nameMask.position.set(0,-size.y*.19,frontZ+.018);root.add(nameMask);
+    const nameGeom=new THREE.PlaneGeometry(width*.95,height*.82);
+    namePlane=new THREE.Mesh(nameGeom,new THREE.MeshBasicMaterial({map:makeNameTexture(),transparent:true,depthWrite:false}));
+    namePlane.position.set(0,-size.y*.19,frontZ+.024);root.add(namePlane);
     updateSummary();
   }
 
-  function updateFront(){if(frontPlane){frontPlane.material.map.dispose();frontPlane.material.map=makeFrontTexture();frontPlane.material.needsUpdate=true}updateSummary()}
+  function normalizeModel(group){
+    const box=new THREE.Box3().setFromObject(group);const size=new THREE.Vector3(),center=new THREE.Vector3();box.getSize(size);box.getCenter(center);
+    group.position.sub(center);
+    const targetHeight=3.55;modelScale=targetHeight/Math.max(size.y,size.x);group.scale.setScalar(modelScale);
+    modelBox=new THREE.Box3().setFromObject(group);const normalizedSize=new THREE.Vector3();modelBox.getSize(normalizedSize);
+    const normalizedCenter=new THREE.Vector3();modelBox.getCenter(normalizedCenter);group.position.x-=normalizedCenter.x;group.position.y-=normalizedCenter.y;
+    modelBox=new THREE.Box3().setFromObject(group);frontZ=modelBox.max.z;
+  }
+
+  async function loadRealModel(){
+    const loader=new ThreeMFLoader();
+    try{
+      const response=await fetch('/api/modelo-birx-publico',{cache:'force-cache'});
+      if(!response.ok)throw new Error(`Modelo 3D indisponível (${response.status})`);
+      const buffer=await response.arrayBuffer();
+      const group=loader.parse(buffer);
+      modelRoot=group;normalizeModel(modelRoot);styleModel();root.add(modelRoot);rebuildCustomization();$('viewerLoading')?.remove();
+    }catch(error){console.error('3MF BIRX',error);showLoadError('Não consegui carregar o modelo real da BIRX ID. Verifique o arquivo 3MF no R2.')}
+  }
+
+  function updateColor(){
+    if(modelRoot){
+      modelRoot.traverse(obj=>{if(!obj.isMesh)return;const mats=Array.isArray(obj.material)?obj.material:[obj.material];for(const m of mats){if(m?.color&&luminance(m.color)<.85)m.color.set(state.color)}});
+    }
+    if(nameMask)nameMask.material.color.set(state.color);
+    updateSummary();
+  }
+  function updateName(){if(namePlane){namePlane.material.map?.dispose();namePlane.material.map=makeNameTexture();namePlane.material.needsUpdate=true}updateSummary()}
   function updateSummary(){$('sumColor').textContent=state.colorName;$('sumName').textContent=(state.name||'PET').toUpperCase()}
   function resize(){const w=Math.max(holder.clientWidth,320),h=Math.max(holder.clientHeight,360);renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix()}
   function animate(){requestAnimationFrame(animate);controls.update();renderer.render(scene,camera)}
-  new ResizeObserver(resize).observe(holder);resize();build();animate();
+  new ResizeObserver(resize).observe(holder);resize();animate();loadRealModel();
 
-  document.querySelectorAll('[data-color]').forEach(b=>b.addEventListener('click',()=>{
-    document.querySelectorAll('[data-color]').forEach(x=>x.classList.toggle('selected',x===b));
-    state.color=b.dataset.color;state.colorName=b.dataset.name;build();
-  }));
-  $('petName').addEventListener('input',e=>{state.name=e.target.value.replace(/[^A-Za-zÀ-ÿ0-9 -]/g,'').slice(0,12);e.target.value=state.name;updateFront()});
-  document.querySelectorAll('[data-view]').forEach(b=>b.addEventListener('click',()=>{
-    const v=b.dataset.view;
-    if(v==='back')root.rotation.set(-.08,Math.PI,0);else root.rotation.set(-.08,0,0);
-    camera.position.set(0,.15,6.6);controls.target.set(0,.15,0);controls.update();
-  }));
-  $('addCustom').addEventListener('click',()=>{
-    const payload={...state,frente:'simbolo-birx+nome',verso:'scan+qr+nfc',criadoEm:new Date().toISOString()};
-    try{localStorage.setItem('birx_personalizacao_pendente',JSON.stringify(payload));$('customMessage').textContent='Personalização salva. Abrindo a loja…';$('customMessage').hidden=false;setTimeout(()=>location.href='/loja?personalizada=1',350)}
-    catch{$('customMessage').textContent='Não foi possível salvar a personalização neste navegador.';$('customMessage').hidden=false}
-  });
-}catch(error){
-  console.error('BIRX personalizador 3D',error);
-  showLoadError('Não foi possível iniciar o 3D neste navegador. Atualize a página ou tente novamente em alguns segundos.');
-}
+  document.querySelectorAll('[data-color]').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('[data-color]').forEach(x=>x.classList.toggle('selected',x===b));state.color=b.dataset.color;state.colorName=b.dataset.name;updateColor()}));
+  $('petName').addEventListener('input',e=>{state.name=e.target.value.replace(/[^A-Za-zÀ-ÿ0-9 -]/g,'').slice(0,12);e.target.value=state.name;updateName()});
+  document.querySelectorAll('[data-view]').forEach(b=>b.addEventListener('click',()=>{const v=b.dataset.view;if(v==='back')root.rotation.set(-.06,Math.PI,0);else root.rotation.set(-.06,0,0);camera.position.set(0,.1,7.2);controls.target.set(0,.12,0);controls.update()}));
+  $('addCustom').addEventListener('click',()=>{const payload={...state,modeloBase:'NOVO-BIRX.3mf',frente:'logo-original+nome-personalizado',verso:'original-scan-qr',criadoEm:new Date().toISOString()};try{localStorage.setItem('birx_personalizacao_pendente',JSON.stringify(payload));$('customMessage').textContent='Personalização salva. Abrindo a loja…';$('customMessage').hidden=false;setTimeout(()=>location.href='/loja?personalizada=1',350)}catch{$('customMessage').textContent='Não foi possível salvar a personalização neste navegador.';$('customMessage').hidden=false}});
+}catch(error){console.error('BIRX personalizador 3D',error);showLoadError('Não foi possível iniciar o visualizador 3D neste navegador.')}
