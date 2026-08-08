@@ -20,13 +20,26 @@ void progress(const char*m){Serial.print("{\"type\":\"progress\",\"message\":\""
 void fail(const String&m){Serial.print("{\"ok\":false,\"error\":\"");Serial.print(m);Serial.println("\"}");}
 
 bool selectTag(uint8_t*info,uint8_t&len){nfc.reset();nfc.setupRF();delay(10);len=nfc.activateTypeA(info,1);return len>0;}
-
 String uidFromInfo(uint8_t*info,uint8_t len){String uid="";for(int i=0;i<len;i++){if(info[3+i]<16)uid+='0';uid+=String(info[3+i],HEX);if(i<len-1)uid+=':';}uid.toUpperCase();return uid;}
 
 bool fromHex(const String&s,uint8_t*out,int n){if((int)s.length()!=n*2)return false;for(int i=0;i<n;i++){char a=s[i*2],b=s[i*2+1];auto v=[](char c)->int{if(c>='0'&&c<='9')return c-'0';if(c>='A'&&c<='F')return c-'A'+10;if(c>='a'&&c<='f')return c-'a'+10;return -1;};int x=v(a),y=v(b);if(x<0||y<0)return false;out[i]=(x<<4)|y;}return true;}
 String field(const String&j,const char*k){String q=String("\"")+k+"\":\"";int a=j.indexOf(q);if(a<0)return"";a+=q.length();int b=j.indexOf('"',a);return b<0?"":j.substring(a,b);}
-
 bool authenticateCurrent(const uint8_t*pwd,const uint8_t*pack){uint8_t got[2]={0};if(!nfc.auth(pwd,got))return false;return got[0]==pack[0]&&got[1]==pack[1];}
+
+void scanTag(){
+  progress("Aproxime uma tag BIRX...");
+  uint8_t info[10],len;
+  unsigned long start=millis();
+  while(millis()-start<30000){
+    if(selectTag(info,len)){
+      String uid=uidFromInfo(info,len);
+      Serial.print("{\"ok\":true,\"uid\":\"");Serial.print(uid);Serial.println("\",\"scanned\":true}");
+      return;
+    }
+    delay(120);
+  }
+  fail("Nenhuma tag encontrada em 30 segundos");
+}
 
 bool writeNdef(const String&url,const uint8_t*pwd,const uint8_t*pack,bool protectedWrite){
   String rest=url.startsWith("https://")?url.substring(8):url;
@@ -79,23 +92,19 @@ void programTag(const String&url,const String&pwdHex,const String&packHex){
 void zeroTag(const String&pwdHex,const String&packHex,const String&uidExpected){
   uint8_t pwd[4],pack[2],info[10],len;
   if(!fromHex(pwdHex,pwd,4)||!fromHex(packHex,pack,2)){fail("Credenciais invalidas");return;}
-  progress("Identificando a tag antes de zerar...");
+  progress("Confirmando a tag antes de zerar...");
   if(!selectTag(info,len)){fail("Tag nao encontrada");return;}
-  String uid=uidFromInfo(info,len);
-  String expected=uidExpected;expected.toUpperCase();
-  if(expected.length()&&uid!=expected){fail("UID incorreto. Nenhuma alteracao foi feita.");return;}
-
+  String uid=uidFromInfo(info,len),expected=uidExpected;expected.toUpperCase();
+  if(expected.length()&&uid!=expected){fail("UID mudou. Nenhuma alteracao foi feita.");return;}
   uint8_t cfg[16];
   if(!nfc.mifareBlockRead(0x83,cfg)){fail("Falha ao ler configuracao da tag");return;}
   bool protectedWrite=cfg[3]!=0xFF;
   if(protectedWrite){progress("Autenticando para liberar a tag...");if(!selectTag(info,len)||!authenticateCurrent(pwd,pack)){fail("Senha da tag nao confere. Nenhuma alteracao foi feita.");return;}}
-
   progress("Apagando conteudo NDEF...");
   uint8_t emptyNdef[4]={0x03,0x00,0xFE,0x00};
   if(!selectTag(info,len)){fail("Tag perdida antes de apagar NDEF");return;}
   if(protectedWrite&&!authenticateCurrent(pwd,pack)){fail("Falha de autenticacao antes de apagar NDEF");return;}
   if(!nfc.page(0x04,emptyNdef)){fail("Falha ao apagar NDEF");return;}
-
   progress("Removendo protecao de escrita...");
   if(!selectTag(info,len)){fail("Tag perdida antes de remover protecao");return;}
   if(!nfc.mifareBlockRead(0x83,cfg)){fail("Falha ao reler configuracao");return;}
@@ -104,29 +113,26 @@ void zeroTag(const String&pwdHex,const String&packHex,const String&uidExpected){
     uint8_t p83[4]={cfg[0],cfg[1],cfg[2],0xFF};
     if(!nfc.page(0x83,p83)){fail("Falha ao desativar AUTH0");return;}
   }
-
   progress("Restaurando PWD e PACK padrao...");
   uint8_t defaultPwd[4]={0xFF,0xFF,0xFF,0xFF};
   uint8_t defaultPack[4]={0x00,0x00,0x00,0x00};
   if(!selectTag(info,len)||!nfc.page(0x85,defaultPwd)){fail("Falha ao restaurar PWD padrao");return;}
   if(!selectTag(info,len)||!nfc.page(0x86,defaultPack)){fail("Falha ao restaurar PACK padrao");return;}
-
   progress("Verificando se a tag ficou livre...");
   if(!selectTag(info,len)){fail("Tag perdida na verificacao final");return;}
   uint8_t verifyCfg[16];
   if(!nfc.mifareBlockRead(0x83,verifyCfg)||verifyCfg[3]!=0xFF){fail("AUTH0 nao foi removido corretamente");return;}
   uint8_t check[16];
   if(!selectTag(info,len)||!nfc.mifareBlockRead(0x04,check)||check[0]!=0x03||check[1]!=0x00||check[2]!=0xFE){fail("NDEF vazio nao foi confirmado");return;}
-
   Serial.print("{\"ok\":true,\"uid\":\"");Serial.print(uid);Serial.println("\",\"zeroed\":true,\"protected\":false}");
 }
 
-void setup(){Serial.begin(115200);Serial.setTimeout(3000);SPI.begin(18,19,23);nfc.begin();nfc.reset();nfc.setupRF();Serial.println("{\"type\":\"ready\",\"device\":\"BIRX-NFC\",\"fw\":\"1.5\"}");}
-
+void setup(){Serial.begin(115200);Serial.setTimeout(3000);SPI.begin(18,19,23);nfc.begin();nfc.reset();nfc.setupRF();Serial.println("{\"type\":\"ready\",\"device\":\"BIRX-NFC\",\"fw\":\"1.6\"}");}
 void loop(){
   if(!Serial.available())return;
   String j=Serial.readStringUntil('\n');j.trim();
   String cmd=field(j,"cmd");
+  if(cmd=="scan"){scanTag();return;}
   if(cmd=="program"){
     String url=field(j,"url"),pwd=field(j,"pwd"),pack=field(j,"pack");
     if(!url.startsWith("https://")){fail("URL invalida");return;}
