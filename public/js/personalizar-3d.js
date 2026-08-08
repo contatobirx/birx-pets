@@ -7,7 +7,7 @@ import { unzipSync, strFromU8 } from 'https://cdn.jsdelivr.net/npm/fflate@0.8.2/
 const $=id=>document.getElementById(id);
 const state={shape:'redonda',sizeMm:30,color:'#151515',colorName:'Preto',name:'THOR'};
 const holder=$('viewer3d');
-let scene,camera,renderer,controls,root,modelRoot,nameMesh,font=null,originalTextBox=null;
+let scene,camera,renderer,controls,root,modelRoot,nameMesh,font=null,originalTextBox=null,originalTextMesh=null;
 let bodyMeshes=[],detailMeshes=[];
 let lastWidth=0,lastHeight=0,resizeFrame=0;
 
@@ -57,20 +57,31 @@ function parseBambu3mf(buffer){
 function role(name){const n=String(name||'').toLowerCase();if(n.includes('texto'))return'text';if(n.includes('merged'))return'detail';if(n.includes('black')||n.includes('cilindro'))return'body';return'detail'}
 
 function buildSeparatedModel(pieces){
-  modelRoot=new THREE.Group();bodyMeshes=[];detailMeshes=[];originalTextBox=null;
+  modelRoot=new THREE.Group();bodyMeshes=[];detailMeshes=[];originalTextBox=null;originalTextMesh=null;
   const bodyMaterial=new THREE.MeshPhysicalMaterial({color:state.color,roughness:.43,metalness:.01,clearcoat:.12,clearcoatRoughness:.38});
   const detailMaterial=new THREE.MeshStandardMaterial({color:'#f4f4f1',roughness:.46,metalness:.01});
   for(const piece of pieces){
     const r=role(piece.name),mesh=meshFromXml(piece.xml,piece.componentTransform,piece.buildTransform,r==='body'?bodyMaterial.clone():detailMaterial.clone(),piece.name);
-    if(r==='text'){originalTextBox=new THREE.Box3().setFromObject(mesh);mesh.visible=false;modelRoot.add(mesh)}
+    if(r==='text'){originalTextMesh=mesh;modelRoot.add(mesh)}
     else if(r==='body'){bodyMeshes.push(mesh);modelRoot.add(mesh)}
     else{detailMeshes.push(mesh);modelRoot.add(mesh)}
   }
-  const box=new THREE.Box3().setFromObject(modelRoot),center=new THREE.Vector3(),size=new THREE.Vector3();box.getCenter(center);box.getSize(size);modelRoot.position.sub(center);
-  const scale=3.65/Math.max(size.x,size.y);modelRoot.scale.setScalar(scale);
+
+  // As coordenadas do 3MF ainda estão na mesa da Bambu (~155 mm). Primeiro
+  // calculamos a escala e só então compensamos o centro já escalado. Antes a
+  // translação ficava sem escala e empurrava o modelo para fora da câmera.
+  const box=new THREE.Box3().setFromObject(modelRoot),center=new THREE.Vector3(),size=new THREE.Vector3();box.getCenter(center);box.getSize(size);
+  const scale=3.65/Math.max(size.x,size.y);
+  modelRoot.scale.setScalar(scale);
+  modelRoot.position.set(-center.x*scale,-center.y*scale,-center.z*scale);
   modelRoot.rotation.y=Math.PI;
+  modelRoot.updateMatrix();
   root.add(modelRoot);
-  if(originalTextBox){originalTextBox.min.sub(center).multiplyScalar(scale);originalTextBox.max.sub(center).multiplyScalar(scale);const min=originalTextBox.min.clone(),max=originalTextBox.max.clone();originalTextBox.min.set(-max.x,min.y,-max.z);originalTextBox.max.set(-min.x,max.y,-min.z)}
+
+  if(originalTextMesh){
+    originalTextBox=new THREE.Box3().setFromBufferAttribute(originalTextMesh.geometry.getAttribute('position')).applyMatrix4(modelRoot.matrix);
+    originalTextMesh.visible=false;
+  }
 }
 
 async function loadFont(){if(font)return font;const response=await fetch('https://cdn.jsdelivr.net/npm/three@0.180.0/examples/fonts/helvetiker_bold.typeface.json');if(!response.ok)throw new Error('Fonte 3D não carregou.');font=new FontLoader().parse(await response.json());return font}
@@ -79,31 +90,25 @@ async function rebuildName(){
   if(!modelRoot||!originalTextBox)return;
   if(nameMesh){root.remove(nameMesh);nameMesh.geometry.dispose();nameMesh.material.dispose();nameMesh=null}
   const f=await loadFont(),text=(state.name||'PET').toUpperCase();
-  const geom=new TextGeometry(text,{font:f,size:.44,height:.055,curveSegments:5,bevelEnabled:true,bevelThickness:.012,bevelSize:.008,bevelSegments:2});geom.computeBoundingBox();
-  const textSize=new THREE.Vector3();geom.boundingBox.getSize(textSize);const target=new THREE.Vector3();originalTextBox.getSize(target);const maxWidth=Math.max(target.x,1.25),scale=Math.min(1,maxWidth/Math.max(textSize.x,.001));geom.scale(scale,scale,scale);geom.computeBoundingBox();
+  const geom=new TextGeometry(text,{font:f,size:.44,depth:.055,curveSegments:5,bevelEnabled:true,bevelThickness:.012,bevelSize:.008,bevelSegments:2});geom.computeBoundingBox();
+  const textSize=new THREE.Vector3();geom.boundingBox.getSize(textSize);const target=new THREE.Vector3();originalTextBox.getSize(target);const maxWidth=Math.max(target.x,1.25),textScale=Math.min(1,maxWidth/Math.max(textSize.x,.001));geom.scale(textScale,textScale,textScale);geom.computeBoundingBox();
   const center=new THREE.Vector3();geom.boundingBox.getCenter(center);geom.translate(-center.x,-center.y,-center.z);
   const targetCenter=new THREE.Vector3();originalTextBox.getCenter(targetCenter);
+  // A face personalizada é o lado que, depois da rotação Y=PI do modelo,
+  // aponta para a câmera. Rotacionamos o texto para o relevo crescer para fora.
   nameMesh=new THREE.Mesh(geom,new THREE.MeshStandardMaterial({color:'#f4f4f1',roughness:.42}));
-  nameMesh.position.set(targetCenter.x,targetCenter.y,Math.max(originalTextBox.max.z,targetCenter.z)+.018);nameMesh.rotation.y=0;nameMesh.castShadow=true;root.add(nameMesh);updateSummary();
+  nameMesh.rotation.y=Math.PI;
+  nameMesh.position.set(targetCenter.x,targetCenter.y,originalTextBox.max.z+.025);nameMesh.castShadow=true;root.add(nameMesh);updateSummary();
 }
 
 function updateColor(){for(const mesh of bodyMeshes){const mats=Array.isArray(mesh.material)?mesh.material:[mesh.material];for(const m of mats)m?.color?.set(state.color)}updateSummary()}
 function updateSummary(){$('sumColor').textContent=state.colorName;$('sumName').textContent=(state.name||'PET').toUpperCase()}
 function resizeNow(){
   if(!renderer||!camera||!holder)return;
-  const rect=holder.getBoundingClientRect();
-  const w=Math.max(1,Math.round(rect.width));
-  const h=Math.max(1,Math.round(rect.height));
-  if(w===lastWidth&&h===lastHeight)return;
-  lastWidth=w;lastHeight=h;
-  renderer.setSize(w,h,false);
-  camera.aspect=w/h;
-  camera.updateProjectionMatrix();
+  const rect=holder.getBoundingClientRect();const w=Math.max(1,Math.round(rect.width)),h=Math.max(1,Math.round(rect.height));
+  if(w===lastWidth&&h===lastHeight)return;lastWidth=w;lastHeight=h;renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix();
 }
-function scheduleResize(){
-  if(resizeFrame)return;
-  resizeFrame=requestAnimationFrame(()=>{resizeFrame=0;resizeNow()});
-}
+function scheduleResize(){if(resizeFrame)return;resizeFrame=requestAnimationFrame(()=>{resizeFrame=0;resizeNow()})}
 function animate(){requestAnimationFrame(animate);controls.update();renderer.render(scene,camera)}
 
 async function loadRealModel(){
