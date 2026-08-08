@@ -1,45 +1,20 @@
 # BIRX Admin — Publicação do MVP
 
-## Acesso administrativo
+## Autenticação
 
-O BIRX Admin usa a mesma chave administrativa já existente nos módulos de Preparação de Tags e Produção.
+O BIRX Admin usa a mesma variável `TAG_ADMIN_TOKEN` que já protege Preparação de Tags e Produção.
 
-Variável obrigatória no Cloudflare Pages:
+No navegador, a chave é compartilhada por `sessionStorage` usando o nome `orbitek_tag_admin`.
 
-- `TAG_ADMIN_TOKEN`
+## Preparação automática do D1
 
-Não é necessário configurar `ADMIN_USER`, `ADMIN_PASSWORD` ou `ADMIN_SESSION_SECRET`.
+O endpoint protegido `/api/admin-migrate` cria de forma idempotente as tabelas e índices necessários ao BIRX Admin.
 
-A chave é enviada no cabeçalho `X-BIRX-Admin` e armazenada apenas durante a sessão do navegador em `sessionStorage` com a mesma chave usada pelo admin atual (`orbitek_tag_admin`).
+A primeira entrada por `/admin/login.html` valida a chave existente e prepara o banco automaticamente. As páginas novas também chamam essa preparação uma vez por sessão antes de carregar.
 
-## Aplicar migrações no D1 remoto
+As migrações SQL em `migrations/` continuam mantidas como histórico versionado do schema e podem ser usadas manualmente se necessário.
 
-Execute na raiz do projeto, usando o Wrangler autenticado na conta Cloudflare correta:
-
-```bash
-npx wrangler d1 execute orbitek-pets --remote --file=./migrations/0001_admin_materiais.sql
-npx wrangler d1 execute orbitek-pets --remote --file=./migrations/0002_fornecedores_compras.sql
-npx wrangler d1 execute orbitek-pets --remote --file=./migrations/0003_produtos.sql
-```
-
-As migrações devem ser aplicadas na ordem numérica.
-
-## Verificações antes do merge
-
-1. Confirmar que `TAG_ADMIN_TOKEN` continua configurado no ambiente de produção.
-2. Aplicar as três migrações no D1 remoto.
-3. Fazer deploy de preview da branch `agent/admin-dashboard-base`.
-4. Entrar em `/admin/login.html` usando a mesma chave administrativa atual.
-5. Confirmar que a mesma sessão abre `/admin-tags.html`, `/producao.html` e `/admin/` sem pedir outra credencial enquanto a aba/sessão estiver ativa.
-6. Testar cadastro de material.
-7. Testar cadastro de fornecedor.
-8. Registrar uma compra e confirmar alteração de saldo/custo médio.
-9. Testar entrada/saída/ajuste em `/admin/estoque.html`.
-10. Testar cadastro de produto.
-11. Conferir os indicadores em `/admin/`.
-12. Só então mesclar na `main`.
-
-## URLs após publicação
+## URLs
 
 - `/admin/login.html`
 - `/admin/`
@@ -51,6 +26,20 @@ As migrações devem ser aplicadas na ordem numérica.
 - `/admin-tags.html`
 - `/producao.html`
 
-## Compatibilidade
+## Verificação após deploy
 
-Todos os módulos administrativos passam a usar o mesmo `TAG_ADMIN_TOKEN`, evitando dois sistemas de autenticação e duas credenciais diferentes.
+1. Abrir `/admin/login.html`.
+2. Informar a mesma chave administrativa usada em Preparação de Tags.
+3. Confirmar que o Dashboard abre.
+4. Cadastrar um material.
+5. Cadastrar um fornecedor.
+6. Registrar uma compra e confirmar o aumento do estoque e o novo custo médio.
+7. Testar entrada, saída e ajuste no Estoque.
+8. Cadastrar um produto.
+9. Conferir os indicadores do Dashboard.
+
+## Schema versionado
+
+- `migrations/0001_admin_materiais.sql`
+- `migrations/0002_fornecedores_compras.sql`
+- `migrations/0003_produtos.sql`
