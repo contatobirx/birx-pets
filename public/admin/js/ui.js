@@ -1,9 +1,9 @@
 window.BirxAdmin = (() => {
   const keyName = "orbitek_tag_admin";
-  const schemaKey = "birx_admin_schema_ready_v4";
+  const schemaKey = "birx_admin_schema_ready_v5";
   const money = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
   const qty = new Intl.NumberFormat("pt-BR", { maximumFractionDigits: 2 });
-  const escapeHtml = (value) => String(value ?? "").replace(/[&<>'"]/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;" }[char]));
+  const escapeHtml = (value) => String(value ?? "").replace(/[&<>'\"]/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '\"': "&quot;" }[char]));
   const getKey = () => sessionStorage.getItem(keyName) || "";
   const setKey = (value) => { sessionStorage.setItem(keyName, String(value || "").trim()); sessionStorage.removeItem(schemaKey); };
   const clearKey = () => { sessionStorage.removeItem(keyName); sessionStorage.removeItem(schemaKey); };
@@ -24,6 +24,7 @@ window.BirxAdmin = (() => {
   async function ensureSchema() {
     if (sessionStorage.getItem(schemaKey) === "1") return true;
     await api('/api/admin-migrate', { method: 'POST', body: '{}' });
+    await api('/api/admin-upgrade', { method: 'POST', body: '{}' });
     sessionStorage.setItem(schemaKey, "1");
     return true;
   }
