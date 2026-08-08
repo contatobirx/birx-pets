@@ -1,14 +1,16 @@
 # BIRX Admin — Publicação do MVP
 
-## Variáveis obrigatórias no Cloudflare Pages
+## Acesso administrativo
 
-Configure estas variáveis/segredos no projeto `birx-pets`:
+O BIRX Admin usa a mesma chave administrativa já existente nos módulos de Preparação de Tags e Produção.
 
-- `ADMIN_USER` — opcional; padrão: `admin`
-- `ADMIN_PASSWORD` — senha forte do administrador
-- `ADMIN_SESSION_SECRET` — segredo aleatório longo usado para assinar a sessão
+Variável obrigatória no Cloudflare Pages:
 
-A variável antiga `TAG_ADMIN_TOKEN` continua necessária para os módulos legados de preparação de tags/produção enquanto eles ainda usam a autenticação antiga.
+- `TAG_ADMIN_TOKEN`
+
+Não é necessário configurar `ADMIN_USER`, `ADMIN_PASSWORD` ou `ADMIN_SESSION_SECRET`.
+
+A chave é enviada no cabeçalho `X-BIRX-Admin` e armazenada apenas durante a sessão do navegador em `sessionStorage` com a mesma chave usada pelo admin atual (`orbitek_tag_admin`).
 
 ## Aplicar migrações no D1 remoto
 
@@ -20,21 +22,22 @@ npx wrangler d1 execute orbitek-pets --remote --file=./migrations/0002_fornecedo
 npx wrangler d1 execute orbitek-pets --remote --file=./migrations/0003_produtos.sql
 ```
 
-As migrações usam `CREATE TABLE IF NOT EXISTS`/índices apropriados e devem ser aplicadas na ordem numérica.
+As migrações devem ser aplicadas na ordem numérica.
 
 ## Verificações antes do merge
 
-1. Confirmar que `ADMIN_PASSWORD` e `ADMIN_SESSION_SECRET` existem no ambiente de produção.
+1. Confirmar que `TAG_ADMIN_TOKEN` continua configurado no ambiente de produção.
 2. Aplicar as três migrações no D1 remoto.
 3. Fazer deploy de preview da branch `agent/admin-dashboard-base`.
-4. Testar `/admin/login.html` e login por sessão.
-5. Testar cadastro de material.
-6. Testar cadastro de fornecedor.
-7. Registrar uma compra e confirmar alteração de saldo/custo médio.
-8. Testar entrada/saída/ajuste em `/admin/estoque.html`.
-9. Testar cadastro de produto.
-10. Conferir os indicadores em `/admin/`.
-11. Só então mesclar na `main`.
+4. Entrar em `/admin/login.html` usando a mesma chave administrativa atual.
+5. Confirmar que a mesma sessão abre `/admin-tags.html`, `/producao.html` e `/admin/` sem pedir outra credencial enquanto a aba/sessão estiver ativa.
+6. Testar cadastro de material.
+7. Testar cadastro de fornecedor.
+8. Registrar uma compra e confirmar alteração de saldo/custo médio.
+9. Testar entrada/saída/ajuste em `/admin/estoque.html`.
+10. Testar cadastro de produto.
+11. Conferir os indicadores em `/admin/`.
+12. Só então mesclar na `main`.
 
 ## URLs após publicação
 
@@ -45,7 +48,9 @@ As migrações usam `CREATE TABLE IF NOT EXISTS`/índices apropriados e devem se
 - `/admin/fornecedores.html`
 - `/admin/compras.html`
 - `/admin/produtos.html`
+- `/admin-tags.html`
+- `/producao.html`
 
-## Observação de compatibilidade
+## Compatibilidade
 
-O BIRX Admin novo usa sessão com cookie `HttpOnly`, `Secure` e `SameSite=Strict`. Os módulos antigos `/admin-tags.html` e `/producao.html` ainda usam `TAG_ADMIN_TOKEN` e devem ser migrados em uma sprint posterior para o mesmo sistema de sessão.
+Todos os módulos administrativos passam a usar o mesmo `TAG_ADMIN_TOKEN`, evitando dois sistemas de autenticação e duas credenciais diferentes.
