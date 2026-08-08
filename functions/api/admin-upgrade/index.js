@@ -48,7 +48,16 @@ const statements = [
   `CREATE INDEX IF NOT EXISTS idx_reservas_material ON ordem_material_reservas(material_id)`,
   `CREATE INDEX IF NOT EXISTS idx_reservas_ordem ON ordem_material_reservas(ordem_id)`,
   `CREATE TABLE IF NOT EXISTS impressora_telemetria (id INTEGER PRIMARY KEY AUTOINCREMENT,impressora_id INTEGER NOT NULL,status TEXT,progresso_percentual REAL,temperatura_bico REAL,temperatura_mesa REAL,trabalho_atual TEXT,tempo_restante_min INTEGER,recebido_em TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,FOREIGN KEY (impressora_id) REFERENCES impressoras_3d(id) ON DELETE CASCADE)`,
-  `CREATE INDEX IF NOT EXISTS idx_telemetria_impressora ON impressora_telemetria(impressora_id, recebido_em DESC)`
+  `CREATE INDEX IF NOT EXISTS idx_telemetria_impressora ON impressora_telemetria(impressora_id, recebido_em DESC)`,
+  `CREATE TABLE IF NOT EXISTS crm_contatos (id INTEGER PRIMARY KEY AUTOINCREMENT,tipo TEXT NOT NULL DEFAULT 'petshop' CHECK (tipo IN ('petshop','clinica','distribuidor','outro')),nome TEXT NOT NULL,cidade TEXT,estado TEXT,contato_nome TEXT,whatsapp TEXT,instagram TEXT,email TEXT,status TEXT NOT NULL DEFAULT 'lead' CHECK (status IN ('lead','contato','negociacao','cliente','inativo')),ultima_interacao TEXT,proximo_retorno TEXT,interesse TEXT,observacoes TEXT,ativo INTEGER NOT NULL DEFAULT 1 CHECK (ativo IN (0,1)),criado_em TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,atualizado_em TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP)`,
+  `CREATE INDEX IF NOT EXISTS idx_crm_status ON crm_contatos(status, ativo)`,
+  `CREATE INDEX IF NOT EXISTS idx_crm_retorno ON crm_contatos(proximo_retorno, ativo)`,
+  `CREATE TABLE IF NOT EXISTS pedidos (id INTEGER PRIMARY KEY AUTOINCREMENT,cliente_id INTEGER,status TEXT NOT NULL DEFAULT 'rascunho' CHECK (status IN ('rascunho','confirmado','producao','pronto','entregue','cancelado')),valor_produtos REAL NOT NULL DEFAULT 0,desconto REAL NOT NULL DEFAULT 0,frete REAL NOT NULL DEFAULT 0,total REAL NOT NULL DEFAULT 0,data_pedido TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,previsao_entrega TEXT,observacoes TEXT,criado_em TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,atualizado_em TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,FOREIGN KEY (cliente_id) REFERENCES crm_contatos(id) ON DELETE SET NULL)`,
+  `CREATE INDEX IF NOT EXISTS idx_pedidos_status ON pedidos(status, data_pedido DESC)`,
+  `CREATE TABLE IF NOT EXISTS pedido_itens (id INTEGER PRIMARY KEY AUTOINCREMENT,pedido_id INTEGER NOT NULL,produto_id INTEGER NOT NULL,quantidade INTEGER NOT NULL CHECK (quantidade > 0),preco_unitario REAL NOT NULL DEFAULT 0,custo_unitario REAL NOT NULL DEFAULT 0,subtotal REAL NOT NULL DEFAULT 0,quantidade_reservada INTEGER NOT NULL DEFAULT 0,producao_necessaria INTEGER NOT NULL DEFAULT 0 CHECK (producao_necessaria IN (0,1)),criado_em TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,FOREIGN KEY (pedido_id) REFERENCES pedidos(id) ON DELETE CASCADE,FOREIGN KEY (produto_id) REFERENCES produtos(id) ON DELETE RESTRICT)`,
+  `CREATE INDEX IF NOT EXISTS idx_pedido_itens_pedido ON pedido_itens(pedido_id)`,
+  `CREATE TABLE IF NOT EXISTS financeiro_lancamentos (id INTEGER PRIMARY KEY AUTOINCREMENT,tipo TEXT NOT NULL CHECK (tipo IN ('receber','pagar')),origem TEXT,referencia_id INTEGER,descricao TEXT NOT NULL,valor REAL NOT NULL DEFAULT 0,vencimento TEXT,status TEXT NOT NULL DEFAULT 'aberto' CHECK (status IN ('aberto','pago','cancelado')),pago_em TEXT,criado_em TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP)`,
+  `CREATE INDEX IF NOT EXISTS idx_financeiro_status ON financeiro_lancamentos(tipo,status,vencimento)`
 ];
 
 const filamentos = [["FIL-PETG-BRANCO","PETG","Branco"],["FIL-PETG-PRETO","PETG","Preto"],["FIL-PETG-AZUL","PETG","Azul"],["FIL-PETG-VERMELHO","PETG","Vermelho"],["FIL-PETG-ROSA","PETG","Rosa"],["FIL-TPU-PRETO","TPU","Preto"],["FIL-PLA-BRANCO","PLA","Branco"],["FIL-PLA-PRETO","PLA","Preto"],["FIL-PLA-AMARELO","PLA","Amarelo"],["FIL-PLA-MARROM","PLA","Marrom"],["FIL-PLA-VERDE","PLA","Verde"],["FIL-PLA-VERMELHO","PLA","Vermelho"],["FIL-PLA-AZUL","PLA","Azul"],["FIL-PLA-ROSA","PLA","Rosa"]];
@@ -69,7 +78,7 @@ export async function onRequestPost({request,env}){
     await ensureModelColumns(env);
     await ensurePrinterColumns(env);
     await normalizeFilaments(env);
-    return json({sucesso:true,mensagem:"Estrutura administrativa e telemetria de impressoras atualizadas."});
+    return json({sucesso:true,mensagem:"Estrutura administrativa, CRM, pedidos e financeiro atualizados."});
   }catch(error){console.error("admin-upgrade",error);return json({sucesso:false,mensagem:"Não foi possível atualizar a estrutura administrativa."},500)}
 }
 
