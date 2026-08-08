@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#050505">
+  <meta name="description" content="Personalize sua BIRX ID em 3D.">
+  <title>Personalize sua BIRX ID | BIRX Pets</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/personalizar-3d.css?v=1.0">
+</head>
+<body>
+  <header class="custom-header"><a href="/loja" aria-label="Voltar à loja">← Loja</a><a class="logo" href="/"><img src="/assets/login.png" alt="BIRX Pets"></a><span>CONFIGURADOR 3D</span></header>
+  <main class="custom-shell">
+    <section class="viewer-panel">
+      <div class="viewer-head"><div><small>PRÉVIA EM TEMPO REAL</small><h1>Monte a BIRX ID do seu pet</h1></div><div class="view-actions"><button type="button" data-view="front">Frente</button><button type="button" data-view="back">Verso</button><button type="button" data-view="reset">Centralizar</button></div></div>
+      <div id="viewer3d" class="viewer3d" aria-label="Visualização 3D da BIRX ID"><div id="viewerLoading">Carregando visualização 3D…</div></div>
+      <p class="viewer-help">Arraste para girar • use a roda do mouse ou pinça para aproximar</p>
+    </section>
+
+    <aside class="controls-panel">
+      <div class="step"><span>01</span><div><small>FORMATO</small><h2>Escolha o modelo</h2></div></div>
+      <div class="shape-grid" id="shapeGrid">
+        <button class="selected" type="button" data-shape="redonda"><b>●</b><span>Redonda</span></button>
+        <button type="button" data-shape="osso"><b>✦</b><span>Osso</span></button>
+        <button type="button" data-shape="coracao"><b>♥</b><span>Coração</span></button>
+      </div>
+
+      <div class="step"><span>02</span><div><small>COR</small><h2>Cor da tag</h2></div></div>
+      <div class="color-grid" id="colorGrid">
+        <button class="selected" type="button" data-color="#f5f2ea" data-name="Branco" aria-label="Branco"></button>
+        <button type="button" data-color="#151515" data-name="Preto" aria-label="Preto"></button>
+        <button type="button" data-color="#245eea" data-name="Azul" aria-label="Azul"></button>
+        <button type="button" data-color="#d93636" data-name="Vermelho" aria-label="Vermelho"></button>
+        <button type="button" data-color="#e978a7" data-name="Rosa" aria-label="Rosa"></button>
+      </div>
+
+      <div class="step"><span>03</span><div><small>IDENTIDADE</small><h2>Nome do pet</h2></div></div>
+      <label class="field">Nome<input id="petName" maxlength="12" value="THOR" autocomplete="off"></label>
+      <label class="field">Ícone<select id="petIcon"><option value="🐾">Patinha</option><option value="♥">Coração</option><option value="★">Estrela</option><option value="🐶">Cachorro</option><option value="🐱">Gato</option></select></label>
+      <label class="field">Estilo<select id="fontStyle"><option value="forte">Forte</option><option value="moderno">Moderno</option><option value="delicado">Delicado</option></select></label>
+
+      <div class="technical-note"><strong>Área técnica protegida</strong><p>O espaço do NFC, QR Code e furo da argola permanece fixo para garantir a fabricação e a leitura correta.</p></div>
+
+      <div class="custom-summary"><div><span>Modelo</span><strong id="sumShape">Redonda</strong></div><div><span>Cor</span><strong id="sumColor">Branco</strong></div><div><span>Nome</span><strong id="sumName">THOR</strong></div></div>
+      <button id="addCustom" class="primary-action" type="button">Continuar para a loja →</button>
+      <p id="customMessage" class="custom-message" hidden></p>
+    </aside>
+  </main>
+  <script type="module" src="/js/personalizar-3d.js?v=1.0"></script>
+</body>
+</html>
