@@ -1,5 +1,7 @@
 import { authorized, clean, json, unauthorized } from "./_shared.js";
 
+const SEM_LOTE = "__SEM_LOTE__";
+
 export async function onRequestGet({ request, env }) {
   if (!(await authorized(request, env))) return unauthorized(env);
 
@@ -11,30 +13,32 @@ export async function onRequestGet({ request, env }) {
       return json({ sucesso: false, mensagem: "Selecione o lote que será exportado." }, 400);
     }
 
+    const semLote = batch === SEM_LOTE;
     const result = await env.DB.prepare(
       `SELECT codigo, COALESCE(modelo, 'nfc') AS modelo, lote
          FROM tags
-        WHERE LOWER(TRIM(COALESCE(lote, ''))) = LOWER(TRIM(?))
+        WHERE ${semLote ? "TRIM(COALESCE(lote, '')) = ''" : "LOWER(TRIM(COALESCE(lote, ''))) = LOWER(TRIM(?))"}
           AND COALESCE(modelo, 'nfc') <> 'essential'
         ORDER BY id ASC
         LIMIT 1000`,
-    ).bind(batch).all();
+    );
+    const rows = semLote ? await result.all() : await result.bind(batch).all();
 
-    const tags = (result.results || []).map((tag) => ({
+    const tags = (rows.results || []).map((tag) => ({
       codigo: tag.codigo,
       modelo: tag.modelo,
-      lote: tag.lote,
+      lote: tag.lote || "Sem lote",
       link: `${requestUrl.origin}/q/${encodeURIComponent(tag.codigo)}`,
     }));
 
     if (!tags.length) {
       return json({
         sucesso: false,
-        mensagem: `Nenhuma tag NFC foi encontrada no lote “${batch}”.`,
+        mensagem: `Nenhuma tag NFC foi encontrada em “${semLote ? "Sem lote" : batch}”.`,
       }, 404);
     }
 
-    return json({ sucesso: true, lote: batch, quantidade: tags.length, tags });
+    return json({ sucesso: true, lote: semLote ? "Sem lote" : batch, quantidade: tags.length, tags });
   } catch (error) {
     console.error("producao/adesivos GET", error);
     return json({ sucesso: false, mensagem: "Não foi possível carregar os adesivos." }, 500);
