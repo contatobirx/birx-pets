@@ -1,9 +1,19 @@
-import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js';
-import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/controls/OrbitControls.js';
+import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.180.0/+esm';
+import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/controls/OrbitControls.js/+esm';
 
 const $=id=>document.getElementById(id);
 const state={shape:'redonda',color:'#f5f2ea',colorName:'Branco',name:'THOR',icon:'🐾',font:'forte'};
 const holder=$('viewer3d');
+
+function showLoadError(message){
+  const loading=$('viewerLoading');
+  if(loading){
+    loading.textContent=message||'Não foi possível carregar a visualização 3D. Atualize a página.';
+    loading.style.color='#b42318';
+  }
+}
+
+try{
 const scene=new THREE.Scene();
 const camera=new THREE.PerspectiveCamera(38,1,.1,100);
 camera.position.set(0,0,7.2);
@@ -54,7 +64,7 @@ function build(){
 }
 function updateTexture(){if(frontPlane){frontPlane.material.map.dispose();frontPlane.material.map=makeTexture(false);frontPlane.material.needsUpdate=true}updateSummary()}
 function updateSummary(){$('sumShape').textContent=state.shape[0].toUpperCase()+state.shape.slice(1);$('sumColor').textContent=state.colorName;$('sumName').textContent=(state.name||'PET').toUpperCase()}
-function resize(){const w=holder.clientWidth,h=holder.clientHeight;renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix()}
+function resize(){const w=Math.max(holder.clientWidth,320),h=Math.max(holder.clientHeight,360);renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix()}
 function animate(){requestAnimationFrame(animate);controls.update();renderer.render(scene,camera)}
 new ResizeObserver(resize).observe(holder);resize();build();animate();
 
@@ -65,3 +75,7 @@ $('petIcon').addEventListener('change',e=>{state.icon=e.target.value;updateTextu
 $('fontStyle').addEventListener('change',e=>{state.font=e.target.value;updateTexture()});
 document.querySelectorAll('[data-view]').forEach(b=>b.addEventListener('click',()=>{const v=b.dataset.view;if(v==='front'){root.rotation.set(-.12,0,0);camera.position.set(0,0,7.2)}else if(v==='back'){root.rotation.set(-.12,Math.PI,0);camera.position.set(0,0,7.2)}else{root.rotation.set(-.12,0,0);camera.position.set(0,0,7.2)}controls.target.set(0,0,0);controls.update()}));
 $('addCustom').addEventListener('click',()=>{const payload={...state,criadoEm:new Date().toISOString()};try{localStorage.setItem('birx_personalizacao_pendente',JSON.stringify(payload));$('customMessage').textContent='Personalização salva. Abrindo a loja…';$('customMessage').hidden=false;setTimeout(()=>location.href='/loja?personalizada=1',350)}catch{$('customMessage').textContent='Não foi possível salvar a personalização neste navegador.';$('customMessage').hidden=false}});
+}catch(error){
+  console.error('BIRX personalizador 3D',error);
+  showLoadError('Não foi possível iniciar o 3D neste navegador. Atualize a página ou tente novamente em alguns segundos.');
+}
