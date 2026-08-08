@@ -5,9 +5,9 @@ import { TextGeometry } from 'https://cdn.jsdelivr.net/npm/three@0.180.0/example
 import { unzipSync, strFromU8 } from 'https://cdn.jsdelivr.net/npm/fflate@0.8.2/+esm';
 
 const $=id=>document.getElementById(id);
-const state={shape:'redonda',sizeMm:30,color:'#151515',colorName:'Preto',name:'THOR'};
+const state={shape:'redonda',sizeMm:30,color:'#151515',colorName:'Preto',detailColor:'#f5f5f2',detailColorName:'Branco',name:'THOR'};
 const holder=$('viewer3d');
-let scene,camera,renderer,controls,root,modelRoot,nameMesh,font=null,originalTextBox=null,originalTextMesh=null;
+let scene,camera,renderer,controls,root,modelRoot,nameMesh,font=null,modelDisplayBox=null;
 let bodyMeshes=[],detailMeshes=[];
 let lastWidth=0,lastHeight=0,resizeFrame=0,currentView='front';
 
@@ -16,20 +16,20 @@ function parseTransform(value){const a=String(value||'1 0 0 0 1 0 0 0 1 0 0 0').
 function transformPoint(v,t){const[a,b,c,d,e,f,g,h,i,j,k,l]=t,[x,y,z]=v;return[a*x+d*y+g*z+j,b*x+e*y+h*z+k,c*x+f*y+i*z+l]}
 function cleanPath(path){return String(path||'').replace(/^\//,'')}
 
-function meshFromXml(xml,componentTransform,buildTransform,material,name){
+function geometryFromXml(xml,componentTransform,buildTransform,filter){
   const doc=new DOMParser().parseFromString(xml,'application/xml');
   const vertices=[...doc.getElementsByTagNameNS('*','vertex')].map(v=>[Number(v.getAttribute('x')),Number(v.getAttribute('y')),Number(v.getAttribute('z'))]);
-  const triangles=[...doc.getElementsByTagNameNS('*','triangle')];
-  const positions=new Float32Array(triangles.length*9);let p=0;
-  for(const tri of triangles){
-    for(const key of ['v1','v2','v3']){
-      let point=vertices[Number(tri.getAttribute(key))];
-      point=transformPoint(point,componentTransform);point=transformPoint(point,buildTransform);
-      positions[p++]=point[0];positions[p++]=point[1];positions[p++]=point[2];
-    }
+  const positions=[];
+  for(const tri of [...doc.getElementsByTagNameNS('*','triangle')]){
+    const points=['v1','v2','v3'].map(key=>transformPoint(transformPoint(vertices[Number(tri.getAttribute(key))],componentTransform),buildTransform));
+    if(filter&&!filter(points))continue;
+    for(const point of points)positions.push(point[0],point[1],point[2]);
   }
-  const geometry=new THREE.BufferGeometry();geometry.setAttribute('position',new THREE.BufferAttribute(positions,3));geometry.computeVertexNormals();
-  const mesh=new THREE.Mesh(geometry,material);mesh.name=name;mesh.castShadow=true;mesh.receiveShadow=true;return mesh;
+  const geometry=new THREE.BufferGeometry();geometry.setAttribute('position',new THREE.Float32BufferAttribute(positions,3));geometry.computeVertexNormals();return geometry;
+}
+
+function meshFromXml(xml,componentTransform,buildTransform,material,name,filter){
+  const mesh=new THREE.Mesh(geometryFromXml(xml,componentTransform,buildTransform,filter),material);mesh.name=name;mesh.castShadow=true;mesh.receiveShadow=true;return mesh;
 }
 
 function readNames(files){
@@ -56,16 +56,30 @@ function parseBambu3mf(buffer){
 
 function role(name){const n=String(name||'').toLowerCase();if(n.includes('texto'))return'text';if(n.includes('merged'))return'detail';if(n.includes('black')||n.includes('cilindro'))return'body';return'detail'}
 
+function logoOnlyFilter(piece){
+  if(!/merged/i.test(piece.name))return null;
+  const all=geometryFromXml(piece.xml,piece.componentTransform,piece.buildTransform,null);
+  const pos=all.getAttribute('position');let minY=Infinity,maxY=-Infinity;
+  for(let i=0;i<pos.count;i++){const y=pos.getY(i);minY=Math.min(minY,y);maxY=Math.max(maxY,y)}
+  all.dispose();
+  const cut=minY+(maxY-minY)*.31;
+  return points=>(points[0][1]+points[1][1]+points[2][1])/3>cut;
+}
+
 function buildSeparatedModel(pieces){
-  modelRoot=new THREE.Group();bodyMeshes=[];detailMeshes=[];originalTextBox=null;originalTextMesh=null;
+  modelRoot=new THREE.Group();bodyMeshes=[];detailMeshes=[];
   const bodyMaterial=new THREE.MeshPhysicalMaterial({color:state.color,roughness:.43,metalness:.01,clearcoat:.12,clearcoatRoughness:.38});
-  const detailMaterial=new THREE.MeshStandardMaterial({color:'#f4f4f1',roughness:.46,metalness:.01});
+  const detailMaterial=new THREE.MeshStandardMaterial({color:state.detailColor,roughness:.42,metalness:.01,polygonOffset:true,polygonOffsetFactor:-4,polygonOffsetUnits:-4});
+
   for(const piece of pieces){
-    const r=role(piece.name),mesh=meshFromXml(piece.xml,piece.componentTransform,piece.buildTransform,r==='body'?bodyMaterial.clone():detailMaterial.clone(),piece.name);
-    if(r==='text'){originalTextMesh=mesh;modelRoot.add(mesh)}
-    else if(r==='body'){bodyMeshes.push(mesh);modelRoot.add(mesh)}
-    else{detailMeshes.push(mesh);modelRoot.add(mesh)}
+    const r=role(piece.name);
+    if(r==='text')continue;
+    const filter=r==='detail'?logoOnlyFilter(piece):null;
+    const mesh=meshFromXml(piece.xml,piece.componentTransform,piece.buildTransform,r==='body'?bodyMaterial.clone():detailMaterial.clone(),piece.name,filter);
+    if(r==='body'){bodyMeshes.push(mesh);modelRoot.add(mesh)}
+    else{mesh.renderOrder=5;detailMeshes.push(mesh);modelRoot.add(mesh)}
   }
+
   const box=new THREE.Box3().setFromObject(modelRoot),center=new THREE.Vector3(),size=new THREE.Vector3();box.getCenter(center);box.getSize(size);
   const scale=3.65/Math.max(size.x,size.y);
   modelRoot.scale.setScalar(scale);
@@ -73,66 +87,47 @@ function buildSeparatedModel(pieces){
   modelRoot.rotation.y=Math.PI;
   modelRoot.updateMatrix();
   root.add(modelRoot);
-  if(originalTextMesh){
-    originalTextBox=new THREE.Box3().setFromBufferAttribute(originalTextMesh.geometry.getAttribute('position')).applyMatrix4(modelRoot.matrix);
-    originalTextMesh.visible=false;
-  }
+  root.updateMatrixWorld(true);
+  modelDisplayBox=new THREE.Box3().setFromObject(modelRoot);
 }
 
 async function loadFont(){if(font)return font;const response=await fetch('https://cdn.jsdelivr.net/npm/three@0.180.0/examples/fonts/helvetiker_bold.typeface.json');if(!response.ok)throw new Error('Fonte 3D não carregou.');font=new FontLoader().parse(await response.json());return font}
 
 async function rebuildName(){
-  if(!modelRoot||!originalTextBox)return;
+  if(!modelRoot||!modelDisplayBox)return;
   if(nameMesh){root.remove(nameMesh);nameMesh.geometry.dispose();nameMesh.material.dispose();nameMesh=null}
   const f=await loadFont(),text=(state.name||'PET').toUpperCase();
-  const geom=new TextGeometry(text,{font:f,size:.44,depth:.055,curveSegments:5,bevelEnabled:true,bevelThickness:.012,bevelSize:.008,bevelSegments:2});geom.computeBoundingBox();
-  const textSize=new THREE.Vector3();geom.boundingBox.getSize(textSize);const target=new THREE.Vector3();originalTextBox.getSize(target);const maxWidth=Math.max(target.x,1.25),textScale=Math.min(1,maxWidth/Math.max(textSize.x,.001));geom.scale(textScale,textScale,textScale);geom.computeBoundingBox();
+  const size=new THREE.Vector3(),centerModel=new THREE.Vector3();modelDisplayBox.getSize(size);modelDisplayBox.getCenter(centerModel);
+  const targetWidth=size.x*.70;
+  const geom=new TextGeometry(text,{font:f,size:.48,depth:.065,curveSegments:6,bevelEnabled:true,bevelThickness:.014,bevelSize:.009,bevelSegments:2});geom.computeBoundingBox();
+  const textSize=new THREE.Vector3();geom.boundingBox.getSize(textSize);const textScale=Math.min(1,targetWidth/Math.max(textSize.x,.001));geom.scale(textScale,textScale,textScale);geom.computeBoundingBox();
   const center=new THREE.Vector3();geom.boundingBox.getCenter(center);geom.translate(-center.x,-center.y,-center.z);
-  const targetCenter=new THREE.Vector3();originalTextBox.getCenter(targetCenter);
-  nameMesh=new THREE.Mesh(geom,new THREE.MeshStandardMaterial({color:'#f4f4f1',roughness:.42}));
-  nameMesh.rotation.y=Math.PI;
-  nameMesh.position.set(targetCenter.x,targetCenter.y,originalTextBox.max.z+.025);nameMesh.castShadow=true;root.add(nameMesh);updateSummary();
+  nameMesh=new THREE.Mesh(geom,new THREE.MeshStandardMaterial({color:state.detailColor,roughness:.40,polygonOffset:true,polygonOffsetFactor:-5,polygonOffsetUnits:-5}));
+  nameMesh.position.set(centerModel.x,centerModel.y-size.y*.22,modelDisplayBox.max.z+.035);nameMesh.castShadow=true;nameMesh.renderOrder=6;root.add(nameMesh);updateSummary();
 }
 
-function updateColor(){for(const mesh of bodyMeshes){const mats=Array.isArray(mesh.material)?mesh.material:[mesh.material];for(const m of mats)m?.color?.set(state.color)}updateSummary()}
-function updateSummary(){$('sumColor').textContent=state.colorName;$('sumName').textContent=(state.name||'PET').toUpperCase()}
+function updateBodyColor(){for(const mesh of bodyMeshes){const mats=Array.isArray(mesh.material)?mesh.material:[mesh.material];for(const m of mats)m?.color?.set(state.color)}updateSummary()}
+function updateDetailColor(){for(const mesh of detailMeshes){const mats=Array.isArray(mesh.material)?mesh.material:[mesh.material];for(const m of mats)m?.color?.set(state.detailColor)}if(nameMesh)nameMesh.material.color.set(state.detailColor);updateSummary()}
+function updateSummary(){$('sumColor').textContent=state.colorName;$('sumDetailColor').textContent=state.detailColorName;$('sumName').textContent=(state.name||'PET').toUpperCase()}
 
 function fitView(view='front'){
   if(!root||!camera||!controls||!modelRoot)return;
-  currentView=view==='back'?'back':'front';
-  root.rotation.set(0,currentView==='back'?Math.PI:0,0);
-  root.updateMatrixWorld(true);
-  const box=new THREE.Box3().setFromObject(root);
-  if(box.isEmpty())return;
+  currentView=view==='back'?'back':'front';root.rotation.set(0,currentView==='back'?Math.PI:0,0);root.updateMatrixWorld(true);
+  const box=new THREE.Box3().setFromObject(root);if(box.isEmpty())return;
   const center=new THREE.Vector3(),size=new THREE.Vector3();box.getCenter(center);box.getSize(size);
-  const vFov=THREE.MathUtils.degToRad(camera.fov);
-  const hFov=2*Math.atan(Math.tan(vFov/2)*Math.max(camera.aspect,.1));
-  const distV=(size.y/2)/Math.tan(vFov/2);
-  const distH=(size.x/2)/Math.tan(hFov/2);
-  const distance=Math.max(distV,distH,size.z*2)*1.22;
-  controls.target.copy(center);
-  camera.position.set(center.x,center.y,center.z+distance);
-  camera.near=Math.max(.01,distance/100);
-  camera.far=Math.max(100,distance*20);
-  camera.updateProjectionMatrix();
-  controls.minDistance=Math.max(.4,distance*.48);
-  controls.maxDistance=Math.max(8,distance*3.2);
-  controls.update();
+  const vFov=THREE.MathUtils.degToRad(camera.fov),hFov=2*Math.atan(Math.tan(vFov/2)*Math.max(camera.aspect,.1));
+  const distance=Math.max((size.y/2)/Math.tan(vFov/2),(size.x/2)/Math.tan(hFov/2),size.z*2)*1.20;
+  controls.target.copy(center);camera.position.set(center.x,center.y,center.z+distance);camera.near=Math.max(.01,distance/100);camera.far=Math.max(100,distance*20);camera.updateProjectionMatrix();controls.minDistance=Math.max(.4,distance*.48);controls.maxDistance=Math.max(8,distance*3.2);controls.update();
 }
 
-function resizeNow(){
-  if(!renderer||!camera||!holder)return;
-  const rect=holder.getBoundingClientRect();const w=Math.max(1,Math.round(rect.width)),h=Math.max(1,Math.round(rect.height));
-  if(w===lastWidth&&h===lastHeight)return;lastWidth=w;lastHeight=h;renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix();
-  if(modelRoot)fitView(currentView);
-}
+function resizeNow(){if(!renderer||!camera||!holder)return;const rect=holder.getBoundingClientRect(),w=Math.max(1,Math.round(rect.width)),h=Math.max(1,Math.round(rect.height));if(w===lastWidth&&h===lastHeight)return;lastWidth=w;lastHeight=h;renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix();if(modelRoot)fitView(currentView)}
 function scheduleResize(){if(resizeFrame)return;resizeFrame=requestAnimationFrame(()=>{resizeFrame=0;resizeNow()})}
 function animate(){requestAnimationFrame(animate);controls.update();renderer.render(scene,camera)}
 
 async function loadRealModel(){
   try{
     const response=await fetch('/api/modelo-birx-publico',{cache:'no-store'});if(!response.ok)throw new Error(`Modelo 3D indisponível (${response.status})`);
-    const key=response.headers.get('X-BIRX-Model-Key')||'';const buffer=await response.arrayBuffer();const pieces=parseBambu3mf(buffer);
+    const key=response.headers.get('X-BIRX-Model-Key')||'',buffer=await response.arrayBuffer(),pieces=parseBambu3mf(buffer);
     if(!pieces.some(p=>/texto/i.test(p.name)))throw new Error('Este 3MF ainda não é a versão com as peças separadas.');
     buildSeparatedModel(pieces);await rebuildName();fitView('front');$('viewerLoading')?.remove();console.info('BIRX modelo carregado:',key,pieces.map(p=>p.name));
   }catch(error){console.error('BIRX 3MF',error);showLoadError(error.message.includes('separadas')?'Envie o arquivo Separados.3mf para a Biblioteca 3D do Admin.':'Não consegui carregar o modelo separado da BIRX ID.')}
@@ -142,12 +137,13 @@ try{
   scene=new THREE.Scene();camera=new THREE.PerspectiveCamera(34,1,.1,100);camera.position.set(0,0,5);
   renderer=new THREE.WebGLRenderer({antialias:true,alpha:true,preserveDrawingBuffer:true});renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.shadowMap.enabled=true;holder.appendChild(renderer.domElement);
   controls=new OrbitControls(camera,renderer.domElement);controls.enableDamping=true;controls.target.set(0,0,0);
-  scene.add(new THREE.HemisphereLight(0xffffff,0x667188,2.5));const key=new THREE.DirectionalLight(0xffffff,4.1);key.position.set(4,5,7);scene.add(key);const fill=new THREE.DirectionalLight(0xc8d8ff,1.4);fill.position.set(-5,2,3);scene.add(fill);
+  scene.add(new THREE.HemisphereLight(0xffffff,0x667188,2.5));const keyLight=new THREE.DirectionalLight(0xffffff,4.1);keyLight.position.set(4,5,7);scene.add(keyLight);const fill=new THREE.DirectionalLight(0xc8d8ff,1.4);fill.position.set(-5,2,3);scene.add(fill);
   root=new THREE.Group();scene.add(root);
-  const observer=new ResizeObserver(scheduleResize);observer.observe(holder);window.addEventListener('resize',scheduleResize,{passive:true});
-  resizeNow();animate();loadRealModel();
-  document.querySelectorAll('[data-color]').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('[data-color]').forEach(x=>x.classList.toggle('selected',x===b));state.color=b.dataset.color;state.colorName=b.dataset.name;updateColor()}));
+  const observer=new ResizeObserver(scheduleResize);observer.observe(holder);window.addEventListener('resize',scheduleResize,{passive:true});resizeNow();animate();loadRealModel();
+
+  document.querySelectorAll('#colorGrid [data-color]').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('#colorGrid [data-color]').forEach(x=>x.classList.toggle('selected',x===b));state.color=b.dataset.color;state.colorName=b.dataset.name;updateBodyColor()}));
+  document.querySelectorAll('#detailColorGrid [data-detail-color]').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('#detailColorGrid [data-detail-color]').forEach(x=>x.classList.toggle('selected',x===b));state.detailColor=b.dataset.detailColor;state.detailColorName=b.dataset.name;updateDetailColor()}));
   $('petName').addEventListener('input',e=>{state.name=e.target.value.replace(/[^A-Za-zÀ-ÿ0-9 -]/g,'').slice(0,12);e.target.value=state.name;rebuildName().then(()=>fitView(currentView)).catch(console.error)});
-  document.querySelectorAll('[data-view]').forEach(b=>b.addEventListener('click',()=>{const v=b.dataset.view;if(v==='back')fitView('back');else fitView('front')}));
+  document.querySelectorAll('[data-view]').forEach(b=>b.addEventListener('click',()=>fitView(b.dataset.view==='back'?'back':'front')));
   $('addCustom').addEventListener('click',()=>{const payload={...state,modeloBase:'Separados.3mf',frente:'logo-original+nome-personalizado',verso:'original',criadoEm:new Date().toISOString()};try{localStorage.setItem('birx_personalizacao_pendente',JSON.stringify(payload));$('customMessage').textContent='Personalização salva. Abrindo a loja…';$('customMessage').hidden=false;setTimeout(()=>location.href='/loja?personalizada=1',350)}catch{$('customMessage').textContent='Não foi possível salvar a personalização neste navegador.';$('customMessage').hidden=false}});
 }catch(error){console.error('BIRX personalizador 3D',error);showLoadError('Não foi possível iniciar o visualizador 3D neste navegador.')}
