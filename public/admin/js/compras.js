@@ -29,12 +29,11 @@
     $("fornecedor").innerHTML='<option value="">Sem fornecedor</option>'+state.fornecedores.map(x=>`<option value="${x.id}">${ui.escapeHtml(x.nome)}</option>`).join('');
     renderCompras();
   }
-  async function enter(key){ui.setKey(key);try{await load();acesso.hidden=true;painel.hidden=false;$("novaCompra").hidden=false}catch(e){ui.clearKey();ui.feedback($("mensagemAcesso"),e.message,true)}}
   function open(){
     $("formCompra").reset(); $("itens").innerHTML=''; $("dataCompra").value=new Date().toISOString().slice(0,10); $("frete").value=0;$("impostos").value=0;$("desconto").value=0;addItem();$("mensagemModal").hidden=true;modal.hidden=false;document.body.style.overflow='hidden';calc();
   }
   function close(){modal.hidden=true;document.body.style.overflow='';}
-  $("formAcesso").addEventListener('submit',e=>{e.preventDefault();enter($("chave").value)});$("novaCompra").addEventListener('click',open);$("adicionarItem").addEventListener('click',()=>addItem());document.querySelectorAll('[data-fechar]').forEach(el=>el.addEventListener('click',close));['frete','impostos','desconto'].forEach(id=>$(id).addEventListener('input',calc));
+  $("novaCompra").addEventListener('click',open);$("adicionarItem").addEventListener('click',()=>addItem());document.querySelectorAll('[data-fechar]').forEach(el=>el.addEventListener('click',close));['frete','impostos','desconto'].forEach(id=>$(id).addEventListener('input',calc));
   $("formCompra").addEventListener('submit',async e=>{e.preventDefault();const itens=[...document.querySelectorAll('.item-row')].map(r=>({material_id:r.querySelector('.material').value,quantidade:r.querySelector('.quantidade').value,valor_unitario:r.querySelector('.valor').value}));if(itens.some(i=>!i.material_id))return ui.feedback($("mensagemModal"),'Selecione o material de todos os itens.',true);const payload={fornecedor_id:$("fornecedor").value||null,data_compra:$("dataCompra").value,numero_nf:$("numeroNf").value,frete:$("frete").value,impostos:$("impostos").value,desconto:$("desconto").value,observacoes:$("observacoes").value,itens};try{await ui.api('/api/compras',{method:'POST',body:JSON.stringify(payload)});close();await load();ui.feedback($("mensagem"),'Compra registrada. O estoque e o custo médio foram atualizados.')}catch(err){ui.feedback($("mensagemModal"),err.message,true)}});
-  if(ui.getKey()) enter(ui.getKey());
+  (async()=>{acesso.hidden=true;$("novaCompra").hidden=true;if(!(await ui.requireAuth()))return;try{await load();painel.hidden=false;$("novaCompra").hidden=false}catch(e){ui.feedback($("mensagem"),e.message,true)}})();
 })();
