@@ -142,11 +142,38 @@ const statements = [
   `CREATE INDEX IF NOT EXISTS idx_producao_itens_producao ON producao_itens(producao_id)`
 ];
 
+const materiaisIniciais = [
+  ["PETG Branco", "Filamento PETG", "FIL-PETG-BRANCO", "kg"],
+  ["PETG Preto", "Filamento PETG", "FIL-PETG-PRETO", "kg"],
+  ["PETG Azul", "Filamento PETG", "FIL-PETG-AZUL", "kg"],
+  ["PETG Vermelho", "Filamento PETG", "FIL-PETG-VERMELHO", "kg"],
+  ["PETG Rosa", "Filamento PETG", "FIL-PETG-ROSA", "kg"],
+  ["TPU Preto", "Filamento TPU", "FIL-TPU-PRETO", "kg"],
+  ["PLA Branco", "Filamento PLA", "FIL-PLA-BRANCO", "kg"],
+  ["PLA Preto", "Filamento PLA", "FIL-PLA-PRETO", "kg"],
+  ["PLA Amarelo", "Filamento PLA", "FIL-PLA-AMARELO", "kg"],
+  ["PLA Marrom", "Filamento PLA", "FIL-PLA-MARROM", "kg"],
+  ["PLA Verde", "Filamento PLA", "FIL-PLA-VERDE", "kg"],
+  ["PLA Vermelho", "Filamento PLA", "FIL-PLA-VERMELHO", "kg"],
+  ["PLA Azul", "Filamento PLA", "FIL-PLA-AZUL", "kg"],
+  ["PLA Rosa", "Filamento PLA", "FIL-PLA-ROSA", "kg"],
+  ["TAG NFC", "Eletrônicos", "TAG-NFC", "un"],
+  ["Argola", "Ferragens", "ARGOLA", "un"],
+  ["Panfleto", "Impressos", "PANFLETO", "un"],
+  ["Adesivo QR Code", "Impressos", "ADESIVO-QRCODE", "un"],
+  ["Cartela expositora da TAG", "Apresentação", "CARTELA-TAG", "un"]
+];
+
 export async function onRequestPost({ request, env }) {
   if (!(await authorized(request, env))) return unauthorized(env);
   try {
     await env.DB.batch(statements.map((sql) => env.DB.prepare(sql)));
-    return json({ sucesso: true, mensagem: "Banco do BIRX Admin preparado com sucesso." });
+    const seeds = materiaisIniciais.map(([nome, categoria, codigo, unidade]) =>
+      env.DB.prepare(`INSERT OR IGNORE INTO materiais (nome,categoria,codigo,unidade,estoque,estoque_minimo,custo_medio,observacoes) VALUES (?,?,?,?,0,0,0,?)`)
+        .bind(nome, categoria, codigo, unidade, "Material inicial BIRX; edite estoque, custo, tamanho e demais detalhes conforme necessário."),
+    );
+    await env.DB.batch(seeds);
+    return json({ sucesso: true, mensagem: "Banco do BIRX Admin preparado com sucesso.", materiais_iniciais: materiaisIniciais.length });
   } catch (error) {
     console.error("admin-migrate", error);
     return json({ sucesso: false, mensagem: "Não foi possível preparar o banco administrativo." }, 500);
