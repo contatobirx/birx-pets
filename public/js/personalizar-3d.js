@@ -1,111 +1,113 @@
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.180.0/+esm';
 import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/controls/OrbitControls.js/+esm';
-import { ThreeMFLoader } from 'https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/loaders/3MFLoader.js/+esm';
+import { FontLoader } from 'https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/loaders/FontLoader.js/+esm';
+import { TextGeometry } from 'https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/geometries/TextGeometry.js/+esm';
+import { unzipSync, strFromU8 } from 'https://cdn.jsdelivr.net/npm/fflate@0.8.2/+esm';
 
 const $=id=>document.getElementById(id);
 const state={shape:'redonda',sizeMm:30,color:'#151515',colorName:'Preto',name:'THOR'};
 const holder=$('viewer3d');
-let root,modelRoot,nameMask,namePlane,modelBox,frontZ=0,modelScale=1;
+let scene,camera,renderer,controls,root,modelRoot,nameMesh,font=null,originalTextBox=null;
+let bodyMeshes=[],detailMeshes=[];
 
-function showLoadError(message){
-  const loading=$('viewerLoading');
-  if(loading){loading.textContent=message||'Não foi possível carregar a visualização 3D.';loading.style.color='#b42318'}
+function showLoadError(message){const loading=$('viewerLoading');if(loading){loading.textContent=message||'Não foi possível carregar a visualização 3D.';loading.style.color='#b42318'}}
+function parseTransform(value){const a=String(value||'1 0 0 0 1 0 0 0 1 0 0 0').trim().split(/\s+/).map(Number);return a.length===12?a:[1,0,0,0,1,0,0,0,1,0,0,0]}
+function transformPoint(v,t){const[a,b,c,d,e,f,g,h,i,j,k,l]=t,[x,y,z]=v;return[a*x+d*y+g*z+j,b*x+e*y+h*z+k,c*x+f*y+i*z+l]}
+function cleanPath(path){return String(path||'').replace(/^\//,'')}
+
+function meshFromXml(xml,componentTransform,buildTransform,material,name){
+  const doc=new DOMParser().parseFromString(xml,'application/xml');
+  const vertices=[...doc.getElementsByTagNameNS('*','vertex')].map(v=>[Number(v.getAttribute('x')),Number(v.getAttribute('y')),Number(v.getAttribute('z'))]);
+  const triangles=[...doc.getElementsByTagNameNS('*','triangle')];
+  const positions=new Float32Array(triangles.length*9);let p=0;
+  for(const tri of triangles){
+    for(const key of ['v1','v2','v3']){
+      let point=vertices[Number(tri.getAttribute(key))];
+      point=transformPoint(point,componentTransform);point=transformPoint(point,buildTransform);
+      positions[p++]=point[0];positions[p++]=point[1];positions[p++]=point[2];
+    }
+  }
+  const geometry=new THREE.BufferGeometry();geometry.setAttribute('position',new THREE.BufferAttribute(positions,3));geometry.computeVertexNormals();
+  const mesh=new THREE.Mesh(geometry,material);mesh.name=name;mesh.castShadow=true;mesh.receiveShadow=true;return mesh;
 }
-function texture(canvas){const t=new THREE.CanvasTexture(canvas);t.colorSpace=THREE.SRGBColorSpace;t.needsUpdate=true;return t}
-function luminance(color){return .2126*color.r+.7152*color.g+.0722*color.b}
+
+function readNames(files){
+  const raw=files['Metadata/model_settings.config'];if(!raw)return{};
+  const doc=new DOMParser().parseFromString(strFromU8(raw),'application/xml');const result={};
+  for(const obj of [...doc.querySelectorAll('object')]){const id=obj.getAttribute('id');const meta=[...obj.children].find(x=>x.tagName==='metadata'&&x.getAttribute('key')==='name');if(id&&meta)result[id]=meta.getAttribute('value')||''}
+  return result;
+}
+
+function parseBambu3mf(buffer){
+  const files=unzipSync(new Uint8Array(buffer));const main=files['3D/3dmodel.model'];if(!main)throw new Error('3D/3dmodel.model não encontrado.');
+  const doc=new DOMParser().parseFromString(strFromU8(main),'application/xml');
+  const names=readNames(files),builds={};
+  for(const item of [...doc.getElementsByTagNameNS('*','item')])builds[item.getAttribute('objectid')]=parseTransform(item.getAttribute('transform'));
+  const pieces=[];
+  for(const obj of [...doc.querySelectorAll('resources > object')]){
+    const buildId=obj.getAttribute('id'),component=obj.querySelector('component');if(!component)continue;
+    const path=cleanPath(component.getAttributeNS('http://schemas.microsoft.com/3dmanufacturing/production/2015/06','path')||component.getAttribute('p:path'));
+    const file=files[path];if(!file)continue;
+    pieces.push({id:buildId,name:names[buildId]||`Objeto ${buildId}`,xml:strFromU8(file),componentTransform:parseTransform(component.getAttribute('transform')),buildTransform:builds[buildId]||parseTransform('')});
+  }
+  if(!pieces.length)throw new Error('Nenhuma peça foi encontrada no projeto.');return pieces;
+}
+
+function role(name){const n=String(name||'').toLowerCase();if(n.includes('texto'))return'text';if(n.includes('merged'))return'detail';if(n.includes('black')||n.includes('cilindro'))return'body';return'detail'}
+
+function buildSeparatedModel(pieces){
+  modelRoot=new THREE.Group();bodyMeshes=[];detailMeshes=[];originalTextBox=null;
+  const bodyMaterial=new THREE.MeshPhysicalMaterial({color:state.color,roughness:.43,metalness:.01,clearcoat:.12,clearcoatRoughness:.38});
+  const detailMaterial=new THREE.MeshStandardMaterial({color:'#f4f4f1',roughness:.46,metalness:.01});
+  for(const piece of pieces){
+    const r=role(piece.name),mesh=meshFromXml(piece.xml,piece.componentTransform,piece.buildTransform,r==='body'?bodyMaterial.clone():detailMaterial.clone(),piece.name);
+    if(r==='text'){originalTextBox=new THREE.Box3().setFromObject(mesh);mesh.visible=false;modelRoot.add(mesh)}
+    else if(r==='body'){bodyMeshes.push(mesh);modelRoot.add(mesh)}
+    else{detailMeshes.push(mesh);modelRoot.add(mesh)}
+  }
+  const box=new THREE.Box3().setFromObject(modelRoot),center=new THREE.Vector3(),size=new THREE.Vector3();box.getCenter(center);box.getSize(size);modelRoot.position.sub(center);
+  const scale=3.65/Math.max(size.x,size.y);modelRoot.scale.setScalar(scale);
+  modelRoot.rotation.y=Math.PI;
+  root.add(modelRoot);
+  if(originalTextBox){originalTextBox.min.sub(center).multiplyScalar(scale);originalTextBox.max.sub(center).multiplyScalar(scale);const min=originalTextBox.min.clone(),max=originalTextBox.max.clone();originalTextBox.min.set(-max.x,min.y,-max.z);originalTextBox.max.set(-min.x,max.y,-min.z)}
+}
+
+async function loadFont(){if(font)return font;const response=await fetch('https://cdn.jsdelivr.net/npm/three@0.180.0/examples/fonts/helvetiker_bold.typeface.json');if(!response.ok)throw new Error('Fonte 3D não carregou.');font=new FontLoader().parse(await response.json());return font}
+
+async function rebuildName(){
+  if(!modelRoot||!originalTextBox)return;
+  if(nameMesh){root.remove(nameMesh);nameMesh.geometry.dispose();nameMesh.material.dispose();nameMesh=null}
+  const f=await loadFont(),text=(state.name||'PET').toUpperCase();
+  const geom=new TextGeometry(text,{font:f,size:.44,height:.055,curveSegments:5,bevelEnabled:true,bevelThickness:.012,bevelSize:.008,bevelSegments:2});geom.computeBoundingBox();
+  const textSize=new THREE.Vector3();geom.boundingBox.getSize(textSize);const target=new THREE.Vector3();originalTextBox.getSize(target);const maxWidth=Math.max(target.x,1.25),scale=Math.min(1,maxWidth/Math.max(textSize.x,.001));geom.scale(scale,scale,scale);geom.computeBoundingBox();
+  const center=new THREE.Vector3();geom.boundingBox.getCenter(center);geom.translate(-center.x,-center.y,-center.z);
+  const targetCenter=new THREE.Vector3();originalTextBox.getCenter(targetCenter);
+  nameMesh=new THREE.Mesh(geom,new THREE.MeshStandardMaterial({color:'#f4f4f1',roughness:.42}));
+  nameMesh.position.set(targetCenter.x,targetCenter.y,Math.max(originalTextBox.max.z,targetCenter.z)+.018);nameMesh.rotation.y=0;nameMesh.castShadow=true;root.add(nameMesh);updateSummary();
+}
+
+function updateColor(){for(const mesh of bodyMeshes){const mats=Array.isArray(mesh.material)?mesh.material:[mesh.material];for(const m of mats)m?.color?.set(state.color)}updateSummary()}
+function updateSummary(){$('sumColor').textContent=state.colorName;$('sumName').textContent=(state.name||'PET').toUpperCase()}
+function resize(){const w=Math.max(holder.clientWidth,320),h=Math.max(holder.clientHeight,360);renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix()}
+function animate(){requestAnimationFrame(animate);controls.update();renderer.render(scene,camera)}
+
+async function loadRealModel(){
+  try{
+    const response=await fetch('/api/modelo-birx-publico',{cache:'no-store'});if(!response.ok)throw new Error(`Modelo 3D indisponível (${response.status})`);
+    const key=response.headers.get('X-BIRX-Model-Key')||'';const buffer=await response.arrayBuffer();const pieces=parseBambu3mf(buffer);
+    if(!pieces.some(p=>/texto/i.test(p.name)))throw new Error('Este 3MF ainda não é a versão com as peças separadas.');
+    buildSeparatedModel(pieces);await rebuildName();$('viewerLoading')?.remove();console.info('BIRX modelo carregado:',key,pieces.map(p=>p.name));
+  }catch(error){console.error('BIRX 3MF',error);showLoadError(error.message.includes('separadas')?'Envie o arquivo Separados.3mf para a Biblioteca 3D do Admin.':'Não consegui carregar o modelo separado da BIRX ID.')}
+}
 
 try{
-  const scene=new THREE.Scene();
-  const camera=new THREE.PerspectiveCamera(34,1,.1,100);
-  camera.position.set(0,.1,7.2);
-  const renderer=new THREE.WebGLRenderer({antialias:true,alpha:true,preserveDrawingBuffer:true});
-  renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.shadowMap.enabled=true;
-  holder.appendChild(renderer.domElement);
-
-  const controls=new OrbitControls(camera,renderer.domElement);controls.enableDamping=true;controls.minDistance=3.5;controls.maxDistance=11;controls.target.set(0,.12,0);
-  scene.add(new THREE.HemisphereLight(0xffffff,0x667188,2.4));
-  const key=new THREE.DirectionalLight(0xffffff,4.2);key.position.set(4,5,7);scene.add(key);
-  const fill=new THREE.DirectionalLight(0xc8d8ff,1.45);fill.position.set(-5,2,3);scene.add(fill);
-  const rim=new THREE.DirectionalLight(0xffffff,1.4);rim.position.set(0,-3,-5);scene.add(rim);
-
-  root=new THREE.Group();root.rotation.x=-.06;scene.add(root);
-
-  function styleModel(){
-    if(!modelRoot)return;
-    modelRoot.traverse(obj=>{
-      if(!obj.isMesh)return;
-      obj.castShadow=true;obj.receiveShadow=true;
-      const materials=Array.isArray(obj.material)?obj.material:[obj.material];
-      obj.material=materials.map(mat=>{
-        const m=mat?.clone?.()||new THREE.MeshStandardMaterial();
-        if(m.color){
-          const bright=luminance(m.color)>.58;
-          if(bright){m.color.set('#f5f5f2');m.roughness=.48;m.metalness=.02}
-          else{m.color.set(state.color);m.roughness=.46;m.metalness=.01}
-        }
-        return m;
-      });
-      if(!Array.isArray(obj.material))obj.material=obj.material[0];
-    });
-  }
-
-  function makeNameTexture(){
-    const c=document.createElement('canvas');c.width=1200;c.height=460;const x=c.getContext('2d');x.clearRect(0,0,c.width,c.height);x.textAlign='center';x.textBaseline='middle';
-    x.fillStyle='rgba(248,248,245,.99)';const name=(state.name||'PET').toUpperCase();let size=210;if(name.length>6)size=180;if(name.length>8)size=150;if(name.length>10)size=125;
-    x.font=`900 ${size}px Arial, sans-serif`;x.fillText(name,600,230);
-    return texture(c);
-  }
-
-  function rebuildCustomization(){
-    if(!modelBox||!root)return;
-    if(nameMask){root.remove(nameMask);nameMask.geometry.dispose();nameMask.material.dispose()}
-    if(namePlane){root.remove(namePlane);namePlane.geometry.dispose();namePlane.material.map?.dispose();namePlane.material.dispose()}
-    const size=new THREE.Vector3();modelBox.getSize(size);
-    const width=size.x*.72,height=size.y*.30;
-    const maskGeom=new THREE.PlaneGeometry(width,height);
-    const maskMat=new THREE.MeshBasicMaterial({color:new THREE.Color(state.color),polygonOffset:true,polygonOffsetFactor:-4,polygonOffsetUnits:-4});
-    nameMask=new THREE.Mesh(maskGeom,maskMat);nameMask.position.set(0,-size.y*.19,frontZ+.018);root.add(nameMask);
-    const nameGeom=new THREE.PlaneGeometry(width*.95,height*.82);
-    namePlane=new THREE.Mesh(nameGeom,new THREE.MeshBasicMaterial({map:makeNameTexture(),transparent:true,depthWrite:false}));
-    namePlane.position.set(0,-size.y*.19,frontZ+.024);root.add(namePlane);
-    updateSummary();
-  }
-
-  function normalizeModel(group){
-    const box=new THREE.Box3().setFromObject(group);const size=new THREE.Vector3(),center=new THREE.Vector3();box.getSize(size);box.getCenter(center);
-    group.position.sub(center);
-    const targetHeight=3.55;modelScale=targetHeight/Math.max(size.y,size.x);group.scale.setScalar(modelScale);
-    modelBox=new THREE.Box3().setFromObject(group);const normalizedSize=new THREE.Vector3();modelBox.getSize(normalizedSize);
-    const normalizedCenter=new THREE.Vector3();modelBox.getCenter(normalizedCenter);group.position.x-=normalizedCenter.x;group.position.y-=normalizedCenter.y;
-    modelBox=new THREE.Box3().setFromObject(group);frontZ=modelBox.max.z;
-  }
-
-  async function loadRealModel(){
-    const loader=new ThreeMFLoader();
-    try{
-      const response=await fetch('/api/modelo-birx-publico',{cache:'force-cache'});
-      if(!response.ok)throw new Error(`Modelo 3D indisponível (${response.status})`);
-      const buffer=await response.arrayBuffer();
-      const group=loader.parse(buffer);
-      modelRoot=group;normalizeModel(modelRoot);styleModel();root.add(modelRoot);rebuildCustomization();$('viewerLoading')?.remove();
-    }catch(error){console.error('3MF BIRX',error);showLoadError('Não consegui carregar o modelo real da BIRX ID. Verifique o arquivo 3MF no R2.')}
-  }
-
-  function updateColor(){
-    if(modelRoot){
-      modelRoot.traverse(obj=>{if(!obj.isMesh)return;const mats=Array.isArray(obj.material)?obj.material:[obj.material];for(const m of mats){if(m?.color&&luminance(m.color)<.85)m.color.set(state.color)}});
-    }
-    if(nameMask)nameMask.material.color.set(state.color);
-    updateSummary();
-  }
-  function updateName(){if(namePlane){namePlane.material.map?.dispose();namePlane.material.map=makeNameTexture();namePlane.material.needsUpdate=true}updateSummary()}
-  function updateSummary(){$('sumColor').textContent=state.colorName;$('sumName').textContent=(state.name||'PET').toUpperCase()}
-  function resize(){const w=Math.max(holder.clientWidth,320),h=Math.max(holder.clientHeight,360);renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix()}
-  function animate(){requestAnimationFrame(animate);controls.update();renderer.render(scene,camera)}
-  new ResizeObserver(resize).observe(holder);resize();animate();loadRealModel();
-
+  scene=new THREE.Scene();camera=new THREE.PerspectiveCamera(34,1,.1,100);camera.position.set(0,.12,7.2);
+  renderer=new THREE.WebGLRenderer({antialias:true,alpha:true,preserveDrawingBuffer:true});renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.shadowMap.enabled=true;holder.appendChild(renderer.domElement);
+  controls=new OrbitControls(camera,renderer.domElement);controls.enableDamping=true;controls.minDistance=3.5;controls.maxDistance=11;controls.target.set(0,.12,0);
+  scene.add(new THREE.HemisphereLight(0xffffff,0x667188,2.5));const key=new THREE.DirectionalLight(0xffffff,4.1);key.position.set(4,5,7);scene.add(key);const fill=new THREE.DirectionalLight(0xc8d8ff,1.4);fill.position.set(-5,2,3);scene.add(fill);
+  root=new THREE.Group();root.rotation.x=-.08;scene.add(root);new ResizeObserver(resize).observe(holder);resize();animate();loadRealModel();
   document.querySelectorAll('[data-color]').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('[data-color]').forEach(x=>x.classList.toggle('selected',x===b));state.color=b.dataset.color;state.colorName=b.dataset.name;updateColor()}));
-  $('petName').addEventListener('input',e=>{state.name=e.target.value.replace(/[^A-Za-zÀ-ÿ0-9 -]/g,'').slice(0,12);e.target.value=state.name;updateName()});
-  document.querySelectorAll('[data-view]').forEach(b=>b.addEventListener('click',()=>{const v=b.dataset.view;if(v==='back')root.rotation.set(-.06,Math.PI,0);else root.rotation.set(-.06,0,0);camera.position.set(0,.1,7.2);controls.target.set(0,.12,0);controls.update()}));
-  $('addCustom').addEventListener('click',()=>{const payload={...state,modeloBase:'NOVO-BIRX.3mf',frente:'logo-original+nome-personalizado',verso:'original-scan-qr',criadoEm:new Date().toISOString()};try{localStorage.setItem('birx_personalizacao_pendente',JSON.stringify(payload));$('customMessage').textContent='Personalização salva. Abrindo a loja…';$('customMessage').hidden=false;setTimeout(()=>location.href='/loja?personalizada=1',350)}catch{$('customMessage').textContent='Não foi possível salvar a personalização neste navegador.';$('customMessage').hidden=false}});
+  $('petName').addEventListener('input',e=>{state.name=e.target.value.replace(/[^A-Za-zÀ-ÿ0-9 -]/g,'').slice(0,12);e.target.value=state.name;rebuildName().catch(console.error)});
+  document.querySelectorAll('[data-view]').forEach(b=>b.addEventListener('click',()=>{const v=b.dataset.view;if(v==='back')root.rotation.set(-.08,Math.PI,0);else root.rotation.set(-.08,0,0);camera.position.set(0,.12,7.2);controls.target.set(0,.12,0);controls.update()}));
+  $('addCustom').addEventListener('click',()=>{const payload={...state,modeloBase:'Separados.3mf',frente:'logo-original+nome-personalizado',verso:'original',criadoEm:new Date().toISOString()};try{localStorage.setItem('birx_personalizacao_pendente',JSON.stringify(payload));$('customMessage').textContent='Personalização salva. Abrindo a loja…';$('customMessage').hidden=false;setTimeout(()=>location.href='/loja?personalizada=1',350)}catch{$('customMessage').textContent='Não foi possível salvar a personalização neste navegador.';$('customMessage').hidden=false}});
 }catch(error){console.error('BIRX personalizador 3D',error);showLoadError('Não foi possível iniciar o visualizador 3D neste navegador.')}
