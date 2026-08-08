@@ -117,7 +117,29 @@ const statements = [
     preco_manual REAL,
     atualizado_em TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (produto_id) REFERENCES produtos(id) ON DELETE CASCADE
-  )`
+  )`,
+  `CREATE TABLE IF NOT EXISTS producoes (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    produto_id INTEGER NOT NULL,
+    quantidade REAL NOT NULL CHECK (quantidade > 0),
+    custo_unitario REAL NOT NULL DEFAULT 0,
+    custo_total REAL NOT NULL DEFAULT 0,
+    observacoes TEXT,
+    criado_em TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (produto_id) REFERENCES produtos(id) ON DELETE RESTRICT
+  )`,
+  `CREATE INDEX IF NOT EXISTS idx_producoes_produto ON producoes(produto_id, criado_em DESC)`,
+  `CREATE TABLE IF NOT EXISTS producao_itens (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    producao_id INTEGER NOT NULL,
+    material_id INTEGER NOT NULL,
+    quantidade_unitaria REAL NOT NULL,
+    quantidade_consumida REAL NOT NULL,
+    custo_unitario REAL NOT NULL DEFAULT 0,
+    FOREIGN KEY (producao_id) REFERENCES producoes(id) ON DELETE CASCADE,
+    FOREIGN KEY (material_id) REFERENCES materiais(id) ON DELETE RESTRICT
+  )`,
+  `CREATE INDEX IF NOT EXISTS idx_producao_itens_producao ON producao_itens(producao_id)`
 ];
 
 export async function onRequestPost({ request, env }) {
