@@ -97,7 +97,27 @@ const statements = [
   )`,
   `CREATE UNIQUE INDEX IF NOT EXISTS idx_produtos_codigo ON produtos(codigo) WHERE codigo IS NOT NULL AND TRIM(codigo) <> ''`,
   `CREATE INDEX IF NOT EXISTS idx_produtos_nome ON produtos(nome)`,
-  `CREATE INDEX IF NOT EXISTS idx_produtos_ativo ON produtos(ativo)`
+  `CREATE INDEX IF NOT EXISTS idx_produtos_ativo ON produtos(ativo)`,
+  `CREATE TABLE IF NOT EXISTS produto_materiais (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    produto_id INTEGER NOT NULL,
+    material_id INTEGER NOT NULL,
+    quantidade REAL NOT NULL CHECK (quantidade > 0),
+    criado_em TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (produto_id) REFERENCES produtos(id) ON DELETE CASCADE,
+    FOREIGN KEY (material_id) REFERENCES materiais(id) ON DELETE RESTRICT,
+    UNIQUE(produto_id, material_id)
+  )`,
+  `CREATE INDEX IF NOT EXISTS idx_produto_materiais_produto ON produto_materiais(produto_id)`,
+  `CREATE TABLE IF NOT EXISTS produto_precificacao (
+    produto_id INTEGER PRIMARY KEY,
+    custo_extra REAL NOT NULL DEFAULT 0 CHECK (custo_extra >= 0),
+    taxa_percentual REAL NOT NULL DEFAULT 0 CHECK (taxa_percentual >= 0),
+    margem_percentual REAL NOT NULL DEFAULT 0 CHECK (margem_percentual >= 0),
+    preco_manual REAL,
+    atualizado_em TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (produto_id) REFERENCES produtos(id) ON DELETE CASCADE
+  )`
 ];
 
 export async function onRequestPost({ request, env }) {
