@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/css/personalizar-3d.css?v=1.1">
+  <link rel="stylesheet" href="/css/personalizar-3d.css?v=1.2">
 </head>
 <body>
   <header class="custom-header"><a href="/loja" aria-label="Voltar à loja">← Loja</a><a class="logo" href="/"><img src="/assets/login.png" alt="BIRX Pets"></a><span>PERSONALIZE SUA BIRX ID</span></header>
@@ -41,15 +41,23 @@
 
       <div class="step"><span>03</span><div><small>PERSONALIZAÇÃO</small><h2>Nome do animal</h2></div></div>
       <label class="field">Nome<input id="petName" maxlength="12" value="THOR" autocomplete="off" placeholder="Ex.: THOR"></label>
-      <p style="margin:-4px 0 20px;color:#6d7481;font-size:.88rem;line-height:1.5">O símbolo original da BIRX permanece fixo. O nome substitui a área “BIRX / NFC” da frente.</p>
+      <p style="margin:-4px 0 20px;color:#6d7481;font-size:.88rem;line-height:1.5">O símbolo original da BIRX permanece fixo. O nome substitui a área “BIRX / NFC” da frente e usa a mesma cor escolhida para logo e letras.</p>
 
       <div class="technical-note"><strong>Modelo real de fabricação</strong><p>O configurador usa as peças separadas do arquivo 3MF da própria BIRX ID. O verso com SCAN, QR Code e NFC permanece como no modelo original.</p></div>
 
       <div class="custom-summary"><div><span>Tamanho</span><strong>3 × 3 cm</strong></div><div><span>Cor da peça</span><strong id="sumColor">Preto</strong></div><div><span>Logo e letras</span><strong id="sumDetailColor">Branco</strong></div><div><span>Nome</span><strong id="sumName">THOR</strong></div></div>
-      <button id="addCustom" class="primary-action" type="button">Usar esta personalização →</button>
+
+      <div class="custom-price" aria-label="Preço da BIRX ID personalizada">
+        <div class="price-title"><span>BIRX ID PERSONALIZADA</span><strong>R$ 49,90</strong></div>
+        <div class="price-line"><span>BIRX ID</span><b>R$ 40,00</b></div>
+        <div class="price-line"><span>Personalização</span><b>+ R$ 9,90</b></div>
+        <p class="price-note">Preço inicial da versão personalizada. Futuramente, opções extras poderão alterar o valor.</p>
+      </div>
+
+      <button id="addCustom" class="primary-action" type="button">Usar esta personalização • R$ 49,90 →</button>
       <p id="customMessage" class="custom-message" hidden></p>
     </aside>
   </main>
-  <script type="module" src="/js/personalizar-3d.js?v=1.9"></script>
+  <script type="module" src="/js/personalizar-3d.js?v=2.0"></script>
 </body>
 </html>
