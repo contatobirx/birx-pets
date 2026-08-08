@@ -11,6 +11,11 @@ async function getComposition(env, produtoId) {
   return result.results || [];
 }
 
+async function getExtraCost(env, produtoId) {
+  const cfg = await env.DB.prepare(`SELECT custo_extra FROM produto_precificacao WHERE produto_id=?`).bind(produtoId).first();
+  return number(cfg?.custo_extra);
+}
+
 export async function onRequestGet({ request, env }) {
   if (!(await authorized(request, env))) return unauthorized(env);
   const url = new URL(request.url);
@@ -19,10 +24,12 @@ export async function onRequestGet({ request, env }) {
     const produto = await env.DB.prepare(`SELECT id,nome,estoque,custo,preco_venda FROM produtos WHERE id=? AND ativo=1`).bind(produtoId).first();
     if (!produto) return json({ sucesso: false, mensagem: "Produto não encontrado." }, 404);
     const composicao = await getComposition(env, produtoId);
+    const custoExtra = await getExtraCost(env, produtoId);
+    const custoMateriais = composicao.reduce((sum, item) => sum + number(item.quantidade_unitaria) * number(item.custo_medio), 0);
     const capacidade = composicao.length
       ? Math.floor(Math.min(...composicao.map((item) => number(item.estoque) / number(item.quantidade_unitaria))))
       : 0;
-    return json({ sucesso: true, produto, composicao, capacidade });
+    return json({ sucesso: true, produto, composicao, capacidade, custo_materiais: custoMateriais, custo_extra: custoExtra, custo_unitario: custoMateriais + custoExtra });
   }
 
   const result = await env.DB.prepare(`
@@ -58,7 +65,9 @@ export async function onRequestPost({ request, env }) {
     }
   }
 
-  const custoUnitario = composicao.reduce((sum, item) => sum + number(item.quantidade_unitaria) * number(item.custo_medio), 0);
+  const custoMateriais = composicao.reduce((sum, item) => sum + number(item.quantidade_unitaria) * number(item.custo_medio), 0);
+  const custoExtra = await getExtraCost(env, produtoId);
+  const custoUnitario = custoMateriais + custoExtra;
   const custoTotal = custoUnitario * quantidade;
   const observacoes = clean(body.observacoes, 800);
 
