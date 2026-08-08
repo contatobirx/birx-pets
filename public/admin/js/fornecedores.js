@@ -19,24 +19,7 @@
     $("vazio").hidden = rows.length > 0;
   }
 
-  async function load() {
-    const data = await ui.api('/api/fornecedores');
-    state.fornecedores = data.fornecedores || [];
-    render();
-  }
-
-  async function enter(key) {
-    ui.setKey(key);
-    try {
-      await load();
-      acesso.hidden = true;
-      painel.hidden = false;
-      $("novoFornecedor").hidden = false;
-    } catch (e) {
-      ui.clearKey();
-      ui.feedback($("mensagemAcesso"), e.message, true);
-    }
-  }
+  async function load() { const data = await ui.api('/api/fornecedores'); state.fornecedores = data.fornecedores || []; render(); }
 
   function open(f = null) {
     form.reset();
@@ -48,12 +31,8 @@
     document.body.style.overflow = 'hidden';
   }
 
-  function close() {
-    modal.hidden = true;
-    document.body.style.overflow = '';
-  }
+  function close() { modal.hidden = true; document.body.style.overflow = ''; }
 
-  $("formAcesso").addEventListener('submit', (e) => { e.preventDefault(); enter($("chave").value); });
   $("novoFornecedor").addEventListener('click', () => open());
   $("busca").addEventListener('input', render);
   document.querySelectorAll('[data-fechar]').forEach((el) => el.addEventListener('click', close));
@@ -65,38 +44,23 @@
     if (!del) return;
     const f = state.fornecedores.find((x) => String(x.id) === del.dataset.delete);
     if (!f || !confirm(`Arquivar ${f.nome}? O histórico de compras será preservado.`)) return;
-    try {
-      await ui.api(`/api/fornecedores?id=${f.id}`, { method: 'DELETE' });
-      await load();
-      ui.feedback($("mensagem"), 'Fornecedor arquivado.');
-    } catch (err) {
-      ui.feedback($("mensagem"), err.message, true);
-    }
+    try { await ui.api(`/api/fornecedores?id=${f.id}`, { method: 'DELETE' }); await load(); ui.feedback($("mensagem"), 'Fornecedor arquivado.'); }
+    catch (err) { ui.feedback($("mensagem"), err.message, true); }
   });
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
     const id = $("id").value;
-    const payload = {
-      id: id || undefined,
-      nome: $("nome").value,
-      cnpj: $("cnpj").value,
-      contato: $("contato").value,
-      telefone: $("telefone").value,
-      whatsapp: $("whatsapp").value,
-      email: $("email").value,
-      site: $("site").value,
-      observacoes: $("observacoes").value,
-    };
-    try {
-      await ui.api('/api/fornecedores', { method: id ? 'PUT' : 'POST', body: JSON.stringify(payload) });
-      close();
-      await load();
-      ui.feedback($("mensagem"), id ? 'Fornecedor atualizado.' : 'Fornecedor cadastrado.');
-    } catch (err) {
-      ui.feedback($("mensagemModal"), err.message, true);
-    }
+    const payload = { id: id || undefined, nome: $("nome").value, cnpj: $("cnpj").value, contato: $("contato").value, telefone: $("telefone").value, whatsapp: $("whatsapp").value, email: $("email").value, site: $("site").value, observacoes: $("observacoes").value };
+    try { await ui.api('/api/fornecedores', { method: id ? 'PUT' : 'POST', body: JSON.stringify(payload) }); close(); await load(); ui.feedback($("mensagem"), id ? 'Fornecedor atualizado.' : 'Fornecedor cadastrado.'); }
+    catch (err) { ui.feedback($("mensagemModal"), err.message, true); }
   });
 
-  if (ui.getKey()) enter(ui.getKey());
+  (async () => {
+    acesso.hidden = true;
+    $("novoFornecedor").hidden = true;
+    if (!(await ui.requireAuth())) return;
+    try { await load(); painel.hidden = false; $("novoFornecedor").hidden = false; }
+    catch (e) { ui.feedback($("mensagem"), e.message, true); }
+  })();
 })();
