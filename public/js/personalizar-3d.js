@@ -9,6 +9,7 @@ const state={shape:'redonda',sizeMm:30,color:'#151515',colorName:'Preto',name:'T
 const holder=$('viewer3d');
 let scene,camera,renderer,controls,root,modelRoot,nameMesh,font=null,originalTextBox=null;
 let bodyMeshes=[],detailMeshes=[];
+let lastWidth=0,lastHeight=0,resizeFrame=0;
 
 function showLoadError(message){const loading=$('viewerLoading');if(loading){loading.textContent=message||'Não foi possível carregar a visualização 3D.';loading.style.color='#b42318'}}
 function parseTransform(value){const a=String(value||'1 0 0 0 1 0 0 0 1 0 0 0').trim().split(/\s+/).map(Number);return a.length===12?a:[1,0,0,0,1,0,0,0,1,0,0,0]}
@@ -88,7 +89,21 @@ async function rebuildName(){
 
 function updateColor(){for(const mesh of bodyMeshes){const mats=Array.isArray(mesh.material)?mesh.material:[mesh.material];for(const m of mats)m?.color?.set(state.color)}updateSummary()}
 function updateSummary(){$('sumColor').textContent=state.colorName;$('sumName').textContent=(state.name||'PET').toUpperCase()}
-function resize(){const w=Math.max(holder.clientWidth,320),h=Math.max(holder.clientHeight,360);renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix()}
+function resizeNow(){
+  if(!renderer||!camera||!holder)return;
+  const rect=holder.getBoundingClientRect();
+  const w=Math.max(1,Math.round(rect.width));
+  const h=Math.max(1,Math.round(rect.height));
+  if(w===lastWidth&&h===lastHeight)return;
+  lastWidth=w;lastHeight=h;
+  renderer.setSize(w,h,false);
+  camera.aspect=w/h;
+  camera.updateProjectionMatrix();
+}
+function scheduleResize(){
+  if(resizeFrame)return;
+  resizeFrame=requestAnimationFrame(()=>{resizeFrame=0;resizeNow()});
+}
 function animate(){requestAnimationFrame(animate);controls.update();renderer.render(scene,camera)}
 
 async function loadRealModel(){
@@ -105,7 +120,9 @@ try{
   renderer=new THREE.WebGLRenderer({antialias:true,alpha:true,preserveDrawingBuffer:true});renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.shadowMap.enabled=true;holder.appendChild(renderer.domElement);
   controls=new OrbitControls(camera,renderer.domElement);controls.enableDamping=true;controls.minDistance=3.5;controls.maxDistance=11;controls.target.set(0,.12,0);
   scene.add(new THREE.HemisphereLight(0xffffff,0x667188,2.5));const key=new THREE.DirectionalLight(0xffffff,4.1);key.position.set(4,5,7);scene.add(key);const fill=new THREE.DirectionalLight(0xc8d8ff,1.4);fill.position.set(-5,2,3);scene.add(fill);
-  root=new THREE.Group();root.rotation.x=-.08;scene.add(root);new ResizeObserver(resize).observe(holder);resize();animate();loadRealModel();
+  root=new THREE.Group();root.rotation.x=-.08;scene.add(root);
+  const observer=new ResizeObserver(scheduleResize);observer.observe(holder);window.addEventListener('resize',scheduleResize,{passive:true});
+  resizeNow();animate();loadRealModel();
   document.querySelectorAll('[data-color]').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('[data-color]').forEach(x=>x.classList.toggle('selected',x===b));state.color=b.dataset.color;state.colorName=b.dataset.name;updateColor()}));
   $('petName').addEventListener('input',e=>{state.name=e.target.value.replace(/[^A-Za-zÀ-ÿ0-9 -]/g,'').slice(0,12);e.target.value=state.name;rebuildName().catch(console.error)});
   document.querySelectorAll('[data-view]').forEach(b=>b.addEventListener('click',()=>{const v=b.dataset.view;if(v==='back')root.rotation.set(-.08,Math.PI,0);else root.rotation.set(-.08,0,0);camera.position.set(0,.12,7.2);controls.target.set(0,.12,0);controls.update()}));
