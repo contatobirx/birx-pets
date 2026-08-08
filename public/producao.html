@@ -34,7 +34,7 @@
       <section class="hero card"><div><span class="etiqueta">SPRINT 2.6</span><h2>Central de produção</h2><p>Selecione um lote e gere os arquivos corretos para impressão e conferência.</p></div><button id="atualizarLotes" class="secundario" type="button">Atualizar lotes</button></section>
 
       <section class="card configuracao">
-        <div class="campo-lote"><label for="lote">Lote</label><select id="lote" required><option value="">Carregando lotes...</option></select><small>O seletor mostra primeiro quantas tags ainda estão em estoque; o total do lote aparece entre parênteses.</small></div>
+        <div class="campo-lote"><label for="lote">Lote</label><select id="lote" required><option value="">Carregando lotes...</option></select><small>O seletor inclui também as tags antigas que ainda não possuem lote.</small></div>
         <div id="resumoLote" class="resumo-lote" hidden>
           <div><b id="quantidadeEstoque">0</b><span>Em estoque</span></div>
           <div><b id="quantidadeLote">0</b><span>Total do lote</span></div>
@@ -59,6 +59,6 @@
 
   <section id="areaImpressao" class="area-impressao" aria-hidden="true"></section>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-  <script src="/js/producao.js?v=1.6"></script>
+  <script src="/js/producao.js?v=1.7"></script>
 </body>
 </html>
