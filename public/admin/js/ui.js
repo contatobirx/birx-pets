@@ -1,11 +1,12 @@
 window.BirxAdmin = (() => {
   const keyName = "orbitek_tag_admin";
+  const schemaKey = "birx_admin_schema_ready";
   const money = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
   const qty = new Intl.NumberFormat("pt-BR", { maximumFractionDigits: 2 });
   const escapeHtml = (value) => String(value ?? "").replace(/[&<>'"]/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;" }[char]));
   const getKey = () => sessionStorage.getItem(keyName) || "";
-  const setKey = (value) => sessionStorage.setItem(keyName, String(value || "").trim());
-  const clearKey = () => sessionStorage.removeItem(keyName);
+  const setKey = (value) => { sessionStorage.setItem(keyName, String(value || "").trim()); sessionStorage.removeItem(schemaKey); };
+  const clearKey = () => { sessionStorage.removeItem(keyName); sessionStorage.removeItem(schemaKey); };
 
   async function api(url, options = {}) {
     const response = await fetch(url, {
@@ -20,10 +21,24 @@ window.BirxAdmin = (() => {
     return data;
   }
 
+  async function ensureSchema() {
+    if (sessionStorage.getItem(schemaKey) === "1") return true;
+    await api('/api/admin-migrate', { method: 'POST', body: '{}' });
+    sessionStorage.setItem(schemaKey, "1");
+    return true;
+  }
+
   async function requireAuth() {
-    if (getKey()) return true;
-    location.href = '/admin/login.html';
-    return false;
+    if (!getKey()) {
+      location.href = '/admin/login.html';
+      return false;
+    }
+    try {
+      await ensureSchema();
+      return true;
+    } catch {
+      return false;
+    }
   }
 
   function logout() {
@@ -38,5 +53,5 @@ window.BirxAdmin = (() => {
     el.hidden = false;
   }
 
-  return { money, qty, escapeHtml, getKey, setKey, clearKey, api, requireAuth, logout, feedback };
+  return { money, qty, escapeHtml, getKey, setKey, clearKey, api, ensureSchema, requireAuth, logout, feedback };
 })();
