@@ -20,6 +20,9 @@ async function ensureModelColumns(env) {
   if (!cols.has("r2_etag")) alters.push(`ALTER TABLE modelos_3d ADD COLUMN r2_etag TEXT`);
   if (!cols.has("arquivo_tamanho")) alters.push(`ALTER TABLE modelos_3d ADD COLUMN arquivo_tamanho INTEGER NOT NULL DEFAULT 0`);
   if (!cols.has("preview_r2_key")) alters.push(`ALTER TABLE modelos_3d ADD COLUMN preview_r2_key TEXT`);
+  if (!cols.has("cor_recomendada")) alters.push(`ALTER TABLE modelos_3d ADD COLUMN cor_recomendada TEXT`);
+  if (!cols.has("changelog")) alters.push(`ALTER TABLE modelos_3d ADD COLUMN changelog TEXT`);
+  if (!cols.has("principal")) alters.push(`ALTER TABLE modelos_3d ADD COLUMN principal INTEGER NOT NULL DEFAULT 0`);
   for (const sql of alters) await env.DB.prepare(sql).run();
 }
 
@@ -36,6 +39,9 @@ const statements = [
     impressora TEXT,
     bico_mm REAL,
     material_tipo TEXT,
+    cor_recomendada TEXT,
+    changelog TEXT,
+    principal INTEGER NOT NULL DEFAULT 0 CHECK (principal IN (0,1)),
     observacoes TEXT,
     r2_key TEXT,
     r2_etag TEXT,
@@ -47,6 +53,7 @@ const statements = [
     FOREIGN KEY (produto_id) REFERENCES produtos(id) ON DELETE CASCADE
   )`,
   `CREATE INDEX IF NOT EXISTS idx_modelos3d_produto ON modelos_3d(produto_id, ativo)`,
+  `CREATE INDEX IF NOT EXISTS idx_modelos3d_principal ON modelos_3d(produto_id, principal, ativo)`,
   `CREATE TABLE IF NOT EXISTS impressoras_3d (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     nome TEXT NOT NULL,
