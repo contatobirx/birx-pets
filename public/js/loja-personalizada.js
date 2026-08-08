@@ -5,7 +5,7 @@
   if(!grid)return;
   const getConfig=()=>{try{return JSON.parse(localStorage.getItem(KEY)||'null')}catch{return null}};
   const clearConfig=()=>{try{localStorage.removeItem(KEY)}catch{}};
-  const summary=c=>c?`BIRX ID PERSONALIZADA — Modelo: ${c.shape||'redonda'}; Cor: ${c.colorName||''}; Nome: ${(c.name||'PET').toUpperCase()}; Ícone: ${c.icon||'🐾'}; Estilo: ${c.font||'forte'}.`:'';
+  const summary=c=>c?`BIRX ID PERSONALIZADA — 30 mm; Corpo: ${c.colorName||''}; Logo/letras: ${c.detailColorName||''}; Nome: ${(c.name||'PET').toUpperCase()}; Valor personalizado: ${c.precoFinal||'R$ 49,90'}.`:'';
   function customCard(){return [...grid.querySelectorAll('.product-card')].find(card=>/personaliz/i.test(card.textContent||''))||null}
   function decorate(){
     const card=customCard();if(!card)return false;
@@ -13,7 +13,7 @@
     const cfg=getConfig();
     btn.textContent=cfg?'Adicionar personalizada':'Personalizar em 3D';
     btn.dataset.birxPersonalizada='1';
-    if(!card.querySelector('.custom-3d-hint')){const p=document.createElement('p');p.className='custom-3d-hint';p.style.cssText='margin:10px 0 0;font-size:.78rem;color:#5f6f89;font-weight:700';p.textContent='Visualize em 3D, escolha formato, cor, nome e ícone.';btn.closest('.product-buy')?.insertAdjacentElement('beforebegin',p)}
+    if(!card.querySelector('.custom-3d-hint')){const p=document.createElement('p');p.className='custom-3d-hint';p.style.cssText='margin:10px 0 0;font-size:.78rem;color:#5f6f89;font-weight:700';p.textContent='Visualize em 3D, escolha as cores e coloque o nome do seu pet.';btn.closest('.product-buy')?.insertAdjacentElement('beforebegin',p)}
     if(cfg&&!card.dataset.autoAdded){card.dataset.autoAdded='1';setTimeout(()=>btn.click(),80)}
     return true;
   }
