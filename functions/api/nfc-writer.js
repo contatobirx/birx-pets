@@ -42,6 +42,21 @@ async function credentials(env,tag){
   if(!/^[0-9A-F]{8}$/.test(pwd)||!/^[0-9A-F]{4}$/.test(pack))throw new Error('NFC_SECRET_INVALID');
   return{pwd,pack};
 }
+async function prepareTag(env,tag){
+  await key(env);
+  let pwd,pack;
+  if(tag.nfc_secret){
+    const saved=await credentials(env,tag);pwd=saved.pwd;pack=saved.pack;
+  }else{
+    pwd=hex(crypto.getRandomValues(new Uint8Array(4)));
+    pack=hex(crypto.getRandomValues(new Uint8Array(2)));
+    const secret=await encrypt(env,JSON.stringify({pwd,pack}));
+    await env.DB.prepare('UPDATE tags SET nfc_secret=? WHERE id=? AND nfc_secret IS NULL').bind(secret,tag.id).run();
+    const current=await env.DB.prepare('SELECT nfc_secret FROM tags WHERE id=?').bind(tag.id).first();
+    if(current?.nfc_secret!==secret){const saved=await credentials(env,current);pwd=saved.pwd;pack=saved.pack;}
+  }
+  return{sucesso:true,codigo:tag.codigo,url:`https://pets.birx.com.br/q/${encodeURIComponent(tag.codigo)}`,pwd,pack,modelo:tag.modelo||'nfc',lote:tag.lote||''};
+}
 
 export async function onRequestPost({request,env}){
   if(!env.GRAVADORA_API_TOKEN)return json({sucesso:false,mensagem:'Configure GRAVADORA_API_TOKEN na Cloudflare.'},503);
@@ -52,11 +67,23 @@ export async function onRequestPost({request,env}){
     const acao=clean(body.acao,30);
 
     if(acao==='status'){
-      return json({sucesso:true,device:'BIRX-NFC-WIFI',api:'1.1'});
+      return json({sucesso:true,device:'BIRX-NFC-WIFI',api:'1.2'});
+    }
+
+    if(acao==='buscar-codigo'){
+      const codigo=clean(body.codigo,40).toUpperCase();
+      if(!codigo||!/^BIRX-\d{2}-\d+$/.test(codigo))return json({sucesso:false,mensagem:'Código BIRX inválido.'},400);
+      const tag=await env.DB.prepare(`SELECT id,codigo,modelo,lote,nfc_secret,nfc_uid,nfc_protegida_em,
+        COALESCE(preparo_status,'estoque') AS preparo_status,COALESCE(ativada,0) AS ativada
+        FROM tags WHERE codigo=? LIMIT 1`).bind(codigo).first();
+      if(!tag)return json({sucesso:false,mensagem:'Tag não encontrada.'},404);
+      if(Number(tag.ativada)===1)return json({sucesso:false,mensagem:'Esta tag já foi ativada.'},409);
+      if(tag.preparo_status!=='estoque')return json({sucesso:false,mensagem:`${codigo} não está disponível em estoque. Status: ${tag.preparo_status}.`},409);
+      if(!['nfc','nfc-identificacao'].includes(tag.modelo||'nfc'))return json({sucesso:false,mensagem:'Este código não pertence a uma Birx ID NFC.'},409);
+      return json(await prepareTag(env,tag));
     }
 
     if(acao==='proxima'){
-      await key(env);
       const tag=await env.DB.prepare(`SELECT id,codigo,modelo,lote,nfc_secret,nfc_uid,nfc_protegida_em,
         COALESCE(preparo_status,'estoque') AS preparo_status
         FROM tags
@@ -65,20 +92,7 @@ export async function onRequestPost({request,env}){
           AND COALESCE(modelo,'nfc') IN ('nfc','nfc-identificacao')
         ORDER BY id ASC LIMIT 1`).first();
       if(!tag)return json({sucesso:false,mensagem:'Nenhuma tag NFC disponível em estoque.'},404);
-
-      let pwd,pack;
-      if(tag.nfc_secret){
-        const saved=await credentials(env,tag);pwd=saved.pwd;pack=saved.pack;
-      }else{
-        pwd=hex(crypto.getRandomValues(new Uint8Array(4)));
-        pack=hex(crypto.getRandomValues(new Uint8Array(2)));
-        const secret=await encrypt(env,JSON.stringify({pwd,pack}));
-        await env.DB.prepare('UPDATE tags SET nfc_secret=? WHERE id=? AND nfc_secret IS NULL').bind(secret,tag.id).run();
-        const current=await env.DB.prepare('SELECT nfc_secret FROM tags WHERE id=?').bind(tag.id).first();
-        if(current?.nfc_secret!==secret){const saved=await credentials(env,current);pwd=saved.pwd;pack=saved.pack;}
-      }
-
-      return json({sucesso:true,codigo:tag.codigo,url:`https://pets.birx.com.br/q/${encodeURIComponent(tag.codigo)}`,pwd,pack,modelo:tag.modelo||'nfc',lote:tag.lote||''});
+      return json(await prepareTag(env,tag));
     }
 
     if(acao==='confirmar'){
