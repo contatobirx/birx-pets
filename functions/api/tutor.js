@@ -10,6 +10,15 @@ function json(dados, status = 200) {
   });
 }
 
+function emailCanonico(valor) {
+  return String(valor || "")
+    .trim()
+    .toLowerCase()
+    .replace(/[\s\u00a0\u200b]+/g, "");
+}
+
+const EMAIL_SQL = `LOWER(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(TRIM(email), ' ', ''), char(9), ''), char(10), ''), char(13), ''), char(160), ''), char(8203), ''))`;
+
 export async function onRequestGet(context) {
   try {
     const { request, env } = context;
@@ -23,8 +32,11 @@ export async function onRequestGet(context) {
       }, 401);
     }
 
+    const email = emailCanonico(sessao.email);
+
     const pets = await env.DB.prepare(`
       SELECT
+        id,
         tag_codigo,
         nome,
         especie,
@@ -44,13 +56,25 @@ export async function onRequestGet(context) {
         status,
         foto_url
       FROM pets
-      WHERE LOWER(TRIM(email)) = LOWER(TRIM(?))
-      ORDER BY data_cadastro DESC
+      WHERE ${EMAIL_SQL} = ?
+      ORDER BY data_cadastro DESC, id DESC
     `)
-      .bind(sessao.email)
+      .bind(email)
       .all();
 
     const resultados = pets.results || [];
+
+    // Corrige silenciosamente cadastros antigos com espaços/caracteres invisíveis no e-mail.
+    if (resultados.some((pet) => String(pet.email || "") !== email)) {
+      await env.DB.prepare(`
+        UPDATE pets
+        SET email = ?
+        WHERE ${EMAIL_SQL} = ?
+      `).bind(email, email).run().catch((erro) => {
+        console.error("Não foi possível normalizar e-mail legado do tutor:", erro);
+      });
+    }
+
     const lista = resultados.map((pet) => ({
       tagCodigo: pet.tag_codigo,
       nome: pet.nome,
@@ -64,7 +88,7 @@ export async function onRequestGet(context) {
       fotoUrl: pet.foto_url,
       tutor: {
         nome: pet.nome_tutor || "",
-        email: String(pet.email || sessao.email).trim(),
+        email,
         whatsapp: pet.whatsapp || "",
       },
       localizacao: {
@@ -80,7 +104,7 @@ export async function onRequestGet(context) {
       autenticado: true,
       tutor: {
         nome: resultados[0]?.nome_tutor || "",
-        email: sessao.email,
+        email,
         whatsapp: resultados[0]?.whatsapp || "",
       },
       pets: lista,
