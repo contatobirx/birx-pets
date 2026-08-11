@@ -1,0 +1,1 @@
+document.addEventListener('click',function(event){const button=event.target.closest('[data-birx-nav-toggle]');if(!button)return;const nav=button.closest('.birx-public-nav');const open=nav.classList.toggle('is-open');button.setAttribute('aria-expanded',String(open));button.setAttribute('aria-label',open?'Fechar menu':'Abrir menu')});
