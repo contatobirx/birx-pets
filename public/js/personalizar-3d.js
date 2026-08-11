@@ -10,10 +10,11 @@ const holder=$('viewer3d');
 let scene,camera,renderer,controls,root,modelRoot,nameMesh,font=null,modelDisplayBox=null;
 let bodyMeshes=[],detailMeshes=[];
 let lastWidth=0,lastHeight=0,resizeFrame=0,currentView='front';
+const WHATSAPP_BIRX='5541988315017';
 
 function showLoadError(message){const loading=$('viewerLoading');if(loading){loading.textContent=message||'Não foi possível carregar a visualização 3D.';loading.style.color='#b42318'}}
 function parseTransform(value){const a=String(value||'1 0 0 0 1 0 0 0 1 0 0 0').trim().split(/\s+/).map(Number);return a.length===12?a:[1,0,0,0,1,0,0,0,1,0,0,0]}
-function transformPoint(v,t){const[a,b,c,d,e,f,g,h,i,j,k,l]=t,[x,y,z]=v;return[a*x+d*y+g*z+j,b*x+e*y+h*z+k,c*x+f*y+i*z+l]}
+function transformPoint(v,t){const[a,b,c,d,e,f,g,h,i,j,k,l]=t,[x,y,z]=v;return[a*x+d*y+g*z+j,b*x+e*y+h*y+0,c*x+f*y+i*z+l]}
 function cleanPath(path){return String(path||'').replace(/^\//,'')}
 
 function geometryFromXml(xml,componentTransform,buildTransform,filter){
@@ -123,6 +124,62 @@ function fitView(view='front'){
 function resizeNow(){if(!renderer||!camera||!holder)return;const rect=holder.getBoundingClientRect(),w=Math.max(1,Math.round(rect.width)),h=Math.max(1,Math.round(rect.height));if(w===lastWidth&&h===lastHeight)return;lastWidth=w;lastHeight=h;renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix();if(modelRoot)fitView(currentView)}
 function scheduleResize(){if(resizeFrame)return;resizeFrame=requestAnimationFrame(()=>{resizeFrame=0;resizeNow()})}
 function animate(){requestAnimationFrame(animate);controls.update();renderer.render(scene,camera)}
+function esperarQuadros(qtd=2){return new Promise(resolve=>{const passo=()=>{if(--qtd<=0)return resolve();requestAnimationFrame(passo)};requestAnimationFrame(passo)})}
+function canvasBlob(){return new Promise((resolve,reject)=>renderer.domElement.toBlob(blob=>blob?resolve(blob):reject(new Error('Não foi possível gerar a imagem da BIRX ID.')),'image/png',.96))}
+
+async function enviarPrevia(blob){
+  const form=new FormData();form.append('imagem',blob,'birx-id-personalizada.png');form.append('nome',(state.name||'PET').toUpperCase());
+  const resposta=await fetch('/api/personalizacao-preview',{method:'POST',body:form});
+  const dados=await resposta.json().catch(()=>({}));
+  if(!resposta.ok||!dados.sucesso||!dados.url)throw new Error(dados.mensagem||'Não foi possível gerar a prévia do pedido.');
+  return dados.url;
+}
+
+function montarMensagemWhatsApp(previewUrl){
+  const nome=(state.name||'PET').toUpperCase();
+  return [
+    'Olá! Montei uma BIRX ID personalizada pelo site e quero fazer o pedido. 🐾',
+    '',
+    `Nome: ${nome}`,
+    `Cor da peça: ${state.colorName}`,
+    `Logo e letras: ${state.detailColorName}`,
+    'Tamanho: 30 × 30 mm',
+    'Valor: R$ 49,90',
+    '',
+    'Prévia frontal da minha BIRX ID:',
+    previewUrl,
+    '',
+    'Podem me ajudar a finalizar o pedido?'
+  ].join('\n');
+}
+
+async function finalizarNoWhatsApp(){
+  const botao=$('addCustom'),mensagem=$('customMessage');
+  const nome=(state.name||'').trim();
+  if(!nome){mensagem.textContent='Digite o nome do pet antes de finalizar.';mensagem.hidden=false;$('petName').focus();return}
+  if(!renderer||!modelRoot){mensagem.textContent='Aguarde o modelo da BIRX ID terminar de carregar.';mensagem.hidden=false;return}
+
+  const janela=window.open('about:blank','_blank');
+  const textoOriginal=botao.textContent;
+  botao.disabled=true;botao.textContent='Gerando sua prévia…';mensagem.textContent='Preparando a imagem frontal da sua BIRX ID…';mensagem.hidden=false;
+
+  try{
+    fitView('front');await esperarQuadros(3);renderer.render(scene,camera);
+    const blob=await canvasBlob();
+    botao.textContent='Abrindo WhatsApp…';
+    const previewUrl=await enviarPrevia(blob);
+    const payload={...state,modeloBase:'Separados.3mf',frente:'logo-original+nome-personalizado',verso:'original',previewUrl,criadoEm:new Date().toISOString()};
+    try{localStorage.setItem('birx_personalizacao_pendente',JSON.stringify(payload))}catch{}
+    const whatsapp=`https://wa.me/${WHATSAPP_BIRX}?text=${encodeURIComponent(montarMensagemWhatsApp(previewUrl))}`;
+    mensagem.textContent='Pronto! Abrindo o WhatsApp da BIRX com sua personalização.';
+    if(janela&&!janela.closed)janela.location.href=whatsapp;else window.location.href=whatsapp;
+  }catch(error){
+    if(janela&&!janela.closed)janela.close();
+    console.error('Finalização da personalização',error);
+    mensagem.textContent=error.message||'Não foi possível preparar o pedido. Tente novamente.';
+    botao.disabled=false;botao.textContent=textoOriginal;
+  }
+}
 
 async function loadRealModel(){
   try{
@@ -145,5 +202,5 @@ try{
   document.querySelectorAll('#detailColorGrid [data-detail-color]').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('#detailColorGrid [data-detail-color]').forEach(x=>x.classList.toggle('selected',x===b));state.detailColor=b.dataset.detailColor;state.detailColorName=b.dataset.name;updateDetailColor()}));
   $('petName').addEventListener('input',e=>{state.name=e.target.value.replace(/[^A-Za-zÀ-ÿ0-9 -]/g,'').slice(0,12);e.target.value=state.name;rebuildName().then(()=>fitView(currentView)).catch(console.error)});
   document.querySelectorAll('[data-view]').forEach(b=>b.addEventListener('click',()=>fitView(b.dataset.view==='back'?'back':'front')));
-  $('addCustom').addEventListener('click',()=>{const payload={...state,modeloBase:'Separados.3mf',frente:'logo-original+nome-personalizado',verso:'original',criadoEm:new Date().toISOString()};try{localStorage.setItem('birx_personalizacao_pendente',JSON.stringify(payload));$('customMessage').textContent='Personalização salva. Abrindo a loja…';$('customMessage').hidden=false;setTimeout(()=>location.href='/loja?personalizada=1',350)}catch{$('customMessage').textContent='Não foi possível salvar a personalização neste navegador.';$('customMessage').hidden=false}});
+  $('addCustom').addEventListener('click',finalizarNoWhatsApp);
 }catch(error){console.error('BIRX personalizador 3D',error);showLoadError('Não foi possível iniciar o visualizador 3D neste navegador.')}
