@@ -1,8 +1,10 @@
+import { adminAutorizado } from "../_lib/admin-auth.js";
+
 const HEADERS={"Content-Type":"application/json; charset=UTF-8","Cache-Control":"no-store"};
 const json=(body,status=200)=>new Response(JSON.stringify(body),{status,headers:HEADERS});
 const clean=(v,max=200)=>String(v??'').trim().slice(0,max);
 async function digest(v){return new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(v)))}
-async function authorized(request,env){const a=clean(request.headers.get('X-BIRX-Admin'),500),b=clean(env.TAG_ADMIN_TOKEN,500);if(!a||!b)return false;const[da,db]=await Promise.all([digest(a),digest(b)]);return da.length===db.length&&da.every((v,i)=>v===db[i])}
+async function authorized(request,env){return adminAutorizado(request,env)}
 async function key(env){const secret=clean(env.NFC_MASTER_KEY,1000);if(!secret)throw new Error('NFC_MASTER_KEY_NOT_CONFIGURED');return crypto.subtle.importKey('raw',await digest(secret),{name:'AES-GCM'},false,['encrypt','decrypt'])}
 const hex=bytes=>[...bytes].map(b=>b.toString(16).padStart(2,'0')).join('').toUpperCase();
 const unhex=s=>new Uint8Array((s.match(/../g)||[]).map(x=>parseInt(x,16)));
@@ -10,7 +12,7 @@ async function encrypt(env,text){const iv=crypto.getRandomValues(new Uint8Array(
 async function decrypt(env,value){const[ivHex,cipherHex]=String(value||'').split('.');if(!ivHex||!cipherHex)throw new Error('NFC_SECRET_INVALID');const plain=await crypto.subtle.decrypt({name:'AES-GCM',iv:unhex(ivHex)},await key(env),unhex(cipherHex));return new TextDecoder().decode(plain)}
 async function setup(env){const cols=await env.DB.prepare('PRAGMA table_info(tags)').all(),names=new Set((cols.results||[]).map(x=>x.name));for(const[name,type]of[['nfc_uid','TEXT'],['nfc_secret','TEXT'],['nfc_protegida_em','TEXT']])if(!names.has(name))await env.DB.prepare(`ALTER TABLE tags ADD COLUMN ${name} ${type}`).run()}
 export async function onRequestPost({request,env}){
-  if(!await authorized(request,env))return json({sucesso:false,mensagem:'Chave administrativa inválida.'},401);
+  if(!await authorized(request,env))return json({sucesso:false,autenticado:false,mensagem:env.TAG_ADMIN_TOKEN?'Sessão administrativa inválida ou expirada.':'Configure TAG_ADMIN_TOKEN na Cloudflare.'},401);
   try{
     await setup(env);
     const body=await request.json().catch(()=>({})),acao=clean(body.acao,30),codigo=clean(body.codigo,40).toUpperCase();
