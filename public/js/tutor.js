@@ -158,14 +158,48 @@ const estado = {
   formularioInicial: "",
   formularioAlterado: false,
   enviandoFoto: false,
-  urlPreviewFoto: "",
-  registrosSaude: [],
-  carregandoSaude: false,
+  previewFotoUrl: "",
   salvandoSaude: false,
-  documentos: [],
-  carregandoDocumentos: false,
+  saudeRegistros: [],
+  petSaude: null,
   salvandoDocumento: false,
+  documentos: [],
+  petDocumentos: null,
 };
+
+function dadosPet(pet) {
+  const tutor = pet?.tutor || {};
+  const localizacao = pet?.localizacao || {};
+
+  return {
+    tagCodigo: pet?.tagCodigo || pet?.tag_codigo || "",
+    nome: pet?.nome || "",
+    especie: pet?.especie || "",
+    raca: pet?.raca || "",
+    sexo: pet?.sexo || "",
+    idade: pet?.idade || "",
+    comportamento: pet?.comportamento || "",
+    perdido: pet?.perdido === true || pet?.perdido === 1 || pet?.perdido === "1",
+    publicoPerdidos: pet?.publicoPerdidos === true || pet?.publicoPerdidos === 1 || pet?.publico_perdidos === 1,
+    fotoUrl: pet?.fotoUrl || pet?.foto_url || "",
+    tutor: {
+      nome: tutor?.nome || pet?.nome_tutor || "",
+      whatsapp: tutor?.whatsapp || pet?.whatsapp || "",
+      email: tutor?.email || pet?.email || "",
+    },
+    localizacao: {
+      cep: localizacao?.cep || pet?.cep || "",
+      logradouro: localizacao?.logradouro || pet?.logradouro || "",
+      cidade: localizacao?.cidade || pet?.cidade || "",
+      estado: localizacao?.estado || pet?.estado || "",
+    },
+  };
+}
+
+function formatarTexto(valor, fallback = "Não informado") {
+  const texto = String(valor ?? "").trim();
+  return texto || fallback;
+}
 
 function escaparHtml(valor) {
   return String(valor ?? "")
@@ -176,1822 +210,212 @@ function escaparHtml(valor) {
     .replaceAll("'", "&#039;");
 }
 
-function formatarTexto(valor, fallback = "Não informado") {
-  const texto = String(valor ?? "").trim();
-  return texto || fallback;
+function normalizarWhatsapp(valor) {
+  return String(valor || "").replace(/\D/g, "");
 }
 
-function somenteNumeros(valor) {
-  return String(valor ?? "").replace(/\D/g, "");
+function normalizarEmail(valor) {
+  return String(valor || "").trim().toLowerCase();
+}
+
+function normalizarCep(valor) {
+  return String(valor || "").replace(/\D/g, "");
+}
+
+function emailValido(email) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
 function petFemea(pet) {
-  const sexo = String(pet?.sexo ?? "").trim().toLocaleLowerCase("pt-BR");
-  return sexo.includes("fêmea") || sexo.includes("femea") || sexo.includes("femin");
-}
-
-function valorPet(pet, camel, snake = camel) {
-  return pet?.[camel] ?? pet?.[snake] ?? "";
-}
-
-function dadosPet(pet) {
-  const local = pet?.localizacao ?? {};
-  const tutor = pet?.tutor ?? {};
-
-  return {
-    tagCodigo: valorPet(pet, "tagCodigo", "tag_codigo"),
-    nome: valorPet(pet, "nome"),
-    especie: valorPet(pet, "especie"),
-    raca: valorPet(pet, "raca"),
-    sexo: valorPet(pet, "sexo"),
-    idade: valorPet(pet, "idade"),
-    comportamento: valorPet(pet, "comportamento"),
-    nomeTutor: tutor.nome ?? valorPet(pet, "nomeTutor", "nome_tutor"),
-    whatsapp: tutor.whatsapp ?? valorPet(pet, "whatsapp"),
-    email: tutor.email ?? valorPet(pet, "email"),
-    cep: local.cep ?? valorPet(pet, "cep"),
-    logradouro: local.logradouro ?? local.endereco ?? valorPet(pet, "logradouro"),
-    cidade: local.cidade ?? valorPet(pet, "cidade"),
-    estado: local.estado ?? valorPet(pet, "estado"),
-    perdido: Boolean(pet?.perdido),
-    publicoPerdidos: Boolean(pet?.publicoPerdidos ?? pet?.publico_perdidos),
-    fotoUrl: valorPet(pet, "fotoUrl", "foto_url"),
-  };
+  const sexo = String(pet?.sexo || "").trim().toLowerCase();
+  return sexo === "fêmea" || sexo === "femea" || sexo === "female";
 }
 
 function petAtivo() {
-  return estado.pets.find((item) => String(dadosPet(item).tagCodigo) === String(estado.petAtivoTag)) || estado.pets[0] || null;
+  if (!estado.pets.length) return null;
+  const atual = estado.pets.find((pet) => String(dadosPet(pet).tagCodigo) === String(estado.petAtivoTag));
+  return atual || estado.pets[0];
 }
 
 function prepararSeletorPetAtivo(pets) {
-  if (!pets.length) return;
-  if (!pets.some((item) => String(dadosPet(item).tagCodigo) === String(estado.petAtivoTag))) estado.petAtivoTag = dadosPet(pets[0]).tagCodigo;
-  localStorage.setItem("orbitek_pet_ativo", estado.petAtivoTag);
   if (!elementos.seletorPetAtivo) return;
-  elementos.seletorPetAtivo.innerHTML = pets.map((item) => {
-    const pet = dadosPet(item);
-    return `<option value="${escaparHtml(pet.tagCodigo)}" ${String(pet.tagCodigo) === String(estado.petAtivoTag) ? "selected" : ""}>${escaparHtml(formatarTexto(pet.nome, "Pet"))} • ${escaparHtml(pet.tagCodigo)}</option>`;
-  }).join("");
-  elementos.seletorPetAtivo.closest(".pet-ativo-controle")?.classList.toggle("unico", pets.length === 1);
-}
-
-function exibirMensagem(texto, tipo = "sucesso") {
-  if (window.BIRXUI?.notificar) {
-    window.BIRXUI.notificar(texto, tipo === "erro" ? "erro" : "sucesso");
-    return;
-  }
-
-  if (!elementos.mensagem) return;
-  elementos.mensagem.textContent = texto;
-  elementos.mensagem.className =
-    tipo === "erro"
-      ? "mensagem mensagem-erro"
-      : "mensagem mensagem-sucesso";
-}
-
-function definirCarregamento(ativo) {
-  if (!elementos.carregando) return;
-  elementos.carregando.hidden = !ativo;
-  elementos.carregando.style.display = ativo ? "grid" : "none";
-}
-
-function rolarAtePets() {
-  elementos.secaoMeusPets?.scrollIntoView({ behavior: "smooth", block: "start" });
-}
-
-function formatarDataCurta(valor) {
-  if (!valor) return "Cadastro recente";
-
-  const normalizado = String(valor).includes("T")
-    ? String(valor)
-    : `${String(valor).replace(" ", "T")}Z`;
-  const data = new Date(normalizado);
-
-  if (Number.isNaN(data.getTime())) return "Cadastro recente";
-
-  return new Intl.DateTimeFormat("pt-BR", {
-    day: "2-digit",
-    month: "short",
-  }).format(data);
-}
-
-function renderizarPetsRecentes(pets) {
-  if (!elementos.listaPetsRecentes) return;
-
   if (!pets.length) {
-    elementos.listaPetsRecentes.innerHTML = `
-      <div class="pet-recente">
-        <div class="pet-recente-sem-foto" aria-hidden="true">🐾</div>
-        <div class="pet-recente-info">
-          <strong>Nenhum pet cadastrado</strong>
-          <small>Ative uma tag para começar.</small>
-        </div>
-      </div>
-    `;
+    elementos.seletorPetAtivo.innerHTML = "";
     return;
   }
-
-  elementos.listaPetsRecentes.innerHTML = pets.map((petOriginal) => {
-    const pet = dadosPet(petOriginal);
-    const perfil = [pet.especie, pet.raca].filter(Boolean).join(" • ") || "Perfil não informado";
-    const foto = pet.fotoUrl
-      ? `<img class="pet-recente-foto" src="${escaparHtml(pet.fotoUrl)}" alt="Foto de ${escaparHtml(formatarTexto(pet.nome, "Pet"))}" loading="lazy">`
-      : `<div class="pet-recente-sem-foto" aria-hidden="true">🐶</div>`;
-
-    const dataCadastro = petOriginal.dataCadastro ?? petOriginal.data_cadastro;
-
-    return `
-      <button
-        class="pet-recente"
-        type="button"
-        data-acao="ver-perfil-recente"
-        data-tag="${escaparHtml(pet.tagCodigo)}"
-        aria-label="Abrir perfil de ${escaparHtml(formatarTexto(pet.nome, "Pet"))}"
-      >
-        ${foto}
-        <div class="pet-recente-info">
-          <strong>${escaparHtml(formatarTexto(pet.nome, "Pet"))}</strong>
-          <small>${escaparHtml(perfil)} · ${escaparHtml(formatarDataCurta(dataCadastro))}</small>
-        </div>
-        <span class="pet-recente-status ${pet.perdido ? "perdido" : "seguro"}">
-          ${pet.perdido ? `● ${petFemea(pet) ? "Perdida" : "Perdido"}` : `● ${petFemea(pet) ? "Segura" : "Seguro"}`}
-        </span>
-        <span class="pet-recente-seta" aria-hidden="true">›</span>
-      </button>
-    `;
+  const existe = pets.some((pet) => String(dadosPet(pet).tagCodigo) === String(estado.petAtivoTag));
+  if (!existe) estado.petAtivoTag = String(dadosPet(pets[0]).tagCodigo || "");
+  localStorage.setItem("orbitek_pet_ativo", estado.petAtivoTag);
+  elementos.seletorPetAtivo.innerHTML = pets.map((pet) => {
+    const d = dadosPet(pet);
+    return `<option value="${escaparHtml(d.tagCodigo)}"${String(d.tagCodigo) === String(estado.petAtivoTag) ? " selected" : ""}>${escaparHtml(d.nome || d.tagCodigo)}</option>`;
   }).join("");
 }
 
 function renderizarPainel2(pets, nomeTutor) {
-  if (!elementos.painel2 || !pets.length) return;
-
-  prepararSeletorPetAtivo(pets);
-  const original = petAtivo();
-  const pet = dadosPet(original);
-  const nomePet = formatarTexto(pet.nome, "Seu pet");
-  const perfil = [pet.especie, pet.raca].filter(Boolean).join(" • ") || "Complete o perfil do pet";
-
-  const estaPerdido = Boolean(pet.perdido);
-  const feminina = petFemea(pet);
-
-  elementos.boasVindasTitulo.textContent = estaPerdido
-    ? `${nomePet} está ${feminina ? "perdida" : "perdido"}`
-    : `${nomePet} está ${feminina ? "protegida" : "protegido"} 🐾`;
-  if (elementos.protecaoRotulo) elementos.protecaoRotulo.textContent = estaPerdido ? "Pet desaparecido" : "Proteção BIRX";
-  if (elementos.protecaoIcone) elementos.protecaoIcone.textContent = estaPerdido ? "🚨" : "🛡️";
-  if (elementos.textoProtecao) {
-    elementos.textoProtecao.textContent = estaPerdido
-      ? "Caso alguém encontre este pet, o perfil público mostrará o contato do tutor em destaque."
-      : "Mantenha os dados atualizados para facilitar o contato em uma emergência.";
+  if (!elementos.painel2) return;
+  if (!pets.length) {
+    elementos.painel2.hidden = true;
+    if (elementos.menuInferior) elementos.menuInferior.hidden = true;
+    return;
   }
-  elementos.dashboardProtecao?.classList.toggle("pet-perdido", estaPerdido);
-
-  elementos.petDestaqueNome.textContent = nomePet;
-  elementos.petDestaquePerfil.textContent = perfil;
-  elementos.petDestaqueTag.textContent = `Tag ${formatarTexto(pet.tagCodigo, "não informada")}`;
-
-  if (elementos.statusPetPrincipal) {
-    elementos.statusPetPrincipal.textContent = pet.perdido ? `● Pet ${feminina ? "perdida" : "perdido"}` : "● Tag ativa";
-    elementos.statusPetPrincipal.classList.toggle("perdido", pet.perdido);
+  elementos.painel2.hidden = false;
+  if (elementos.menuInferior) elementos.menuInferior.hidden = false;
+  const pet = dadosPet(petAtivo());
+  if (!pet.tagCodigo) return;
+  if (elementos.boasVindasTitulo) elementos.boasVindasTitulo.textContent = `${pet.nome || "Seu pet"} está protegido`;
+  if (elementos.petDestaqueNome) elementos.petDestaqueNome.textContent = pet.nome || "Seu pet";
+  if (elementos.petDestaqueTag) elementos.petDestaqueTag.textContent = pet.tagCodigo || "Tag BIRX";
+  if (elementos.petDestaquePerfil) elementos.petDestaquePerfil.textContent = [pet.especie, pet.raca, pet.idade].filter(Boolean).join(" • ") || "Perfil BIRX";
+  if (elementos.petDestaqueFoto) {
+    elementos.petDestaqueFoto.innerHTML = pet.fotoUrl ? `<img src="${escaparHtml(pet.fotoUrl)}" alt="Foto de ${escaparHtml(pet.nome || "pet")}">` : (String(pet.especie).toLowerCase().includes("gat") ? "🐱" : "🐶");
   }
-  if (elementos.metricaStatusTag) elementos.metricaStatusTag.textContent = pet.perdido ? "Em alerta" : "Ativa";
-  if (elementos.metricaLocalizacao) elementos.metricaLocalizacao.textContent = montarLocalizacao(original);
+  if (elementos.statusPetPrincipal) elementos.statusPetPrincipal.textContent = pet.perdido ? "● Modo perdido ativo" : "● Tag ativa";
+  if (elementos.statusPetPrincipal) elementos.statusPetPrincipal.classList.toggle("is-lost", pet.perdido);
+  if (elementos.metricaStatusTag) elementos.metricaStatusTag.textContent = pet.perdido ? "Modo perdido" : "Ativa";
+  if (elementos.metricaLocalizacao) elementos.metricaLocalizacao.textContent = [pet.localizacao.cidade, pet.localizacao.estado].filter(Boolean).join(" / ") || "Não informada";
   if (elementos.metricaAtualizacao) elementos.metricaAtualizacao.textContent = "Agora";
+  if (elementos.editarPetDestaque) elementos.editarPetDestaque.dataset.tag = pet.tagCodigo;
+  if (elementos.verPerfilPublico) elementos.verPerfilPublico.dataset.tag = pet.tagCodigo;
   if (elementos.modoPerdidoDestaque) {
     elementos.modoPerdidoDestaque.dataset.tag = pet.tagCodigo;
     elementos.modoPerdidoDestaque.dataset.perdido = pet.perdido ? "1" : "0";
-    elementos.modoPerdidoDestaque.textContent = pet.perdido ? `✅ Marcar como ${feminina ? "encontrada" : "encontrado"}` : "🚨 Ativar modo perdido";
-    elementos.modoPerdidoDestaque.classList.toggle("ativo", pet.perdido);
-  }
-  if (elementos.verPerfilPublico) elementos.verPerfilPublico.dataset.tag = pet.tagCodigo;
-  const transferir = document.getElementById("transferirPetDestaque");
-  if (transferir) { transferir.dataset.tag = pet.tagCodigo; transferir.dataset.nome = nomePet; }
-  if (elementos.publicarPerdidoDestaque) {
-    elementos.publicarPerdidoDestaque.hidden = !pet.perdido;
-    elementos.publicarPerdidoDestaque.dataset.tag = pet.tagCodigo;
-    elementos.publicarPerdidoDestaque.dataset.publicado = pet.publicoPerdidos ? "1" : "0";
-    elementos.publicarPerdidoDestaque.textContent = pet.publicoPerdidos ? "✓ Remover do diretório público" : "🌐 Publicar em pets perdidos";
-    elementos.publicarPerdidoDestaque.classList.toggle("ativo", pet.publicoPerdidos);
+    elementos.modoPerdidoDestaque.textContent = pet.perdido ? "✅ Marcar como encontrado" : "🚨 Ativar modo perdido";
   }
   if (elementos.gerarCartazDestaque) {
-    elementos.gerarCartazDestaque.hidden = !pet.perdido;
     elementos.gerarCartazDestaque.dataset.tag = pet.tagCodigo;
+    elementos.gerarCartazDestaque.hidden = !pet.perdido;
   }
-
-  elementos.petDestaqueFoto.innerHTML = pet.fotoUrl
-    ? `<img src="${escaparHtml(pet.fotoUrl)}" alt="Foto de ${escaparHtml(nomePet)}">`
-    : "🐶";
-
-  const itens = [
-    { nome: "Tag ativada", ok: Boolean(pet.tagCodigo), acao: "perfil", campo: "" },
-    { nome: "Dados básicos", ok: Boolean(pet.nome && pet.especie), acao: "editar", campo: "editarNome" },
-    { nome: "Foto", ok: Boolean(pet.fotoUrl), acao: "foto", campo: "" },
-    { nome: "Contato", ok: Boolean(pet.whatsapp || pet.email), acao: "editar", campo: "editarWhatsapp" },
-    { nome: "Localização", ok: Boolean(pet.cidade || pet.cep), acao: "editar", campo: "editarCep" },
-    { nome: "Raça", ok: Boolean(pet.raca), acao: "editar", campo: "editarRaca" },
-  ];
-
-  const concluidos = itens.filter((item) => item.ok).length;
-  const percentual = Math.round((concluidos / itens.length) * 100);
-  elementos.progressoTexto.textContent = `${percentual}% completo`;
-  elementos.progressoNumero.textContent = `${percentual}%`;
-  elementos.progressoBarra.style.width = `${percentual}%`;
-  elementos.progressoTrilho.setAttribute("aria-valuenow", String(percentual));
-
-  const faltantes = itens.length - concluidos;
-  if (elementos.progressoMensagem) {
-    elementos.progressoMensagem.textContent = faltantes === 0
-      ? "Perfil completo! Os dados essenciais estão prontos para uma emergência."
-      : faltantes === 1
-        ? "Falta apenas 1 etapa. Clique no item pendente para completar agora."
-        : `Faltam ${faltantes} etapas. Clique nos itens para agilizar o preenchimento.`;
+  if (elementos.publicarPerdidoDestaque) {
+    elementos.publicarPerdidoDestaque.dataset.tag = pet.tagCodigo;
+    elementos.publicarPerdidoDestaque.dataset.publico = pet.publicoPerdidos ? "1" : "0";
+    elementos.publicarPerdidoDestaque.hidden = !pet.perdido;
+    elementos.publicarPerdidoDestaque.textContent = pet.publicoPerdidos ? "🌐 Remover do diretório público" : "🌐 Publicar em pets perdidos";
   }
-
-  elementos.checklistPerfil.innerHTML = itens.map((item) => `
-    <button class="checklist-item ${item.ok ? "concluido" : "pendente"}" type="button"
-      data-checklist-acao="${item.acao}" data-checklist-campo="${item.campo}" data-tag="${escaparHtml(pet.tagCodigo)}"
-      aria-label="${item.ok ? "Revisar" : "Completar"} ${escaparHtml(item.nome)}">
-      ${item.ok ? "✓" : "○"} ${escaparHtml(item.nome)}
-    </button>
-  `).join("");
-
-  if (elementos.proximasAcoesLista && elementos.proximasAcoesCard) {
-    const pendentes = itens.filter((item) => !item.ok);
-    elementos.proximasAcoesCard.hidden = false;
-    elementos.proximasAcoesLista.innerHTML = pendentes.length
-      ? pendentes.slice(0, 4).map((item) => `
-          <button class="proxima-acao-item" type="button"
-            data-checklist-acao="${item.acao}" data-checklist-campo="${item.campo}" data-tag="${escaparHtml(pet.tagCodigo)}">
-            <span class="proxima-acao-alerta" aria-hidden="true">!</span>
-            <span><strong>${escaparHtml(item.nome)}</strong><small>Toque para completar esta informação</small></span>
-            <b>Resolver agora</b>
-          </button>
-        `).join("")
-      : `<div class="proximas-acoes-concluidas"><span aria-hidden="true">✓</span><div><strong>Tudo certo!</strong><small>Os dados essenciais do perfil estão completos.</small></div></div>`;
+  if (elementos.progressoNumero || elementos.progressoBarra || elementos.progressoTexto || elementos.checklistPerfil) {
+    const checklist = [
+      { chave: "foto", ok: Boolean(pet.fotoUrl), texto: "Adicionar uma foto clara", acao: "foto" },
+      { chave: "contato", ok: Boolean(normalizarWhatsapp(pet.tutor.whatsapp)), texto: "Confirmar WhatsApp do tutor", acao: "editar" },
+      { chave: "localizacao", ok: Boolean(pet.localizacao.cidade && pet.localizacao.estado), texto: "Completar cidade e estado", acao: "editar" },
+      { chave: "comportamento", ok: Boolean(String(pet.comportamento || "").trim()), texto: "Descrever comportamento e cuidados", acao: "editar" },
+    ];
+    const completos = checklist.filter((item) => item.ok).length;
+    const percentual = Math.round((completos / checklist.length) * 100);
+    if (elementos.progressoNumero) elementos.progressoNumero.textContent = `${percentual}%`;
+    if (elementos.progressoBarra) elementos.progressoBarra.style.width = `${percentual}%`;
+    if (elementos.progressoTrilho) elementos.progressoTrilho.setAttribute("aria-valuenow", String(percentual));
+    if (elementos.progressoTexto) elementos.progressoTexto.textContent = `${completos} de ${checklist.length} itens essenciais concluídos`;
+    if (elementos.progressoMensagem) elementos.progressoMensagem.textContent = percentual === 100 ? "Perfil completo. Seu pet está com as informações essenciais em dia." : "Quanto mais completo o perfil, mais fácil fica ajudar seu pet em uma emergência.";
+    if (elementos.checklistPerfil) elementos.checklistPerfil.innerHTML = checklist.map((item) => `<li class="${item.ok ? "concluido" : "pendente"}"><span>${item.ok ? "✓" : "○"}</span><div><strong>${escaparHtml(item.texto)}</strong><small>${item.ok ? "Concluído" : "Pendente"}</small></div>${item.ok ? "" : `<button type="button" data-checklist-acao="${item.acao}">${item.acao === "foto" ? "Adicionar" : "Completar"}</button>`}</li>`).join("");
   }
-
-  elementos.editarPetDestaque.dataset.tag = pet.tagCodigo;
-  elementos.painel2.hidden = false;
-  if (elementos.menuInferior) elementos.menuInferior.hidden = false;
+  if (elementos.proximasAcoesCard && elementos.proximasAcoesLista) {
+    const acoes = [];
+    if (!pet.fotoUrl) acoes.push({ titulo: "Adicione uma foto", texto: "Uma imagem recente ajuda muito em caso de perda.", acao: "foto" });
+    if (!normalizarWhatsapp(pet.tutor.whatsapp)) acoes.push({ titulo: "Confirme o WhatsApp", texto: "É o contato principal para quem encontrar seu pet.", acao: "editar" });
+    if (!pet.comportamento) acoes.push({ titulo: "Conte como ele se comporta", texto: "Informe medos, cuidados e a melhor forma de aproximação.", acao: "editar" });
+    if (!pet.perdido) acoes.push({ titulo: "Conheça o modo perdido", texto: "Ative somente se o pet desaparecer para publicar alertas e localização.", acao: "perdido" });
+    elementos.proximasAcoesCard.hidden = !acoes.length;
+    elementos.proximasAcoesLista.innerHTML = acoes.slice(0, 3).map((acao) => `<button type="button" class="proxima-acao" data-checklist-acao="${acao.acao}"><span>→</span><div><strong>${escaparHtml(acao.titulo)}</strong><small>${escaparHtml(acao.texto)}</small></div></button>`).join("");
+  }
 }
-
 
 function acionarItemChecklist(evento) {
   const botao = evento.target.closest("[data-checklist-acao]");
   if (!botao) return;
-
   const acao = botao.dataset.checklistAcao;
-  const tag = botao.dataset.tag;
-
-  if (acao === "foto") {
-    abrirModalFoto({ currentTarget: { dataset: { tag } } });
-    return;
+  if (acao === "foto") abrirModalFoto(petAtivo());
+  if (acao === "editar") abrirModalEdicaoComPet(petAtivo());
+  if (acao === "perdido") {
+    const pet = dadosPet(petAtivo());
+    if (!pet.tagCodigo || !elementos.modoPerdidoDestaque) return;
+    elementos.modoPerdidoDestaque.dataset.tag = pet.tagCodigo;
+    elementos.modoPerdidoDestaque.dataset.perdido = pet.perdido ? "1" : "0";
+    elementos.modoPerdidoDestaque.click();
   }
-
-  if (acao === "perfil") {
-    abrirPerfilTutor({ currentTarget: { dataset: { tag } } });
-    return;
-  }
-
-  abrirModalEdicao({ currentTarget: { dataset: { tag } } });
-  const campo = botao.dataset.checklistCampo;
-  if (campo && elementos[campo]) {
-    setTimeout(() => {
-      elementos[campo].focus();
-      elementos[campo].scrollIntoView({ behavior: "smooth", block: "center" });
-    }, 90);
-  }
-}
-
-function acionarModulo(modulo) {
-  const petOriginal = petAtivo();
-  if (!petOriginal) {
-    exibirMensagem("Cadastre um pet para acessar este recurso.", "erro");
-    return;
-  }
-
-  const pet = dadosPet(petOriginal);
-  const evento = { currentTarget: { dataset: { tag: pet.tagCodigo } } };
-
-  if (modulo === "saude" || modulo === "vacinas") {
-    abrirModalSaude(evento);
-    return;
-  }
-  if (modulo === "carteirinha") {
-    window.dispatchEvent(new CustomEvent("orbitek:abrir-carteirinha", {
-      detail: pet
-    }));
-    return;
-  }
-  if (modulo === "documentos") {
-    abrirModalDocumentos(evento);
-    return;
-  }
-  if (modulo === "historico") {
-    abrirHistoricoTutor(evento);
-    return;
-  }
-  if (modulo === "timeline") {
-    window.location.href = `/historico.html?tag=${encodeURIComponent(pet.tagCodigo)}&origem=tutor&secao=timeline`;
-    return;
-  }
-  if (modulo === "medicamentos") {
-    window.dispatchEvent(new CustomEvent("orbitek:abrir-medicamentos", {
-      detail: { tagCodigo: pet.tagCodigo, nome: pet.nome }
-    }));
-    return;
-  }
-  if (modulo === "agendamentos") {
-    window.dispatchEvent(new CustomEvent("orbitek:abrir-agendamentos", {
-      detail: { tagCodigo: pet.tagCodigo, nome: pet.nome }
-    }));
-    return;
-  }
-  if (modulo === "clinicas") {
-    window.dispatchEvent(new CustomEvent("orbitek:clinicas-proximas"));
-    return;
-  }
-  if (modulo === "modo-gato") {
-    window.dispatchEvent(new CustomEvent("birx:abrir-modo-gato", { detail: pet }));
-    return;
-  }
-  if (modulo === "bem-estar") {
-    window.dispatchEvent(new CustomEvent("birx:abrir-bem-estar", { detail: pet }));
-    return;
-  }
-}
-
-function montarLocalizacao(petOriginal) {
-  const pet = dadosPet(petOriginal);
-  const cidade = String(pet.cidade ?? "").trim();
-  const uf = String(pet.estado ?? "").trim();
-
-  if (cidade && uf) return `${cidade} - ${uf}`;
-  return cidade || uf || "Não informada";
-}
-
-function criarCardPet(petOriginal) {
-  const pet = dadosPet(petOriginal);
-  const especieRaca = [pet.especie, pet.raca].filter(Boolean).join(" • ");
-
-  const foto = pet.fotoUrl
-    ? `<img class="pet-foto" src="${escaparHtml(pet.fotoUrl)}" alt="Foto de ${escaparHtml(pet.nome)}" loading="lazy">`
-    : `<div class="pet-sem-foto" aria-hidden="true">🐶</div>`;
-
-  const feminina = petFemea(pet);
-  const status = pet.perdido
-    ? `<span class="status status-perdido">🔴 ${feminina ? "Perdida" : "Perdido"}</span>`
-    : `<span class="status status-seguro">🟢 ${feminina ? "Segura" : "Seguro"}</span>`;
-
-  const classeStatus = pet.perdido ? "botao-seguro" : "botao-alerta";
-  const textoStatus = pet.perdido ? `Marcar como ${feminina ? "encontrada" : "encontrado"}` : "Ativar modo perdido";
-
-  return `
-    <article class="pet-card">
-      <div class="pet-foto-area">
-        ${foto}
-        ${status}
-      </div>
-
-      <div class="pet-conteudo">
-        <div class="pet-titulo">
-          <div>
-            <div class="pet-nome">${escaparHtml(formatarTexto(pet.nome, "Pet"))}</div>
-            <div class="pet-tag">Tag: ${escaparHtml(formatarTexto(pet.tagCodigo, "Não informada"))}</div>
-          </div>
-        </div>
-
-        <div class="pet-dados">
-          <div class="pet-dado">
-            <div class="pet-dado-label">Perfil</div>
-            <div class="pet-dado-valor">${escaparHtml(formatarTexto(especieRaca))}</div>
-          </div>
-
-          <div class="pet-dado">
-            <div class="pet-dado-label">Localização</div>
-            <div class="pet-dado-valor">${escaparHtml(montarLocalizacao(petOriginal))}</div>
-          </div>
-        </div>
-
-        <div class="acoes">
-          <button
-            class="botao botao-principal"
-            type="button"
-            data-acao="ver-perfil"
-            data-tag="${escaparHtml(pet.tagCodigo)}"
-          >
-            Ver perfil
-          </button>
-
-          <button
-            class="botao botao-secundario"
-            type="button"
-            data-acao="historico"
-            data-tag="${escaparHtml(pet.tagCodigo)}"
-          >
-            Histórico
-          </button>
-
-          <button class="botao botao-timeline" type="button" data-acao="timeline" data-tag="${escaparHtml(pet.tagCodigo)}">
-            Timeline
-          </button>
-
-          <button class="botao botao-saude" type="button" data-acao="saude" data-tag="${escaparHtml(pet.tagCodigo)}">
-            Vacinas
-          </button>
-
-          <button class="botao botao-documentos" type="button" data-acao="documentos" data-tag="${escaparHtml(pet.tagCodigo)}">
-            Documentos
-          </button>
-
-          <button class="botao botao-foto" type="button" data-acao="foto" data-tag="${escaparHtml(pet.tagCodigo)}">
-            Alterar foto
-          </button>
-
-          <button class="botao botao-editar" type="button" data-acao="editar" data-tag="${escaparHtml(pet.tagCodigo)}">
-            Editar informações
-          </button>
-
-          <button class="botao ${classeStatus}" type="button" data-acao="modo-perdido" data-tag="${escaparHtml(pet.tagCodigo)}" data-perdido="${pet.perdido ? "1" : "0"}">
-            ${textoStatus}
-          </button>
-        </div>
-      </div>
-    </article>
-  `;
-}
-
-function abrirPerfilTutor(evento) {
-  const tag = evento.currentTarget.dataset.tag;
-
-  if (!tag) {
-    exibirMensagem("A tag deste pet não foi identificada.", "erro");
-    return;
-  }
-
-  if (window.BIRXNavigation?.abrirPerfilTutor) {
-    window.BIRXNavigation.abrirPerfilTutor(tag);
-    return;
-  }
-
-  window.open(
-    `/t.html?tag=${encodeURIComponent(tag)}&origem=tutor`,
-    "_blank",
-    "noopener"
-  );
-}
-
-function abrirHistoricoTutor(evento) {
-  const tag = evento.currentTarget.dataset.tag;
-
-  if (!tag) {
-    exibirMensagem("A tag deste pet não foi identificada.", "erro");
-    return;
-  }
-
-  if (window.BIRXNavigation?.abrirHistoricoTutor) {
-    window.BIRXNavigation.abrirHistoricoTutor(tag);
-    return;
-  }
-
-  window.location.href =
-    `/historico.html?tag=${encodeURIComponent(tag)}&origem=tutor`;
 }
 
 function renderizarPets(pets) {
-  elementos.listaPets.innerHTML = pets.map(criarCardPet).join("");
-
-  elementos.listaPets.querySelectorAll('[data-acao="ver-perfil"]').forEach((botao) => {
-    botao.addEventListener("click", abrirPerfilTutor);
-  });
-
-  elementos.listaPets.querySelectorAll('[data-acao="historico"]').forEach((botao) => {
-    botao.addEventListener("click", abrirHistoricoTutor);
-  });
-
-  elementos.listaPets.querySelectorAll('[data-acao="modo-perdido"]').forEach((botao) => {
-    botao.addEventListener("click", alterarModoPerdido);
-  });
-
-  elementos.listaPets.querySelectorAll('[data-acao="editar"]').forEach((botao) => {
-    botao.addEventListener("click", abrirModalEdicao);
-  });
-
-  elementos.listaPets.querySelectorAll('[data-acao="foto"]').forEach((botao) => {
-    botao.addEventListener("click", abrirModalFoto);
-  });
-
-  elementos.listaPets.querySelectorAll('[data-acao="saude"]').forEach((botao) => {
-    botao.addEventListener("click", abrirModalSaude);
-  });
-
-  elementos.listaPets.querySelectorAll('[data-acao="documentos"]').forEach((botao) => {
-    botao.addEventListener("click", abrirModalDocumentos);
-  });
+  elementos.listaPets.innerHTML = pets
+    .map((pet) => {
+      const d = dadosPet(pet);
+      const classePerdido = d.perdido ? "pet-perdido" : "";
+      return `
+        <article class="pet-card ${classePerdido}">
+          <div class="pet-card-topo">
+            <div class="pet-avatar">${d.fotoUrl ? `<img src="${escaparHtml(d.fotoUrl)}" alt="Foto de ${escaparHtml(d.nome)}">` : (String(d.especie).toLowerCase().includes("gat") ? "🐱" : "🐶")}</div>
+            <div>
+              <h3>${escaparHtml(d.nome || "Pet")}</h3>
+              <p>${escaparHtml([d.especie, d.raca].filter(Boolean).join(" • ") || "Perfil BIRX")}</p>
+            </div>
+          </div>
+          <div class="pet-card-meta">
+            <span>${escaparHtml(d.tagCodigo)}</span>
+            <span>${d.perdido ? "Modo perdido" : "Protegido"}</span>
+          </div>
+          <div class="pet-card-acoes">
+            <button type="button" data-acao="editar" data-tag="${escaparHtml(d.tagCodigo)}">Editar</button>
+            <button type="button" data-acao="foto" data-tag="${escaparHtml(d.tagCodigo)}">Foto</button>
+            <button type="button" data-acao="perfil" data-tag="${escaparHtml(d.tagCodigo)}">Perfil público</button>
+          </div>
+        </article>`;
+    })
+    .join("");
 }
 
-function definirValor(elemento, valor) {
-  if (elemento) elemento.value = valor ?? "";
-}
-
-function preencherFormulario(petOriginal) {
-  const pet = dadosPet(petOriginal);
-
-  definirValor(elementos.editarTag, pet.tagCodigo);
-  definirValor(elementos.editarNome, pet.nome);
-  definirValor(elementos.editarEspecie, pet.especie);
-  definirValor(elementos.editarRaca, pet.raca);
-  definirValor(elementos.editarSexo, pet.sexo);
-  definirValor(elementos.editarIdade, pet.idade);
-  definirValor(elementos.editarComportamento, pet.comportamento);
-  definirValor(elementos.editarTutor, pet.nomeTutor);
-  definirValor(elementos.editarWhatsapp, pet.whatsapp);
-  definirValor(elementos.editarEmail, pet.email);
-  definirValor(elementos.editarCep, pet.cep);
-  definirValor(elementos.editarCidade, pet.cidade);
-  definirValor(elementos.editarEstado, pet.estado);
-  definirValor(elementos.editarEndereco, pet.logradouro);
-  atualizarStatusSecoes();
-  estado.formularioInicial = serializarFormulario();
-  estado.formularioAlterado = false;
-  atualizarAvisoAlteracoes();
+function abrirModalEdicaoComPet(pet) {
+  const d = dadosPet(pet);
+  if (!d.tagCodigo) return;
+  estado.petEmEdicao = pet;
+  elementos.editarTag.value = d.tagCodigo;
+  elementos.editarNome.value = d.nome || "";
+  elementos.editarEspecie.value = d.especie || "";
+  elementos.editarRaca.value = d.raca || "";
+  elementos.editarSexo.value = d.sexo || "";
+  elementos.editarIdade.value = d.idade || "";
+  elementos.editarComportamento.value = d.comportamento || "";
+  elementos.editarTutor.value = d.tutor.nome || "";
+  elementos.editarWhatsapp.value = d.tutor.whatsapp || "";
+  elementos.editarEmail.value = d.tutor.email || "";
+  elementos.editarCep.value = d.localizacao.cep || "";
+  elementos.editarCidade.value = d.localizacao.cidade || "";
+  elementos.editarEstado.value = d.localizacao.estado || "";
+  elementos.editarEndereco.value = d.localizacao.logradouro || "";
+  elementos.modalEditar.hidden = false;
+  document.body.classList.add("modal-aberto");
 }
 
 function abrirModalEdicao(evento) {
-  const tag = evento.currentTarget.dataset.tag;
-  const pet = estado.pets.find((item) => String(dadosPet(item).tagCodigo) === String(tag));
-
-  if (!pet) {
-    exibirMensagem("Não foi possível localizar este pet.", "erro");
-    return;
-  }
-
-  if (!elementos.modalEditar || !elementos.formEditarPet) {
-    exibirMensagem("O modal de edição não foi encontrado no tutor.html.", "erro");
-    return;
-  }
-
-  estado.petEmEdicao = pet;
-  preencherFormulario(pet);
-  elementos.modalEditar.hidden = false;
-  document.body.classList.add("modal-aberto");
-  selecionarAbaEdicao("pet");
-  setTimeout(() => elementos.editarNome?.focus(), 50);
+  const tag = evento.currentTarget?.dataset?.tag || estado.petAtivoTag;
+  const pet = estado.pets.find((item) => String(dadosPet(item).tagCodigo) === String(tag)) || petAtivo();
+  if (pet) abrirModalEdicaoComPet(pet);
 }
 
-async function fecharModalEdicao(forcar = false) {
-  if (estado.salvando || !elementos.modalEditar) return;
-  if (!forcar && estado.formularioAlterado) {
-    const sair = window.BIRXUI?.confirmar
-      ? await window.BIRXUI.confirmar({ titulo: "Alterações não salvas", mensagem: "Você modificou informações. Deseja sair sem salvar?", textoConfirmar: "Sair sem salvar" })
-      : window.confirm("Você possui alterações não salvas. Deseja sair sem salvar?");
-    if (!sair) return;
-  }
+function fecharModalEdicao() {
+  if (estado.salvando) return;
   elementos.modalEditar.hidden = true;
   document.body.classList.remove("modal-aberto");
-  elementos.formEditarPet?.reset();
-  estado.petEmEdicao = null;
-  estado.formularioInicial = "";
-  estado.formularioAlterado = false;
-  atualizarAvisoAlteracoes();
 }
 
-function serializarFormulario() {
-  return JSON.stringify(dadosFormulario());
+function abrirPerfilTutor(evento) {
+  const tag = evento.currentTarget?.dataset?.tag || estado.petAtivoTag;
+  if (!tag) return;
+  window.open(`/t.html?tag=${encodeURIComponent(tag)}`, "_blank", "noopener,noreferrer");
 }
 
-function atualizarAvisoAlteracoes() {
-  if (elementos.avisoAlteracoes) elementos.avisoAlteracoes.hidden = !estado.formularioAlterado;
+function definirCarregamento(carregando) {
+  elementos.carregando.hidden = !carregando;
 }
 
-function marcarAlteracaoFormulario() {
-  if (!elementos.formEditarPet || !estado.petEmEdicao) return;
-  estado.formularioAlterado = serializarFormulario() !== estado.formularioInicial;
-  atualizarAvisoAlteracoes();
-  atualizarStatusSecoes();
+function exibirMensagem(texto, tipo = "sucesso") {
+  if (!elementos.mensagem) return;
+  elementos.mensagem.textContent = texto;
+  elementos.mensagem.className = `mensagem ${tipo}`;
+  elementos.mensagem.hidden = false;
+  clearTimeout(exibirMensagem.timer);
+  exibirMensagem.timer = setTimeout(() => {
+    elementos.mensagem.hidden = true;
+  }, 4500);
 }
-
-function definirStatusSecao(elemento, completo) {
-  if (!elemento) return;
-  elemento.textContent = completo ? "✓ Completo" : "⚠ Pendente";
-  elemento.classList.toggle("completo", completo);
-  elemento.classList.toggle("pendente", !completo);
-}
-
-function atualizarStatusSecoes() {
-  const d = dadosFormulario();
-  definirStatusSecao(elementos.statusSecaoPet, Boolean(d.nome && d.especie && d.raca && d.sexo));
-  definirStatusSecao(elementos.statusSecaoTutor, Boolean(d.nomeTutor && (d.whatsapp || d.email)));
-  definirStatusSecao(elementos.statusSecaoEndereco, Boolean(d.cidade && d.estado));
-}
-
-function selecionarAbaEdicao(nome) {
-  document.querySelectorAll("[data-edicao-aba]").forEach((botao) => {
-    const ativa = botao.dataset.edicaoAba === nome;
-    botao.classList.toggle("ativa", ativa);
-    botao.setAttribute("aria-selected", String(ativa));
-  });
-  document.querySelectorAll("[data-edicao-painel]").forEach((painel) => {
-    const ativo = painel.dataset.edicaoPainel === nome;
-    painel.hidden = !ativo;
-    painel.classList.toggle("ativa", ativo);
-  });
-}
-
-function dadosFormulario() {
-  return {
-    tagCodigo: elementos.editarTag?.value.trim() ?? "",
-    nome: elementos.editarNome?.value.trim() ?? "",
-    especie: elementos.editarEspecie?.value.trim() ?? "",
-    raca: elementos.editarRaca?.value.trim() ?? "",
-    sexo: elementos.editarSexo?.value.trim() ?? "",
-    idade: elementos.editarIdade?.value.trim() ?? "",
-    comportamento: elementos.editarComportamento?.value.trim() ?? "",
-    nomeTutor: elementos.editarTutor?.value.trim() ?? "",
-    whatsapp: elementos.editarWhatsapp?.value.trim() ?? "",
-    email: elementos.editarEmail?.value.trim() ?? "",
-    cep: elementos.editarCep?.value.trim() ?? "",
-    cidade: elementos.editarCidade?.value.trim() ?? "",
-    estado: elementos.editarEstado?.value.trim().toUpperCase() ?? "",
-    logradouro: elementos.editarEndereco?.value.trim() ?? "",
-  };
-}
-
-function validarFormulario(dados) {
-  if (!dados.tagCodigo) return "A tag do pet não foi identificada.";
-  if (!dados.nome) return "Informe o nome do pet.";
-  if (!dados.nomeTutor) return "Informe o nome do tutor.";
-
-  const telefone = somenteNumeros(dados.whatsapp);
-  if (telefone.length < 10 || telefone.length > 13) return "Informe um WhatsApp válido com DDD.";
-
-  if (dados.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(dados.email)) {
-    return "Informe um e-mail válido.";
-  }
-
-  if (dados.cep && somenteNumeros(dados.cep).length !== 8) {
-    return "Informe um CEP válido com 8 números.";
-  }
-
-  if (dados.estado && dados.estado.length !== 2) {
-    return "Informe o estado usando a sigla com 2 letras.";
-  }
-
-  return "";
-}
-
-function definirBotaoSalvar(ativo) {
-  const botao = elementos.formEditarPet?.querySelector('button[type="submit"]');
-  if (!botao) return;
-
-  if (ativo) {
-    botao.dataset.textoOriginal = botao.textContent;
-    botao.disabled = true;
-    botao.textContent = "Salvando...";
-  } else {
-    botao.disabled = false;
-    botao.textContent = botao.dataset.textoOriginal || "Salvar alterações";
-  }
-}
-
-async function salvarEdicao(evento) {
-  evento.preventDefault();
-  if (estado.salvando) return;
-
-  const dados = dadosFormulario();
-  const erro = validarFormulario(dados);
-
-  if (erro) {
-    exibirMensagem(erro, "erro");
-    return;
-  }
-
-  estado.salvando = true;
-  definirBotaoSalvar(true);
-
-  try {
-    const resposta = await fetch("/api/tutor-salvar", {
-      method: "POST",
-      credentials: "same-origin",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-      },
-      body: JSON.stringify(dados),
-    });
-
-    const resultado = await resposta.json().catch(() => ({}));
-
-    if (resposta.status === 401 || resultado.autenticado === false) {
-      window.location.replace("/login.html");
-      return;
-    }
-
-    if (!resposta.ok || !resultado.sucesso) {
-      throw new Error(resultado.mensagem || "Não foi possível salvar as informações.");
-    }
-
-    exibirMensagem(resultado.mensagem || "Informações atualizadas com sucesso.");
-    elementos.modalEditar.hidden = true;
-    document.body.classList.remove("modal-aberto");
-    estado.petEmEdicao = null;
-    estado.formularioAlterado = false;
-    estado.formularioInicial = "";
-    atualizarAvisoAlteracoes();
-    await carregarPainel();
-  } catch (erroSalvar) {
-    console.error("Erro ao salvar:", erroSalvar);
-    exibirMensagem(erroSalvar.message || "Não foi possível salvar as informações.", "erro");
-  } finally {
-    estado.salvando = false;
-    definirBotaoSalvar(false);
-  }
-}
-
-async function buscarCep() {
-  if (!elementos.editarCep || estado.buscandoCep) return;
-
-  const cep = somenteNumeros(elementos.editarCep.value);
-  if (!cep) return;
-
-  if (cep.length !== 8) {
-    exibirMensagem("Informe um CEP válido com 8 números.", "erro");
-    return;
-  }
-
-  estado.buscandoCep = true;
-
-  try {
-    const resposta = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
-    const endereco = await resposta.json();
-
-    if (!resposta.ok || endereco.erro) throw new Error("CEP não encontrado.");
-
-    definirValor(elementos.editarEndereco, endereco.logradouro);
-    definirValor(elementos.editarCidade, endereco.localidade);
-    definirValor(elementos.editarEstado, endereco.uf);
-  } catch (erro) {
-    exibirMensagem(erro.message || "Não foi possível consultar o CEP.", "erro");
-  } finally {
-    estado.buscandoCep = false;
-  }
-}
-
-
-function limparPreviewFoto() {
-  if (estado.urlPreviewFoto) {
-    URL.revokeObjectURL(estado.urlPreviewFoto);
-    estado.urlPreviewFoto = "";
-  }
-
-  if (elementos.arquivoFoto) elementos.arquivoFoto.value = "";
-  if (elementos.fotoPreview) {
-    elementos.fotoPreview.src = "";
-    elementos.fotoPreview.hidden = true;
-  }
-  if (elementos.fotoPreviewVazio) elementos.fotoPreviewVazio.hidden = false;
-  if (elementos.nomeArquivoFoto) {
-    elementos.nomeArquivoFoto.textContent = "Nenhuma imagem selecionada.";
-  }
-  if (elementos.enviarFoto) elementos.enviarFoto.disabled = true;
-}
-
-function mostrarFotoAtual(petOriginal) {
-  const pet = dadosPet(petOriginal);
-
-  if (pet.fotoUrl && elementos.fotoPreview) {
-    elementos.fotoPreview.src = pet.fotoUrl;
-    elementos.fotoPreview.hidden = false;
-    if (elementos.fotoPreviewVazio) elementos.fotoPreviewVazio.hidden = true;
-  }
-}
-
-function abrirModalFoto(evento) {
-  const tag = evento.currentTarget.dataset.tag;
-  const pet = estado.pets.find(
-    (item) => String(dadosPet(item).tagCodigo) === String(tag)
-  );
-
-  if (!pet || !elementos.modalFoto || !elementos.formFotoPet) {
-    exibirMensagem("Não foi possível abrir a alteração de foto.", "erro");
-    return;
-  }
-
-  estado.petEmEdicao = pet;
-  limparPreviewFoto();
-
-  const dados = dadosPet(pet);
-  definirValor(elementos.fotoTag, dados.tagCodigo);
-
-  if (elementos.fotoNomePet) {
-    elementos.fotoNomePet.textContent = formatarTexto(dados.nome, "Pet");
-  }
-
-  mostrarFotoAtual(pet);
-  elementos.modalFoto.hidden = false;
-  document.body.classList.add("modal-aberto");
-}
-
-function fecharModalFoto() {
-  if (estado.enviandoFoto || !elementos.modalFoto) return;
-
-  elementos.modalFoto.hidden = true;
-  limparPreviewFoto();
-  estado.petEmEdicao = null;
-
-  const algumModalAberto =
-    (elementos.modalEditar && !elementos.modalEditar.hidden) ||
-    (elementos.modalFoto && !elementos.modalFoto.hidden);
-
-  if (!algumModalAberto) {
-    document.body.classList.remove("modal-aberto");
-  }
-}
-
-function aoSelecionarFoto() {
-  const arquivo = elementos.arquivoFoto?.files?.[0];
-
-  if (!arquivo) {
-    limparPreviewFoto();
-    if (estado.petEmEdicao) mostrarFotoAtual(estado.petEmEdicao);
-    return;
-  }
-
-  const tiposPermitidos = ["image/jpeg", "image/png", "image/webp"];
-  const tamanhoMaximo = 5 * 1024 * 1024;
-
-  if (!tiposPermitidos.includes(arquivo.type)) {
-    exibirMensagem("Escolha uma imagem JPG, PNG ou WEBP.", "erro");
-    limparPreviewFoto();
-    if (estado.petEmEdicao) mostrarFotoAtual(estado.petEmEdicao);
-    return;
-  }
-
-  if (arquivo.size > tamanhoMaximo) {
-    exibirMensagem("A imagem deve ter no máximo 5 MB.", "erro");
-    limparPreviewFoto();
-    if (estado.petEmEdicao) mostrarFotoAtual(estado.petEmEdicao);
-    return;
-  }
-
-  if (estado.urlPreviewFoto) {
-    URL.revokeObjectURL(estado.urlPreviewFoto);
-  }
-
-  estado.urlPreviewFoto = URL.createObjectURL(arquivo);
-
-  if (elementos.fotoPreview) {
-    elementos.fotoPreview.src = estado.urlPreviewFoto;
-    elementos.fotoPreview.hidden = false;
-  }
-
-  if (elementos.fotoPreviewVazio) elementos.fotoPreviewVazio.hidden = true;
-  if (elementos.nomeArquivoFoto) {
-    elementos.nomeArquivoFoto.textContent = arquivo.name;
-  }
-  if (elementos.enviarFoto) elementos.enviarFoto.disabled = false;
-}
-
-async function enviarNovaFoto(evento) {
-  evento.preventDefault();
-
-  if (estado.enviandoFoto) return;
-
-  const arquivo = elementos.arquivoFoto?.files?.[0];
-  const tagCodigo = elementos.fotoTag?.value.trim() ?? "";
-
-  if (!arquivo || !tagCodigo) {
-    exibirMensagem("Escolha uma imagem antes de enviar.", "erro");
-    return;
-  }
-
-  estado.enviandoFoto = true;
-
-  const textoOriginal = elementos.enviarFoto?.textContent || "Enviar nova foto";
-  if (elementos.enviarFoto) {
-    elementos.enviarFoto.disabled = true;
-    elementos.enviarFoto.textContent = "Enviando...";
-  }
-
-  try {
-    const formulario = new FormData();
-    formulario.append("foto", arquivo);
-    formulario.append("tagCodigo", tagCodigo);
-
-    const resposta = await fetch("/api/tutor-foto", {
-      method: "POST",
-      credentials: "same-origin",
-      body: formulario,
-      headers: {
-        Accept: "application/json",
-      },
-    });
-
-    const dados = await resposta.json().catch(() => ({}));
-
-    if (resposta.status === 401 || dados.autenticado === false) {
-      window.location.replace("/login.html");
-      return;
-    }
-
-    if (!resposta.ok || !dados.sucesso) {
-      throw new Error(dados.mensagem || "Não foi possível atualizar a foto.");
-    }
-
-    exibirMensagem(dados.mensagem || "Foto atualizada com sucesso.");
-    fecharModalFotoForcado();
-    await carregarPainel();
-  } catch (erro) {
-    exibirMensagem(erro.message || "Não foi possível atualizar a foto.", "erro");
-  } finally {
-    estado.enviandoFoto = false;
-
-    if (elementos.enviarFoto) {
-      elementos.enviarFoto.textContent = textoOriginal;
-      elementos.enviarFoto.disabled = !elementos.arquivoFoto?.files?.[0];
-    }
-  }
-}
-
-function fecharModalFotoForcado() {
-  if (!elementos.modalFoto) return;
-
-  elementos.modalFoto.hidden = true;
-  limparPreviewFoto();
-  estado.petEmEdicao = null;
-  document.body.classList.remove("modal-aberto");
-}
-
-
-
-function iconeTipoSaude(tipo) {
-  const icones = {
-    Vacina: "💉",
-    "Vermífugo": "🐛",
-    Antipulgas: "🦟",
-    Medicamento: "💊",
-    Consulta: "🏥",
-    Exame: "📄",
-    Outro: "❤️",
-  };
-
-  return icones[tipo] || "🩺";
-}
-
-function formatarDataSaude(valor) {
-  const texto = String(valor || "").trim();
-  if (!texto) return "";
-
-  const partes = texto.slice(0, 10).split("-");
-  if (partes.length !== 3) return texto;
-
-  return `${partes[2]}/${partes[1]}/${partes[0]}`;
-}
-
-function limparFormSaude() {
-  definirValor(elementos.saudeId, "");
-  definirValor(elementos.saudeTipo, "Vacina");
-  definirValor(elementos.saudeNome, "");
-  definirValor(elementos.saudeFabricante, "");
-  definirValor(elementos.saudeLote, "");
-  definirValor(elementos.saudeVeterinario, "");
-  definirValor(elementos.saudeDataAplicacao, "");
-  definirValor(elementos.saudeProximaData, "");
-  definirValor(elementos.saudeObservacoes, "");
-
-  if (elementos.tituloFormSaude) {
-    elementos.tituloFormSaude.textContent = "Nova vacina";
-  }
-
-  if (elementos.salvarSaude) {
-    elementos.salvarSaude.textContent = "Salvar vacina";
-  }
-}
-
-function mostrarFormSaude(registro = null) {
-  limparFormSaude();
-
-  if (registro) {
-    definirValor(elementos.saudeId, registro.id);
-    definirValor(elementos.saudeTipo, registro.tipo);
-    definirValor(elementos.saudeNome, registro.nome);
-    definirValor(elementos.saudeFabricante, registro.fabricante);
-    definirValor(elementos.saudeLote, registro.lote);
-    definirValor(elementos.saudeVeterinario, registro.veterinario);
-    definirValor(elementos.saudeDataAplicacao, registro.dataAplicacao || registro.data_aplicacao);
-    definirValor(elementos.saudeProximaData, registro.proximaData || registro.proxima_data);
-    definirValor(elementos.saudeObservacoes, registro.observacoes);
-
-    if (elementos.tituloFormSaude) {
-      elementos.tituloFormSaude.textContent = "Editar vacina";
-    }
-  }
-
-  if (elementos.formSaude) elementos.formSaude.hidden = false;
-  setTimeout(() => elementos.saudeNome?.focus(), 40);
-}
-
-function esconderFormSaude() {
-  if (estado.salvandoSaude) return;
-  if (elementos.formSaude) elementos.formSaude.hidden = true;
-  limparFormSaude();
-}
-
-function statusVacina(proximaData) {
-  if (!proximaData) return { texto: "Sem próxima dose", classe: "neutro" };
-  const hoje = new Date(); hoje.setHours(0, 0, 0, 0);
-  const alvo = new Date(`${proximaData}T00:00:00`);
-  const dias = Math.ceil((alvo - hoje) / 86400000);
-  if (dias < 0) return { texto: `Atrasada há ${Math.abs(dias)} dia${Math.abs(dias) === 1 ? "" : "s"}`, classe: "atrasada" };
-  if (dias === 0) return { texto: "Vence hoje", classe: "vencendo" };
-  if (dias <= 30) return { texto: `Vence em ${dias} dia${dias === 1 ? "" : "s"}`, classe: "vencendo" };
-  return { texto: "Em dia", classe: "emdia" };
-}
-
-function prioridadeVacina(registro) {
-  const proximaData = registro.proximaData || registro.proxima_data || "";
-  const prioridades = { atrasada: 0, vencendo: 1, emdia: 2, neutro: 3 };
-  return prioridades[statusVacina(proximaData).classe] ?? 4;
-}
-
-function ordenarVacinas(registros) {
-  return [...registros].sort((a, b) => {
-    const prioridade = prioridadeVacina(a) - prioridadeVacina(b);
-    if (prioridade) return prioridade;
-
-    const proximaA = a.proximaData || a.proxima_data || "9999-12-31";
-    const proximaB = b.proximaData || b.proxima_data || "9999-12-31";
-    if (proximaA !== proximaB) return proximaA.localeCompare(proximaB);
-
-    const aplicacaoA = a.dataAplicacao || a.data_aplicacao || "0000-00-00";
-    const aplicacaoB = b.dataAplicacao || b.data_aplicacao || "0000-00-00";
-    return aplicacaoB.localeCompare(aplicacaoA) || Number(b.id || 0) - Number(a.id || 0);
-  });
-}
-
-function criarCardSaude(registro) {
-  const dataAplicacao = registro.dataAplicacao || registro.data_aplicacao || "";
-  const proximaData = registro.proximaData || registro.proxima_data || "";
-  const observacoes = String(registro.observacoes || "").trim();
-  const status = statusVacina(proximaData);
-  const detalhes = [
-    registro.fabricante ? `<span><strong>Fabricante:</strong> ${escaparHtml(registro.fabricante)}</span>` : "",
-    registro.lote ? `<span><strong>Lote:</strong> ${escaparHtml(registro.lote)}</span>` : "",
-    registro.veterinario ? `<span><strong>Veterinário:</strong> ${escaparHtml(registro.veterinario)}</span>` : "",
-  ].filter(Boolean).join("");
-  return `
-    <article class="saude-card saude-card-${status.classe}">
-      <div class="saude-card-icone" aria-hidden="true">💉</div>
-      <div class="saude-card-corpo">
-        <div class="saude-card-cabecalho"><div><div class="saude-card-tipo">Vacina</div><div class="saude-card-nome">${escaparHtml(formatarTexto(registro.nome, "Vacina"))}</div></div><span class="vacina-status vacina-status-${status.classe}">${escaparHtml(status.texto)}</span></div>
-        <div class="saude-card-datas"><span><strong>Aplicada:</strong> ${escaparHtml(formatarDataSaude(dataAplicacao))}</span>${proximaData ? `<span><strong>Próxima dose:</strong> ${escaparHtml(formatarDataSaude(proximaData))}</span>` : ""}</div>
-        ${detalhes ? `<div class="saude-card-detalhes">${detalhes}</div>` : ""}
-        ${observacoes ? `<div class="saude-card-observacoes">${escaparHtml(observacoes)}</div>` : ""}
-      </div>
-      <div class="saude-card-acoes"><button class="saude-acao" type="button" title="Editar vacina" aria-label="Editar vacina" data-saude-acao="editar" data-id="${escaparHtml(registro.id)}">✏️</button><button class="saude-acao saude-acao-excluir" type="button" title="Excluir vacina" aria-label="Excluir vacina" data-saude-acao="excluir" data-id="${escaparHtml(registro.id)}">🗑️</button></div>
-    </article>`;
-}
-
-function renderizarSaude() {
-  const registros = estado.registrosSaude;
-  const contadores = registros.reduce((total, registro) => {
-    const classe = statusVacina(registro.proximaData || registro.proxima_data || "").classe;
-    if (classe === "atrasada") total.atrasadas += 1;
-    else if (classe === "vencendo") total.proximas += 1;
-    else total.emDia += 1;
-    return total;
-  }, { emDia: 0, proximas: 0, atrasadas: 0 });
-
-  if (elementos.saudeResumo) elementos.saudeResumo.textContent = registros.length
-    ? `${registros.length} vacina${registros.length === 1 ? "" : "s"} cadastrada${registros.length === 1 ? "" : "s"}, ordenadas por prioridade.`
-    : "Nenhuma vacina cadastrada.";
-  if (elementos.saudeDashboard) elementos.saudeDashboard.hidden = registros.length === 0;
-  if (elementos.saudeEmDia) elementos.saudeEmDia.textContent = String(contadores.emDia);
-  if (elementos.saudeProximas) elementos.saudeProximas.textContent = String(contadores.proximas);
-  if (elementos.saudeAtrasadas) elementos.saudeAtrasadas.textContent = String(contadores.atrasadas);
-
-  if (elementos.saudeVazio) elementos.saudeVazio.hidden = registros.length > 0;
-  if (elementos.listaSaude) {
-    elementos.listaSaude.innerHTML = registros.map(criarCardSaude).join("");
-  }
-
-  elementos.listaSaude
-    ?.querySelectorAll('[data-saude-acao="editar"]')
-    .forEach((botao) => {
-      botao.addEventListener("click", () => {
-        const registro = estado.registrosSaude.find(
-          (item) => String(item.id) === String(botao.dataset.id)
-        );
-
-        if (registro) mostrarFormSaude(registro);
-      });
-    });
-
-  elementos.listaSaude
-    ?.querySelectorAll('[data-saude-acao="excluir"]')
-    .forEach((botao) => {
-      botao.addEventListener("click", excluirRegistroSaude);
-    });
-}
-
-async function carregarSaude() {
-  const tagCodigo = elementos.saudeTag?.value.trim() || "";
-  if (!tagCodigo || estado.carregandoSaude) return;
-
-  estado.carregandoSaude = true;
-  if (elementos.saudeCarregando) elementos.saudeCarregando.hidden = false;
-  if (elementos.listaSaude) elementos.listaSaude.innerHTML = "";
-  if (elementos.saudeVazio) elementos.saudeVazio.hidden = true;
-
-  try {
-    const resposta = await fetch(
-      `/api/saude-listar?tagCodigo=${encodeURIComponent(tagCodigo)}`,
-      {
-        credentials: "same-origin",
-        headers: { Accept: "application/json" },
-      }
-    );
-
-    const dados = await resposta.json().catch(() => ({}));
-
-    if (resposta.status === 401 || dados.autenticado === false) {
-      window.location.replace("/login.html");
-      return;
-    }
-
-    if (!resposta.ok || !dados.sucesso) {
-      throw new Error(dados.mensagem || "Não foi possível carregar as vacinas.");
-    }
-
-    estado.registrosSaude = Array.isArray(dados.registros) ? ordenarVacinas(dados.registros) : [];
-    renderizarSaude();
-  } catch (erro) {
-    estado.registrosSaude = [];
-    renderizarSaude();
-    exibirMensagem(erro.message || "Não foi possível carregar as vacinas do pet.", "erro");
-  } finally {
-    estado.carregandoSaude = false;
-    if (elementos.saudeCarregando) elementos.saudeCarregando.hidden = true;
-  }
-}
-
-function abrirModalSaude(evento) {
-  const tag = evento.currentTarget.dataset.tag;
-  const pet = estado.pets.find(
-    (item) => String(dadosPet(item).tagCodigo) === String(tag)
-  );
-
-  if (!pet || !elementos.modalSaude) {
-    exibirMensagem("Não foi possível abrir as vacinas deste pet.", "erro");
-    return;
-  }
-
-  const dados = dadosPet(pet);
-  estado.petEmEdicao = pet;
-  estado.registrosSaude = [];
-
-  definirValor(elementos.saudeTag, dados.tagCodigo);
-
-  if (elementos.saudeNomePet) {
-    elementos.saudeNomePet.textContent = formatarTexto(dados.nome, "Pet");
-  }
-
-  if (elementos.saudeResumo) {
-    elementos.saudeResumo.textContent = "Carregando vacinas...";
-  }
-
-  esconderFormSaude();
-  elementos.modalSaude.hidden = false;
-  document.body.classList.add("modal-aberto");
-  carregarSaude();
-}
-
-function fecharModalSaude() {
-  if (estado.salvandoSaude || !elementos.modalSaude) return;
-
-  elementos.modalSaude.hidden = true;
-  estado.registrosSaude = [];
-  estado.petEmEdicao = null;
-  esconderFormSaude();
-
-  const algumModalAberto =
-    (elementos.modalEditar && !elementos.modalEditar.hidden) ||
-    (elementos.modalFoto && !elementos.modalFoto.hidden) ||
-    (elementos.modalSaude && !elementos.modalSaude.hidden);
-
-  if (!algumModalAberto) {
-    document.body.classList.remove("modal-aberto");
-  }
-}
-
-async function salvarRegistroSaude(evento) {
-  evento.preventDefault();
-  if (estado.salvandoSaude) return;
-
-  const dados = {
-    id: elementos.saudeId?.value.trim() || null,
-    tagCodigo: elementos.saudeTag?.value.trim() || "",
-    tipo: "Vacina",
-    nome: elementos.saudeNome?.value.trim() || "",
-    fabricante: elementos.saudeFabricante?.value.trim() || "",
-    lote: elementos.saudeLote?.value.trim() || "",
-    veterinario: elementos.saudeVeterinario?.value.trim() || "",
-    dataAplicacao: elementos.saudeDataAplicacao?.value || "",
-    proximaData: elementos.saudeProximaData?.value || "",
-    observacoes: elementos.saudeObservacoes?.value.trim() || "",
-  };
-
-  if (!dados.tagCodigo || !dados.nome || !dados.dataAplicacao) {
-    exibirMensagem("Preencha o nome da vacina e a data de aplicação.", "erro");
-    return;
-  }
-
-  if (
-    dados.dataAplicacao &&
-    dados.proximaData &&
-    dados.proximaData < dados.dataAplicacao
-  ) {
-    exibirMensagem("A próxima data não pode ser anterior à data do registro.", "erro");
-    return;
-  }
-
-  estado.salvandoSaude = true;
-  const textoOriginal = elementos.salvarSaude?.textContent || "Salvar vacina";
-
-  if (elementos.salvarSaude) {
-    elementos.salvarSaude.disabled = true;
-    elementos.salvarSaude.innerHTML = '<span class="saude-spinner saude-spinner-botao" aria-hidden="true"></span> Salvando...';
-  }
-
-  elementos.formSaude?.querySelectorAll("input, select, textarea, button").forEach((campo) => {
-    campo.disabled = true;
-  });
-
-  try {
-    const resposta = await fetch("/api/saude-salvar", {
-      method: "POST",
-      credentials: "same-origin",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-      },
-      body: JSON.stringify(dados),
-    });
-
-    const resultado = await resposta.json().catch(() => ({}));
-
-    if (resposta.status === 401 || resultado.autenticado === false) {
-      window.location.replace("/login.html");
-      return;
-    }
-
-    if (!resposta.ok || !resultado.sucesso) {
-      throw new Error(resultado.mensagem || "Não foi possível salvar o registro.");
-    }
-
-    exibirMensagem(resultado.mensagem || "Registro salvo com sucesso.");
-    esconderFormSaudeForcado();
-    await carregarSaude();
-  } catch (erro) {
-    exibirMensagem(erro.message || "Não foi possível salvar o registro.", "erro");
-  } finally {
-    estado.salvandoSaude = false;
-
-    if (elementos.salvarSaude) {
-      elementos.salvarSaude.textContent = textoOriginal;
-    }
-    elementos.formSaude?.querySelectorAll("input, select, textarea, button").forEach((campo) => {
-      campo.disabled = false;
-    });
-  }
-}
-
-function esconderFormSaudeForcado() {
-  if (elementos.formSaude) elementos.formSaude.hidden = true;
-  limparFormSaude();
-}
-
-async function excluirRegistroSaude(evento) {
-  const id = evento.currentTarget.dataset.id;
-  const tagCodigo = elementos.saudeTag?.value.trim() || "";
-
-  if (!id || !tagCodigo) return;
-
-  const confirmar = window.BIRXUI?.confirmar
-    ? await window.BIRXUI.confirmar({
-        titulo: "Excluir vacina?",
-        mensagem: "Esta ação não poderá ser desfeita.",
-        textoConfirmar: "Excluir vacina",
-      })
-    : window.confirm("Deseja realmente excluir esta vacina?");
-
-  if (!confirmar) return;
-
-  const botao = evento.currentTarget;
-  botao.disabled = true;
-  botao.textContent = "…";
-
-  try {
-    const resposta = await fetch("/api/saude-excluir", {
-      method: "POST",
-      credentials: "same-origin",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-      },
-      body: JSON.stringify({ id, tagCodigo }),
-    });
-
-    const resultado = await resposta.json().catch(() => ({}));
-
-    if (resposta.status === 401 || resultado.autenticado === false) {
-      window.location.replace("/login.html");
-      return;
-    }
-
-    if (!resposta.ok || !resultado.sucesso) {
-      throw new Error(resultado.mensagem || "Não foi possível excluir o registro.");
-    }
-
-    exibirMensagem(resultado.mensagem || "Registro excluído.");
-    await carregarSaude();
-  } catch (erro) {
-    botao.disabled = false;
-    exibirMensagem(erro.message || "Não foi possível excluir o registro.", "erro");
-  }
-}
-
-
-
-function formatarTamanhoArquivo(bytes) {
-  const tamanho = Number(bytes || 0);
-  if (!tamanho) return "";
-
-  if (tamanho < 1024) return `${tamanho} B`;
-  if (tamanho < 1024 * 1024) return `${(tamanho / 1024).toFixed(1)} KB`;
-
-  return `${(tamanho / (1024 * 1024)).toFixed(1)} MB`;
-}
-
-function formatarDataDocumento(valor) {
-  const texto = String(valor || "").trim();
-  if (!texto) return "";
-
-  const data = new Date(texto.includes("T") ? texto : texto.replace(" ", "T") + "Z");
-  if (Number.isNaN(data.getTime())) return texto;
-
-  return data.toLocaleDateString("pt-BR");
-}
-
-function iconeCategoriaDocumento(categoria) {
-  const icones = {
-    "Carteira de vacinação": "💉",
-    Receita: "🧾",
-    Exame: "🩸",
-    Laudo: "📋",
-    Foto: "📷",
-    Outro: "📄",
-  };
-
-  return icones[categoria] || "📄";
-}
-
-function limparFormDocumento() {
-  definirValor(elementos.documentoId, "");
-  definirValor(elementos.documentoCategoria, "");
-  definirValor(elementos.documentoTitulo, "");
-  definirValor(elementos.documentoData, new Date().toISOString().slice(0, 10));
-  definirValor(elementos.documentoProfissional, "");
-  definirValor(elementos.documentoObservacoes, "");
-
-  if (elementos.documentoArquivo) elementos.documentoArquivo.value = "";
-  if (elementos.documentoArquivoTexto) {
-    elementos.documentoArquivoTexto.textContent = "Escolher arquivo";
-  }
-
-  if (elementos.tituloFormDocumento) {
-    elementos.tituloFormDocumento.textContent = "Enviar documento";
-  }
-
-  if (elementos.salvarDocumento) {
-    elementos.salvarDocumento.textContent = "Enviar documento";
-  }
-
-  if (elementos.campoArquivoDocumento) elementos.campoArquivoDocumento.hidden = false;
-  if (elementos.documentoEdicaoAviso) elementos.documentoEdicaoAviso.hidden = true;
-}
-
-function mostrarFormDocumento(documento = null) {
-  limparFormDocumento();
-
-  if (documento) {
-    definirValor(elementos.documentoId, documento.id);
-    definirValor(elementos.documentoCategoria, documento.categoria);
-    definirValor(elementos.documentoTitulo, documento.titulo);
-    definirValor(elementos.documentoData, documento.dataDocumento || documento.data_documento || "");
-    definirValor(elementos.documentoProfissional, documento.profissional || "");
-    definirValor(elementos.documentoObservacoes, documento.observacoes || "");
-
-    if (elementos.tituloFormDocumento) {
-      elementos.tituloFormDocumento.textContent = "Editar documento";
-    }
-
-    if (elementos.salvarDocumento) {
-      elementos.salvarDocumento.textContent = "Salvar alterações";
-    }
-
-    if (elementos.campoArquivoDocumento) elementos.campoArquivoDocumento.hidden = true;
-    if (elementos.documentoEdicaoAviso) elementos.documentoEdicaoAviso.hidden = false;
-  }
-
-  if (elementos.formDocumento) elementos.formDocumento.hidden = false;
-  setTimeout(() => elementos.documentoCategoria?.focus(), 40);
-}
-
-function esconderFormDocumento() {
-  if (estado.salvandoDocumento) return;
-  if (elementos.formDocumento) elementos.formDocumento.hidden = true;
-  limparFormDocumento();
-}
-
-function criarCardDocumento(documento) {
-  const ehPdf =
-    documento.arquivoTipo === "application/pdf" ||
-    documento.arquivo_tipo === "application/pdf";
-
-  const url = documento.arquivoUrl || documento.arquivo_url || "";
-  const nomeArquivo = documento.nomeArquivo || documento.nome_arquivo || "";
-  const tamanho = documento.tamanhoBytes || documento.tamanho_bytes || 0;
-  const criadoEm = documento.criadoEm || documento.criado_em || "";
-  const dataDocumento = documento.dataDocumento || documento.data_documento || "";
-
-  const preview = ehPdf
-    ? `<div class="documento-preview-pdf" aria-hidden="true">📕</div>`
-    : `<img src="${escaparHtml(url)}" alt="${escaparHtml(documento.titulo)}" loading="lazy">`;
-
-  const detalhes = [
-    ehPdf ? "PDF" : "Imagem",
-    formatarTamanhoArquivo(tamanho),
-    formatarDataDocumento(dataDocumento || criadoEm),
-    documento.profissional,
-  ].filter(Boolean).join(" • ");
-
-  return `
-    <article class="documento-card">
-      <div class="documento-preview">
-        ${preview}
-        <span class="documento-categoria">
-          ${iconeCategoriaDocumento(documento.categoria)}
-          ${escaparHtml(documento.categoria)}
-        </span>
-      </div>
-
-      <div class="documento-card-corpo">
-        <div class="documento-card-titulo">${escaparHtml(documento.titulo)}</div>
-        <div class="documento-card-detalhes">${escaparHtml(detalhes || nomeArquivo)}</div>
-        ${documento.observacoes ? `<div class="documento-card-observacoes">${escaparHtml(documento.observacoes)}</div>` : ""}
-
-        <div class="documento-card-acoes">
-          <a
-            class="documento-acao"
-            href="${escaparHtml(url)}"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            👁️ Abrir
-          </a>
-
-          <a
-            class="documento-acao"
-            href="${escaparHtml(url)}"
-            target="_blank"
-            rel="noopener noreferrer"
-            download="${escaparHtml(nomeArquivo || documento.titulo)}"
-          >
-            ⬇️ Baixar
-          </a>
-
-          <button
-            class="documento-acao"
-            type="button"
-            title="Editar"
-            aria-label="Editar"
-            data-documento-acao="editar"
-            data-id="${escaparHtml(documento.id)}"
-          >
-            ✏️
-          </button>
-
-          <button
-            class="documento-acao documento-acao-excluir"
-            type="button"
-            title="Excluir"
-            aria-label="Excluir"
-            data-documento-acao="excluir"
-            data-id="${escaparHtml(documento.id)}"
-          >
-            🗑️
-          </button>
-        </div>
-      </div>
-    </article>
-  `;
-}
-
-function renderizarDocumentos() {
-  const busca = (elementos.documentosBusca?.value || "").trim().toLocaleLowerCase("pt-BR");
-  const categoria = elementos.documentosFiltroCategoria?.value || "";
-  const documentos = estado.documentos.filter((item) => {
-    if (categoria && item.categoria !== categoria) return false;
-    if (!busca) return true;
-    return [item.titulo, item.profissional, item.observacoes, item.categoria].some((valor) => String(valor || "").toLocaleLowerCase("pt-BR").includes(busca));
-  });
-
-  if (elementos.documentosResumo) {
-    elementos.documentosResumo.textContent =
-      documentos.length === 1
-        ? "1 documento armazenado."
-        : `${documentos.length} documento${documentos.length === 1 ? "" : "s"} exibido${documentos.length === 1 ? "" : "s"} de ${estado.documentos.length}.`;
-  }
-
-  if (elementos.documentosVazio) {
-    elementos.documentosVazio.hidden = documentos.length > 0;
-  }
-
-  if (elementos.listaDocumentos) {
-    elementos.listaDocumentos.innerHTML = documentos.map(criarCardDocumento).join("");
-  }
-
-  elementos.listaDocumentos
-    ?.querySelectorAll('[data-documento-acao="editar"]')
-    .forEach((botao) => {
-      botao.addEventListener("click", () => {
-        const documento = estado.documentos.find(
-          (item) => String(item.id) === String(botao.dataset.id)
-        );
-
-        if (documento) mostrarFormDocumento(documento);
-      });
-    });
-
-  elementos.listaDocumentos
-    ?.querySelectorAll('[data-documento-acao="excluir"]')
-    .forEach((botao) => {
-      botao.addEventListener("click", excluirDocumento);
-    });
-}
-
-async function carregarDocumentos() {
-  const tagCodigo = elementos.documentosTag?.value.trim() || "";
-  if (!tagCodigo || estado.carregandoDocumentos) return;
-
-  estado.carregandoDocumentos = true;
-
-  if (elementos.documentosCarregando) elementos.documentosCarregando.hidden = false;
-  if (elementos.listaDocumentos) elementos.listaDocumentos.innerHTML = "";
-  if (elementos.documentosVazio) elementos.documentosVazio.hidden = true;
-
-  try {
-    const resposta = await fetch(
-      `/api/documentos-listar?tagCodigo=${encodeURIComponent(tagCodigo)}`,
-      {
-        credentials: "same-origin",
-        headers: { Accept: "application/json" },
-      }
-    );
-
-    const dados = await resposta.json().catch(() => ({}));
-
-    if (resposta.status === 401 || dados.autenticado === false) {
-      window.location.replace("/login.html");
-      return;
-    }
-
-    if (!resposta.ok || !dados.sucesso) {
-      throw new Error(dados.mensagem || "Não foi possível carregar os documentos.");
-    }
-
-    estado.documentos = Array.isArray(dados.documentos) ? dados.documentos : [];
-    renderizarDocumentos();
-  } catch (erro) {
-    estado.documentos = [];
-    renderizarDocumentos();
-    exibirMensagem(erro.message || "Não foi possível carregar os documentos.", "erro");
-  } finally {
-    estado.carregandoDocumentos = false;
-    if (elementos.documentosCarregando) elementos.documentosCarregando.hidden = true;
-  }
-}
-
-function abrirModalDocumentos(evento) {
-  const tag = evento.currentTarget.dataset.tag;
-  const pet = estado.pets.find(
-    (item) => String(dadosPet(item).tagCodigo) === String(tag)
-  );
-
-  if (!pet || !elementos.modalDocumentos) {
-    exibirMensagem("Não foi possível abrir os documentos deste pet.", "erro");
-    return;
-  }
-
-  const dados = dadosPet(pet);
-  estado.petEmEdicao = pet;
-  estado.documentos = [];
-
-  definirValor(elementos.documentosTag, dados.tagCodigo);
-
-  if (elementos.documentosNomePet) {
-    elementos.documentosNomePet.textContent = formatarTexto(dados.nome, "Pet");
-  }
-
-  if (elementos.documentosResumo) {
-    elementos.documentosResumo.textContent = "Carregando documentos...";
-  }
-
-  esconderFormDocumento();
-  elementos.modalDocumentos.hidden = false;
-  document.body.classList.add("modal-aberto");
-  carregarDocumentos();
-}
-
-function fecharModalDocumentos() {
-  if (estado.salvandoDocumento || !elementos.modalDocumentos) return;
-
-  elementos.modalDocumentos.hidden = true;
-  estado.documentos = [];
-  estado.petEmEdicao = null;
-  esconderFormDocumento();
-
-  const algumModalAberto =
-    (elementos.modalEditar && !elementos.modalEditar.hidden) ||
-    (elementos.modalFoto && !elementos.modalFoto.hidden) ||
-    (elementos.modalSaude && !elementos.modalSaude.hidden) ||
-    (elementos.modalDocumentos && !elementos.modalDocumentos.hidden);
-
-  if (!algumModalAberto) document.body.classList.remove("modal-aberto");
-}
-
-function atualizarNomeArquivoDocumento() {
-  const arquivo = elementos.documentoArquivo?.files?.[0];
-
-  if (elementos.documentoArquivoTexto) {
-    elementos.documentoArquivoTexto.textContent = arquivo
-      ? arquivo.name
-      : "Escolher arquivo";
-  }
-
-  if (
-    arquivo &&
-    elementos.documentoTitulo &&
-    !elementos.documentoTitulo.value.trim()
-  ) {
-    elementos.documentoTitulo.value = arquivo.name.replace(/\.[^.]+$/, "");
-  }
-}
-
-async function salvarDocumento(evento) {
-  evento.preventDefault();
-  if (estado.salvandoDocumento) return;
-
-  const id = elementos.documentoId?.value.trim() || "";
-  const tagCodigo = elementos.documentosTag?.value.trim() || "";
-  const categoria = elementos.documentoCategoria?.value.trim() || "";
-  const titulo = elementos.documentoTitulo?.value.trim() || "";
-  const dataDocumento = elementos.documentoData?.value || "";
-  const profissional = elementos.documentoProfissional?.value.trim() || "";
-  const observacoes = elementos.documentoObservacoes?.value.trim() || "";
-  const arquivo = elementos.documentoArquivo?.files?.[0];
-
-  if (!tagCodigo || !categoria || !titulo) {
-    exibirMensagem("Preencha a categoria e o título.", "erro");
-    return;
-  }
-
-  if (!id && !arquivo) {
-    exibirMensagem("Escolha uma imagem ou PDF.", "erro");
-    return;
-  }
-
-  if (arquivo && arquivo.size > 10 * 1024 * 1024) {
-    exibirMensagem("O arquivo deve ter no máximo 10 MB.", "erro");
-    return;
-  }
-
-  estado.salvandoDocumento = true;
-  const textoOriginal = elementos.salvarDocumento?.textContent || "Enviar documento";
-
-  if (elementos.salvarDocumento) {
-    elementos.salvarDocumento.disabled = true;
-    elementos.salvarDocumento.textContent = id ? "Salvando..." : "Enviando...";
-  }
-
-  try {
-    let resposta;
-
-    if (id) {
-      resposta = await fetch("/api/documentos-atualizar", {
-        method: "POST",
-        credentials: "same-origin",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-        body: JSON.stringify({ id, tagCodigo, categoria, titulo, dataDocumento, profissional, observacoes }),
-      });
-    } else {
-      const formulario = new FormData();
-      formulario.append("tagCodigo", tagCodigo);
-      formulario.append("categoria", categoria);
-      formulario.append("titulo", titulo);
-      formulario.append("dataDocumento", dataDocumento);
-      formulario.append("profissional", profissional);
-      formulario.append("observacoes", observacoes);
-      formulario.append("arquivo", arquivo);
-
-      resposta = await fetch("/api/documentos-upload", {
-        method: "POST",
-        credentials: "same-origin",
-        headers: { Accept: "application/json" },
-        body: formulario,
-      });
-    }
-
-    const resultado = await resposta.json().catch(() => ({}));
-
-    if (resposta.status === 401 || resultado.autenticado === false) {
-      window.location.replace("/login.html");
-      return;
-    }
-
-    if (!resposta.ok || !resultado.sucesso) {
-      throw new Error(resultado.mensagem || "Não foi possível salvar o documento.");
-    }
-
-    exibirMensagem(resultado.mensagem || "Documento salvo com sucesso.");
-    estado.salvandoDocumento = false;
-    esconderFormDocumento();
-    await carregarDocumentos();
-  } catch (erro) {
-    exibirMensagem(erro.message || "Não foi possível salvar o documento.", "erro");
-  } finally {
-    estado.salvandoDocumento = false;
-
-    if (elementos.salvarDocumento) {
-      elementos.salvarDocumento.disabled = false;
-      elementos.salvarDocumento.textContent = textoOriginal;
-    }
-  }
-}
-
-async function excluirDocumento(evento) {
-  const id = evento.currentTarget.dataset.id;
-  const tagCodigo = elementos.documentosTag?.value.trim() || "";
-
-  if (!id || !tagCodigo) return;
-
-  const confirmar = window.BIRXUI?.confirmar
-    ? await window.BIRXUI.confirmar({
-        titulo: "Excluir documento?",
-        mensagem: "O arquivo será removido permanentemente.",
-        textoConfirmar: "Excluir documento",
-      })
-    : window.confirm("Deseja realmente excluir este documento?");
-
-  if (!confirmar) return;
-
-  const botao = evento.currentTarget;
-  botao.disabled = true;
-
-  try {
-    const resposta = await fetch("/api/documentos-excluir", {
-      method: "POST",
-      credentials: "same-origin",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-      },
-      body: JSON.stringify({ id, tagCodigo }),
-    });
-
-    const resultado = await resposta.json().catch(() => ({}));
-
-    if (resposta.status === 401 || resultado.autenticado === false) {
-      window.location.replace("/login.html");
-      return;
-    }
-
-    if (!resposta.ok || !resultado.sucesso) {
-      throw new Error(resultado.mensagem || "Não foi possível excluir o documento.");
-    }
-
-    exibirMensagem(resultado.mensagem || "Documento excluído.");
-    await carregarDocumentos();
-  } catch (erro) {
-    botao.disabled = false;
-    exibirMensagem(erro.message || "Não foi possível excluir o documento.", "erro");
-  }
-}
-
 
 async function carregarPainel() {
   definirCarregamento(true);
@@ -2023,12 +447,9 @@ async function carregarPainel() {
       respostaDashboard.json().catch(() => ({})),
     ]);
 
-    if (
-      respostaTutor.status === 401 ||
-      respostaDashboard.status === 401 ||
-      dados.autenticado === false ||
-      dashboard.autenticado === false
-    ) {
+    // A sessão é determinada exclusivamente por /api/tutor.
+    // O dashboard é complementar e não deve derrubar uma conta válida.
+    if (respostaTutor.status === 401 || dados.autenticado === false) {
       window.location.replace("/login.html");
       return;
     }
@@ -2248,20 +669,30 @@ elementos.listaPetsRecentes?.addEventListener("click", (evento) => {
         : "Nenhum pet está em modo perdido."
     );
   });
-  elementos.fecharModal?.addEventListener("click", () => fecharModalEdicao());
-  elementos.cancelarEdicao?.addEventListener("click", () => fecharModalEdicao());
-  elementos.modalOverlay?.addEventListener("click", () => fecharModalEdicao());
-  elementos.formEditarPet?.addEventListener("input", marcarAlteracaoFormulario);
-  elementos.formEditarPet?.addEventListener("change", marcarAlteracaoFormulario);
-  document.querySelectorAll("[data-edicao-aba]").forEach((botao) => botao.addEventListener("click", () => selecionarAbaEdicao(botao.dataset.edicaoAba)));
+
+  elementos.listaPets?.addEventListener("click", (evento) => {
+    const botao = evento.target.closest("button[data-acao]");
+    if (!botao) return;
+
+    const tag = botao.dataset.tag;
+    const pet = estado.pets.find((item) => String(dadosPet(item).tagCodigo) === String(tag));
+    if (!pet) return;
+
+    if (botao.dataset.acao === "editar") abrirModalEdicaoComPet(pet);
+    if (botao.dataset.acao === "foto") abrirModalFoto(pet);
+    if (botao.dataset.acao === "perfil") abrirPerfilTutor({ currentTarget: botao });
+  });
+
+  elementos.fecharModal?.addEventListener("click", fecharModalEdicao);
+  elementos.cancelarEdicao?.addEventListener("click", fecharModalEdicao);
+  elementos.modalOverlay?.addEventListener("click", fecharModalEdicao);
   elementos.formEditarPet?.addEventListener("submit", salvarEdicao);
-  elementos.editarCep?.addEventListener("blur", buscarCep);
 
   elementos.fecharModalFoto?.addEventListener("click", fecharModalFoto);
   elementos.cancelarFoto?.addEventListener("click", fecharModalFoto);
   elementos.modalFotoOverlay?.addEventListener("click", fecharModalFoto);
-  elementos.arquivoFoto?.addEventListener("change", aoSelecionarFoto);
-  elementos.formFotoPet?.addEventListener("submit", enviarNovaFoto);
+  elementos.formFotoPet?.addEventListener("submit", salvarFoto);
+  elementos.arquivoFoto?.addEventListener("change", atualizarPreviewFoto);
 
   elementos.fecharModalSaude?.addEventListener("click", fecharModalSaude);
   elementos.modalSaudeOverlay?.addEventListener("click", fecharModalSaude);
@@ -2269,38 +700,59 @@ elementos.listaPetsRecentes?.addEventListener("click", (evento) => {
   elementos.cancelarFormSaude?.addEventListener("click", esconderFormSaude);
   elementos.fecharFormSaude?.addEventListener("click", esconderFormSaude);
   elementos.formSaude?.addEventListener("submit", salvarRegistroSaude);
+  elementos.listaSaude?.addEventListener("click", async (evento) => {
+    const botao = evento.target.closest("button[data-acao]");
+    if (!botao) return;
+
+    const id = Number(botao.dataset.id);
+    if (!id) return;
+
+    if (botao.dataset.acao === "editar") {
+      const registro = estado.saudeRegistros.find((item) => Number(item.id) === id);
+      if (registro) mostrarFormSaude(registro);
+    }
+
+    if (botao.dataset.acao === "excluir") {
+      await excluirRegistroSaude(id, botao);
+    }
+  });
 
   elementos.fecharModalDocumentos?.addEventListener("click", fecharModalDocumentos);
   elementos.modalDocumentosOverlay?.addEventListener("click", fecharModalDocumentos);
   elementos.novoDocumento?.addEventListener("click", () => mostrarFormDocumento());
   elementos.cancelarFormDocumento?.addEventListener("click", esconderFormDocumento);
   elementos.fecharFormDocumento?.addEventListener("click", esconderFormDocumento);
-  elementos.documentoArquivo?.addEventListener("change", atualizarNomeArquivoDocumento);
   elementos.formDocumento?.addEventListener("submit", salvarDocumento);
   elementos.documentosBusca?.addEventListener("input", renderizarDocumentos);
   elementos.documentosFiltroCategoria?.addEventListener("change", renderizarDocumentos);
+  elementos.documentoArquivo?.addEventListener("change", () => {
+    if (!elementos.documentoArquivoTexto) return;
+    elementos.documentoArquivoTexto.textContent = elementos.documentoArquivo.files?.[0]?.name || "Escolher arquivo";
+  });
+  elementos.listaDocumentos?.addEventListener("click", async (evento) => {
+    const botao = evento.target.closest("[data-documento-acao]");
+    if (!botao) return;
+
+    const id = Number(botao.dataset.id);
+    if (!id) return;
+
+    if (botao.dataset.documentoAcao === "editar") {
+      const documento = estado.documentos.find((item) => Number(item.id) === id);
+      if (documento) mostrarFormDocumento(documento);
+    }
+
+    if (botao.dataset.documentoAcao === "excluir") {
+      await excluirDocumento(id, botao);
+    }
+  });
 
   document.addEventListener("keydown", (evento) => {
     if (evento.key !== "Escape") return;
 
-    if (elementos.modalDocumentos && !elementos.modalDocumentos.hidden) {
-      fecharModalDocumentos();
-      return;
-    }
-
-    if (elementos.modalSaude && !elementos.modalSaude.hidden) {
-      fecharModalSaude();
-      return;
-    }
-
-    if (elementos.modalFoto && !elementos.modalFoto.hidden) {
-      fecharModalFoto();
-      return;
-    }
-
-    if (elementos.modalEditar && !elementos.modalEditar.hidden) {
-      fecharModalEdicao();
-    }
+    if (!elementos.modalEditar.hidden) fecharModalEdicao();
+    if (!elementos.modalFoto.hidden) fecharModalFoto();
+    if (!elementos.modalSaude.hidden) fecharModalSaude();
+    if (!elementos.modalDocumentos.hidden) fecharModalDocumentos();
   });
 }
 
