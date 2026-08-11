@@ -17,10 +17,17 @@ const ROTAS_INTERNAS_EXATAS = new Set([
   "/producao.html",
 ]);
 
+const ROTAS_LOGIN_ADMIN = new Set([
+  "/admin/login",
+  "/admin/login/",
+  "/admin/login.html",
+]);
+
 function rotaInterna(pathname) {
+  if (ROTAS_LOGIN_ADMIN.has(pathname)) return false;
   if (ROTAS_INTERNAS_EXATAS.has(pathname)) return true;
   if (pathname === "/admin" || pathname === "/admin/") return true;
-  if (pathname.startsWith("/admin/") && pathname !== "/admin/login.html") return true;
+  if (pathname.startsWith("/admin/")) return true;
   return false;
 }
 
@@ -37,7 +44,7 @@ export async function onRequest(context) {
   if (rotaInterna(url.pathname)) {
     const autorizado = await adminAutorizado(context.request, context.env);
     if (!autorizado) {
-      const login = new URL("/admin/login.html", url.origin);
+      const login = new URL("/admin/login/", url.origin);
       login.searchParams.set("voltar", `${url.pathname}${url.search}`);
       return Response.redirect(login.toString(), 302);
     }
