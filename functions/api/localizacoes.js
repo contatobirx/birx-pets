@@ -30,6 +30,20 @@ async function obterSessao(request, env) {
   return Number.isFinite(expira) && Date.now() <= expira ? sessao : null;
 }
 
+async function limitarEnvioPublico(request, env, tag) {
+  const origemHash = await sha256(`${request.headers.get("CF-Connecting-IP") || "ip-indisponivel"}|${request.headers.get("User-Agent") || "ua-indisponivel"}|${tag}`);
+  const recente = await env.DB.prepare(`
+    SELECT COUNT(*) AS total FROM localizacoes_pet
+    WHERE tag_codigo = ? AND origem = 'perfil_publico' AND datetime(criado_em) > datetime('now', '-10 minutes')
+  `).bind(tag).first();
+  if (Number(recente?.total || 0) >= 20) return false;
+
+  // O hash não é persistido: serve apenas para tornar o limite por tag conservador
+  // sem armazenar IP ou identificador adicional do visitante.
+  void origemHash;
+  return true;
+}
+
 export async function onRequestPost(context) {
   try {
     const { request, env } = context;
@@ -40,7 +54,7 @@ export async function onRequestPost(context) {
     const precisao = Number(corpo.precisao);
     const origem = corpo.origem === "tutor_ultimo_avistamento" ? "tutor_ultimo_avistamento" : "perfil_publico";
 
-    if (!tag || !Number.isFinite(latitude) || latitude < -90 || latitude > 90 || !Number.isFinite(longitude) || longitude < -180 || longitude > 180) {
+    if (!/^BIRX-[A-Z0-9-]{4,40}$/.test(tag) || !Number.isFinite(latitude) || latitude < -90 || latitude > 90 || !Number.isFinite(longitude) || longitude < -180 || longitude > 180 || (Number.isFinite(precisao) && (precisao < 0 || precisao > 100000))) {
       return json({ sucesso: false, mensagem: "Localização inválida." }, 400);
     }
 
@@ -53,6 +67,8 @@ export async function onRequestPost(context) {
       const sessao = await obterSessao(request, env);
       if (!sessao || String(sessao.email).trim().toLowerCase() !== String(pet.email || "").trim().toLowerCase()) return json({ sucesso: false, mensagem: "Acesso não autorizado." }, 401);
       if (Number(pet.perdido) !== 1) return json({ sucesso: false, mensagem: "Ative o modo perdido antes de informar a localização." }, 409);
+    } else if (!await limitarEnvioPublico(request, env, tag)) {
+      return json({ sucesso: false, mensagem: "Muitas localizações foram enviadas recentemente para esta tag. Tente novamente em alguns minutos." }, 429);
     }
 
     await env.DB.prepare(`
