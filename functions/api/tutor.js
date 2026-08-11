@@ -1,192 +1,95 @@
+import { obterSessaoTutor } from "../_lib/auth.js";
+
 function json(dados, status = 200) {
   return new Response(JSON.stringify(dados), {
     status,
     headers: {
       "Content-Type": "application/json; charset=UTF-8",
+      "Cache-Control": "no-store",
     },
   });
-}
-
-function obterCookie(request, nome) {
-  const cookies = request.headers.get("Cookie") || "";
-
-  for (const cookie of cookies.split(";")) {
-    const [chave, ...valor] = cookie.trim().split("=");
-
-    if (chave === nome) {
-      return decodeURIComponent(valor.join("="));
-    }
-  }
-
-  return null;
-}
-
-async function sha256(texto) {
-  const dados = new TextEncoder().encode(texto);
-
-  const hash = await crypto.subtle.digest(
-    "SHA-256",
-    dados
-  );
-
-  return [...new Uint8Array(hash)]
-    .map((b) =>
-      b.toString(16).padStart(2, "0")
-    )
-    .join("");
 }
 
 export async function onRequestGet(context) {
   try {
     const { request, env } = context;
-
-    const token = obterCookie(
-      request,
-      "orbitek_sessao"
-    );
-
-    if (!token) {
-      return json(
-        {
-          autenticado: false,
-          mensagem: "Sessão inválida.",
-        },
-        401
-      );
-    }
-
-    const tokenHash =
-      await sha256(token);
-
-    const sessao =
-      await env.DB.prepare(`
-        SELECT *
-        FROM sessoes_tutor
-        WHERE token_hash = ?
-      `)
-        .bind(tokenHash)
-        .first();
+    const sessao = await obterSessaoTutor(request, env);
 
     if (!sessao) {
-      return json(
-        {
-          autenticado: false,
-        },
-        401
-      );
+      return json({
+        sucesso: false,
+        autenticado: false,
+        mensagem: "Sua sessão expirou. Entre novamente.",
+      }, 401);
     }
 
-    if (
-      Date.now() >
-      Number(sessao.expira_em)
-    ) {
-      await env.DB.prepare(`
-        DELETE FROM sessoes_tutor
-        WHERE token_hash = ?
-      `)
-        .bind(tokenHash)
-        .run();
-
-      return json(
-        {
-          autenticado: false,
-        },
-        401
-      );
-    }
-
-    await env.DB.prepare(`
-      UPDATE sessoes_tutor
-      SET ultimo_acesso = ?
-      WHERE token_hash = ?
+    const pets = await env.DB.prepare(`
+      SELECT
+        tag_codigo,
+        nome,
+        especie,
+        raca,
+        sexo,
+        idade,
+        comportamento,
+        nome_tutor,
+        whatsapp,
+        email,
+        cep,
+        logradouro,
+        cidade,
+        estado,
+        perdido,
+        publico_perdidos,
+        status,
+        foto_url
+      FROM pets
+      WHERE LOWER(email) = LOWER(?)
+      ORDER BY data_cadastro DESC
     `)
-      .bind(
-        Date.now(),
-        tokenHash
-      )
-      .run();
+      .bind(sessao.email)
+      .all();
 
-    const pets =
-      await env.DB.prepare(`
-        SELECT
-          tag_codigo,
-          nome,
-          especie,
-          raca,
-          sexo,
-          idade,
-          comportamento,
-          nome_tutor,
-          whatsapp,
-          email,
-          cep,
-          logradouro,
-          cidade,
-          estado,
-          perdido,
-          publico_perdidos,
-          status,
-          foto_url
-        FROM pets
-        WHERE email = ?
-        ORDER BY data_cadastro DESC
-      `)
-        .bind(sessao.email)
-        .all();
-
-    const lista = pets.results.map(
-      (pet) => ({
-        tagCodigo:
-          pet.tag_codigo,
-        nome: pet.nome,
-        especie: pet.especie,
-        raca: pet.raca,
-        sexo: pet.sexo,
-        idade: pet.idade,
-        comportamento:
-          pet.comportamento,
-        perdido:
-          pet.perdido == 1,
-        publicoPerdidos:
-          pet.publico_perdidos == 1,
-        fotoUrl:
-          pet.foto_url,
-        tutor: {
-          nome: pet.nome_tutor || "",
-          email: pet.email || sessao.email,
-          whatsapp: pet.whatsapp || "",
-        },
-        localizacao: {
-          cep: pet.cep || "",
-          logradouro: pet.logradouro || "",
-          cidade: pet.cidade || "",
-          estado: pet.estado || "",
-        },
-      })
-    );
+    const resultados = pets.results || [];
+    const lista = resultados.map((pet) => ({
+      tagCodigo: pet.tag_codigo,
+      nome: pet.nome,
+      especie: pet.especie,
+      raca: pet.raca,
+      sexo: pet.sexo,
+      idade: pet.idade,
+      comportamento: pet.comportamento,
+      perdido: pet.perdido == 1,
+      publicoPerdidos: pet.publico_perdidos == 1,
+      fotoUrl: pet.foto_url,
+      tutor: {
+        nome: pet.nome_tutor || "",
+        email: pet.email || sessao.email,
+        whatsapp: pet.whatsapp || "",
+      },
+      localizacao: {
+        cep: pet.cep || "",
+        logradouro: pet.logradouro || "",
+        cidade: pet.cidade || "",
+        estado: pet.estado || "",
+      },
+    }));
 
     return json({
       sucesso: true,
       autenticado: true,
-
       tutor: {
-        nome: pets.results[0]?.nome_tutor || "",
+        nome: resultados[0]?.nome_tutor || "",
         email: sessao.email,
-        whatsapp: pets.results[0]?.whatsapp || "",
+        whatsapp: resultados[0]?.whatsapp || "",
       },
-
       pets: lista,
     });
   } catch (erro) {
-    console.error(erro);
-
-    return json(
-      {
-        sucesso: false,
-        mensagem:
-          erro.message,
-      },
-      500
-    );
+    console.error("Erro em /api/tutor:", erro);
+    return json({
+      sucesso: false,
+      mensagem: "Não foi possível carregar os dados da sua conta.",
+    }, 500);
   }
 }
