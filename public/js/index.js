@@ -6,6 +6,17 @@ estiloCabecalhoHome.textContent = `
 `;
 document.head.appendChild(estiloCabecalhoHome);
 
+// A Loja está em desenvolvimento interno. No site público, pedidos personalizados
+// seguem pelo configurador e são finalizados pelo WhatsApp.
+document.querySelectorAll('.main-nav a[href="/loja"],.main-nav a[href="/loja.html"]').forEach((link) => link.remove());
+document.querySelectorAll('a[href="/loja"],a[href="/loja.html"]').forEach((link) => {
+  if (link.closest('.main-nav')) return;
+  link.href = '/personalizar';
+  if (/comprar|loja|tag/i.test(link.textContent || '')) {
+    link.innerHTML = 'Personalizar BIRX ID <span aria-hidden="true">→</span>';
+  }
+});
+
 const siteHeader = document.querySelector('.site-header');
 
 function atualizarCabecalhoAoRolar() {
