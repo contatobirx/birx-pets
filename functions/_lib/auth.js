@@ -20,16 +20,40 @@ async function sha256(texto) {
     .join("");
 }
 
-export function sessaoExpirada(expiraEm) {
-  if (!expiraEm) return true;
+function interpretarData(valor) {
+  if (valor === null || valor === undefined || valor === "") return NaN;
 
-  const numero = Number(expiraEm);
-  if (Number.isFinite(numero) && numero > 0) {
-    return Date.now() > numero;
+  if (typeof valor === "number") {
+    if (!Number.isFinite(valor) || valor <= 0) return NaN;
+    return valor < 1e12 ? valor * 1000 : valor;
   }
 
-  const data = Date.parse(String(expiraEm));
-  return Number.isNaN(data) || Date.now() > data;
+  const texto = String(valor).trim();
+  if (!texto) return NaN;
+
+  if (/^\d+(?:\.\d+)?$/.test(texto)) {
+    const numero = Number(texto);
+    if (!Number.isFinite(numero) || numero <= 0) return NaN;
+    return numero < 1e12 ? numero * 1000 : numero;
+  }
+
+  const direto = Date.parse(texto);
+  if (!Number.isNaN(direto)) return direto;
+
+  // Compatibilidade com timestamps SQLite no formato YYYY-MM-DD HH:MM:SS.
+  const sqlite = texto.match(/^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2})(?::(\d{2}))?$/);
+  if (sqlite) {
+    const [, ano, mes, dia, hora, minuto, segundo = "00"] = sqlite;
+    const utc = Date.UTC(Number(ano), Number(mes) - 1, Number(dia), Number(hora), Number(minuto), Number(segundo));
+    return Number.isFinite(utc) ? utc : NaN;
+  }
+
+  return NaN;
+}
+
+export function sessaoExpirada(expiraEm) {
+  const expiraMs = interpretarData(expiraEm);
+  return !Number.isFinite(expiraMs) || Date.now() > expiraMs;
 }
 
 export async function obterSessaoTutor(request, env, { atualizarUltimoAcesso = true } = {}) {
@@ -55,6 +79,14 @@ export async function obterSessaoTutor(request, env, { atualizarUltimoAcesso = t
     return null;
   }
 
+  const email = String(sessao.email || "").trim().toLowerCase();
+  if (!email) {
+    await env.DB.prepare(`DELETE FROM sessoes_tutor WHERE token_hash = ?`)
+      .bind(tokenHash)
+      .run();
+    return null;
+  }
+
   if (atualizarUltimoAcesso) {
     await env.DB.prepare(`
       UPDATE sessoes_tutor
@@ -67,7 +99,7 @@ export async function obterSessaoTutor(request, env, { atualizarUltimoAcesso = t
 
   return {
     id: sessao.id,
-    email: String(sessao.email || "").trim().toLowerCase(),
+    email,
     tokenHash,
     expiraEm: sessao.expira_em,
   };
