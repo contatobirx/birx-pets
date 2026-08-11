@@ -29,13 +29,13 @@ export async function onRequestGet({ request, env }) {
           END) AS cadastros_mes
         FROM pets p
         LEFT JOIN tags t ON t.codigo = p.tag_codigo
-        WHERE LOWER(p.email) = LOWER(?)
+        WHERE LOWER(TRIM(p.email)) = LOWER(TRIM(?))
       `).bind(sessao.email).first(),
 
       env.DB.prepare(`
         SELECT tag_codigo, nome, especie, raca, perdido, foto_url, data_cadastro
         FROM pets
-        WHERE LOWER(email) = LOWER(?)
+        WHERE LOWER(TRIM(email)) = LOWER(TRIM(?))
         ORDER BY datetime(data_cadastro) DESC, id DESC
         LIMIT 3
       `).bind(sessao.email).all(),
