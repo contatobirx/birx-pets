@@ -10,12 +10,21 @@ function json(dados, status = 200) {
   });
 }
 
+function emailCanonico(valor) {
+  return String(valor || "").trim().toLowerCase().replace(/[\s\u00a0\u200b]+/g, "");
+}
+
+const EMAIL_SQL = `LOWER(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(TRIM(p.email), ' ', ''), char(9), ''), char(10), ''), char(13), ''), char(160), ''), char(8203), ''))`;
+const EMAIL_SQL_RECENTES = `LOWER(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(TRIM(email), ' ', ''), char(9), ''), char(10), ''), char(13), ''), char(160), ''), char(8203), ''))`;
+
 export async function onRequestGet({ request, env }) {
   try {
     const sessao = await obterSessaoTutor(request, env);
     if (!sessao) {
       return json({ sucesso: false, autenticado: false, mensagem: "Sua sessão expirou. Entre novamente." }, 401);
     }
+
+    const email = emailCanonico(sessao.email);
 
     const [resumo, recentes] = await Promise.all([
       env.DB.prepare(`
@@ -29,16 +38,16 @@ export async function onRequestGet({ request, env }) {
           END) AS cadastros_mes
         FROM pets p
         LEFT JOIN tags t ON t.codigo = p.tag_codigo
-        WHERE LOWER(TRIM(p.email)) = LOWER(TRIM(?))
-      `).bind(sessao.email).first(),
+        WHERE ${EMAIL_SQL} = ?
+      `).bind(email).first(),
 
       env.DB.prepare(`
         SELECT tag_codigo, nome, especie, raca, perdido, foto_url, data_cadastro
         FROM pets
-        WHERE LOWER(TRIM(email)) = LOWER(TRIM(?))
+        WHERE ${EMAIL_SQL_RECENTES} = ?
         ORDER BY datetime(data_cadastro) DESC, id DESC
         LIMIT 3
-      `).bind(sessao.email).all(),
+      `).bind(email).all(),
     ]);
 
     return json({
