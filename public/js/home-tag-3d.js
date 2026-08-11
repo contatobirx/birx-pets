@@ -27,31 +27,15 @@ function role(name){const n=name.toLowerCase();if(n.includes('texto'))return'tex
 function logoFilter(piece){if(!/merged/i.test(piece.name))return null;const all=geometryFromXml(piece.xml,piece.componentTransform,piece.buildTransform);const p=all.getAttribute('position');let minY=Infinity,maxY=-Infinity;for(let i=0;i<p.count;i++){minY=Math.min(minY,p.getY(i));maxY=Math.max(maxY,p.getY(i))}all.dispose();const cut=minY+(maxY-minY)*.31;return pts=>(pts[0][1]+pts[1][1]+pts[2][1])/3>cut}
 
 async function buildViewer(holder){
-  const bodyColor=holder.dataset.body||'#151515',detailColor=holder.dataset.detail||'#f5f5f2',name=(holder.dataset.name||'').trim().toUpperCase(),spin=holder.dataset.spin==='1';
+  const bodyColor=holder.dataset.body||'#151515',detailColor=holder.dataset.detail||'#f5f5f2',name=(holder.dataset.name||'').trim().toUpperCase();
   const scene=new THREE.Scene(),camera=new THREE.PerspectiveCamera(32,1,.1,100),renderer=new THREE.WebGLRenderer({antialias:true,alpha:true});renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.outputColorSpace=THREE.SRGBColorSpace;holder.innerHTML='';holder.appendChild(renderer.domElement);
   scene.add(new THREE.HemisphereLight(0xffffff,0x61708c,2.8));const key=new THREE.DirectionalLight(0xffffff,4.2);key.position.set(4,5,7);scene.add(key);const root=new THREE.Group();scene.add(root);
   const pieces=await getPieces(),model=new THREE.Group();let textPiece=null;
   for(const piece of pieces){const r=role(piece.name);if(r==='text'){textPiece=piece;continue}const filter=r==='detail'&&name?logoFilter(piece):null,g=geometryFromXml(piece.xml,piece.componentTransform,piece.buildTransform,filter),m=new THREE.MeshStandardMaterial({color:r==='body'?bodyColor:detailColor,roughness:.43,metalness:.01,polygonOffset:r==='detail',polygonOffsetFactor:-3,polygonOffsetUnits:-3}),mesh=new THREE.Mesh(g,m);mesh.renderOrder=r==='detail'?5:1;model.add(mesh)}
   let box=new THREE.Box3().setFromObject(model),center=new THREE.Vector3(),size=new THREE.Vector3();box.getCenter(center);box.getSize(size);const scale=3.65/Math.max(size.x,size.y);model.scale.setScalar(scale);model.position.set(-center.x*scale,-center.y*scale,-center.z*scale);model.rotation.y=Math.PI;root.add(model);root.updateMatrixWorld(true);box=new THREE.Box3().setFromObject(model);box.getCenter(center);box.getSize(size);
   if(name&&textPiece){const f=await getFont(),g=new TextGeometry(name,{font:f,size:.48,depth:.065,curveSegments:5,bevelEnabled:true,bevelThickness:.014,bevelSize:.009,bevelSegments:2});g.computeBoundingBox();const ts=new THREE.Vector3();g.boundingBox.getSize(ts);const s=Math.min(1,(size.x*.70)/Math.max(ts.x,.001));g.scale(s,s,s);g.computeBoundingBox();const tc=new THREE.Vector3();g.boundingBox.getCenter(tc);g.translate(-tc.x,-tc.y,-tc.z);const mesh=new THREE.Mesh(g,new THREE.MeshStandardMaterial({color:detailColor,roughness:.4}));mesh.position.set(center.x,center.y-size.y*.22,box.max.z+.035);root.add(mesh)}
-  function fit(){const rect=holder.getBoundingClientRect(),w=Math.max(1,rect.width),h=Math.max(1,rect.height);renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix();const b=new THREE.Box3().setFromObject(root),c=new THREE.Vector3(),s=new THREE.Vector3();b.getCenter(c);b.getSize(s);const vf=THREE.MathUtils.degToRad(camera.fov),hf=2*Math.atan(Math.tan(vf/2)*camera.aspect),d=Math.max((s.y/2)/Math.tan(vf/2),(s.x/2)/Math.tan(hf/2),s.z*2)*1.22;camera.position.set(c.x,c.y,c.z+d);camera.lookAt(c);renderer.render(scene,camera)}
+  function fit(){const rect=holder.getBoundingClientRect(),w=Math.max(1,rect.width),h=Math.max(1,rect.height);renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix();root.rotation.set(0,0,0);root.updateMatrixWorld(true);const b=new THREE.Box3().setFromObject(root),c=new THREE.Vector3(),s=new THREE.Vector3();b.getCenter(c);b.getSize(s);const vf=THREE.MathUtils.degToRad(camera.fov),hf=2*Math.atan(Math.tan(vf/2)*Math.max(camera.aspect,.1)),d=Math.max((s.y/2)/Math.tan(vf/2),(s.x/2)/Math.tan(hf/2),s.z*2)*1.22;camera.position.set(c.x,c.y,c.z+d);camera.lookAt(c);renderer.render(scene,camera)}
   fit();new ResizeObserver(fit).observe(holder);
-
-  if(spin&&!window.matchMedia('(prefers-reduced-motion: reduce)').matches){
-    const inicio=performance.now(),duracao=1700,anguloInicial=-0.72;
-    const animar=agora=>{
-      const p=Math.min(1,(agora-inicio)/duracao);
-      const ease=1-Math.pow(1-p,3);
-      root.rotation.y=anguloInicial*(1-ease);
-      renderer.render(scene,camera);
-      if(p<1){requestAnimationFrame(animar)}else{root.rotation.y=0;renderer.render(scene,camera)}
-    };
-    root.rotation.y=anguloInicial;
-    requestAnimationFrame(animar);
-  }else{
-    root.rotation.y=0;
-    renderer.render(scene,camera);
-  }
 }
 
 Promise.all([...document.querySelectorAll('[data-birx-3d]')].map(el=>buildViewer(el).catch(err=>{console.error('BIRX home 3D',err);el.innerHTML='<span class="birx-3d-fallback">BIRX ID</span>'})));
