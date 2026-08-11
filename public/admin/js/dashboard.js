@@ -13,7 +13,7 @@
 
   async function load() {
     if (!(await ui.requireAuth())) return;
-    const data = await ui.api('/api/dashboard');
+    const data = await ui.api('/api/admin-dashboard');
     $("dashMateriais").textContent = ui.qty.format(Number(data.materiais?.total || 0));
     $("dashValorEstoque").textContent = ui.money.format(Number(data.materiais?.valor_estoque || 0));
     $("dashBaixoMinimo").textContent = ui.qty.format(Number(data.materiais?.abaixo_minimo || 0));
