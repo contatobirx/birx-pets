@@ -3,7 +3,7 @@ function normalizarCodigo(valor) {
 }
 
 function codigoValido(codigo) {
-  return /^BIRX-\d{2}-\d{6}$/.test(codigo);
+  return /^BIRX-\d{2}-\d{6}$/.test(codigo) || /^TAG-ORB-\d{2}-\d{6}$/.test(codigo);
 }
 
 export async function onRequestGet({ request, params, env }) {
@@ -17,7 +17,7 @@ export async function onRequestGet({ request, params, env }) {
     const tag = await env.DB.prepare(`
       SELECT codigo, ativada, bloqueada
       FROM tags
-      WHERE codigo = ?
+      WHERE UPPER(codigo) = UPPER(?)
       LIMIT 1
     `).bind(codigo).first();
 
