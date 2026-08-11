@@ -24,22 +24,15 @@
   }
 
   function urlPerfil(tag, origem = "") {
-    return montarUrl("/t.html", {
-      tag,
-      origem
-    });
+    return montarUrl("/t.html", { tag, origem });
   }
 
   function urlHistorico(tag, origem = "") {
-    return montarUrl("/historico.html", {
-      tag,
-      origem
-    });
+    return montarUrl("/historico.html", { tag, origem });
   }
 
   function abrirPerfilTutor(tag) {
-    const url = urlPerfil(tag, "tutor");
-    window.location.href = url;
+    window.location.href = urlPerfil(tag, "tutor");
   }
 
   function abrirHistoricoTutor(tag) {
@@ -47,21 +40,11 @@
   }
 
   function voltarDoHistorico(tag) {
-    if (veioDoTutor()) {
-      window.location.href = "/tutor.html";
-      return;
-    }
-
-    window.location.href = urlPerfil(tag);
+    window.location.href = veioDoTutor() ? "/tutor.html" : urlPerfil(tag);
   }
 
   function voltarDoPerfil() {
-    if (veioDoTutor()) {
-      window.location.href = "/tutor.html";
-      return;
-    }
-
-    window.location.href = "/";
+    window.location.href = veioDoTutor() ? "/tutor.html" : "/";
   }
 
   function escaparHtml(valor) {
@@ -73,8 +56,7 @@
       .replaceAll("'", "&#039;");
   }
 
-  // Compatibilidade do painel: tutor.js chama esta função ao carregar o resumo.
-  // Ela ficou ausente em uma refatoração anterior e interrompia toda a renderização.
+  // Compatibilidade do dashboard do tutor.
   window.renderizarPetsRecentes = function renderizarPetsRecentes(pets) {
     const lista = document.getElementById("listaPetsRecentes");
     if (!lista) return;
@@ -112,6 +94,28 @@
         </article>`;
     }).join("");
   };
+
+  // tutor.js começa a buscar dados assim que é executado, enquanto diversos módulos
+  // ainda estão sendo carregados abaixo dele no HTML. Em alguns navegadores o primeiro
+  // ciclo ficava preso no estado de skeleton e só o botão Atualizar resolvia.
+  // Depois do load completo fazemos UMA recuperação automática apenas se a tela ainda
+  // estiver no estado inicial. O botão já chama o mesmo carregarPainel() oficial.
+  if (document.getElementById("painel2")) {
+    window.addEventListener("load", function () {
+      window.setTimeout(function () {
+        const nome = document.getElementById("petDestaqueNome");
+        const saudacao = document.getElementById("textoSaudacao");
+        const botao = document.getElementById("atualizarPainel");
+        const aindaInicial =
+          (nome && String(nome.textContent || "").trim() === "Seu pet") ||
+          (saudacao && /carregando/i.test(String(saudacao.textContent || "")));
+
+        if (aindaInicial && botao && !botao.disabled) {
+          botao.click();
+        }
+      }, 700);
+    }, { once: true });
+  }
 
   window.BIRXNavigation = {
     obterOrigem,
