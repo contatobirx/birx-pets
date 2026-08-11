@@ -44,7 +44,7 @@ export async function onRequestGet(context) {
         status,
         foto_url
       FROM pets
-      WHERE LOWER(email) = LOWER(?)
+      WHERE LOWER(TRIM(email)) = LOWER(TRIM(?))
       ORDER BY data_cadastro DESC
     `)
       .bind(sessao.email)
@@ -64,7 +64,7 @@ export async function onRequestGet(context) {
       fotoUrl: pet.foto_url,
       tutor: {
         nome: pet.nome_tutor || "",
-        email: pet.email || sessao.email,
+        email: String(pet.email || sessao.email).trim(),
         whatsapp: pet.whatsapp || "",
       },
       localizacao: {
