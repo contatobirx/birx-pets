@@ -1,55 +1,20 @@
+import { obterSessaoTutor } from "../_lib/auth.js";
+
 function json(dados, status = 200) {
   return new Response(JSON.stringify(dados), {
     status,
-    headers: { "Content-Type": "application/json; charset=UTF-8" },
+    headers: {
+      "Content-Type": "application/json; charset=UTF-8",
+      "Cache-Control": "no-store",
+    },
   });
-}
-
-function obterCookie(request, nome) {
-  const cookies = request.headers.get("Cookie") || "";
-  for (const cookie of cookies.split(";")) {
-    const [chave, ...valor] = cookie.trim().split("=");
-    if (chave === nome) return decodeURIComponent(valor.join("="));
-  }
-  return null;
-}
-
-async function sha256(texto) {
-  const dados = new TextEncoder().encode(texto);
-  const hash = await crypto.subtle.digest("SHA-256", dados);
-  return [...new Uint8Array(hash)]
-    .map((byte) => byte.toString(16).padStart(2, "0"))
-    .join("");
-}
-
-async function obterSessao(request, env) {
-  const token = obterCookie(request, "orbitek_sessao");
-  if (!token) return null;
-
-  const tokenHash = await sha256(token);
-  const sessao = await env.DB.prepare(`
-    SELECT email, expira_em
-    FROM sessoes_tutor
-    WHERE token_hash = ?
-  `).bind(tokenHash).first();
-
-  if (!sessao || Date.now() > Number(sessao.expira_em)) {
-    if (sessao) {
-      await env.DB.prepare(`DELETE FROM sessoes_tutor WHERE token_hash = ?`)
-        .bind(tokenHash)
-        .run();
-    }
-    return null;
-  }
-
-  return sessao;
 }
 
 export async function onRequestGet({ request, env }) {
   try {
-    const sessao = await obterSessao(request, env);
+    const sessao = await obterSessaoTutor(request, env);
     if (!sessao) {
-      return json({ sucesso: false, autenticado: false, mensagem: "Sessão inválida." }, 401);
+      return json({ sucesso: false, autenticado: false, mensagem: "Sua sessão expirou. Entre novamente." }, 401);
     }
 
     const [resumo, recentes] = await Promise.all([
@@ -64,13 +29,13 @@ export async function onRequestGet({ request, env }) {
           END) AS cadastros_mes
         FROM pets p
         LEFT JOIN tags t ON t.codigo = p.tag_codigo
-        WHERE p.email = ?
+        WHERE LOWER(p.email) = LOWER(?)
       `).bind(sessao.email).first(),
 
       env.DB.prepare(`
         SELECT tag_codigo, nome, especie, raca, perdido, foto_url, data_cadastro
         FROM pets
-        WHERE email = ?
+        WHERE LOWER(email) = LOWER(?)
         ORDER BY datetime(data_cadastro) DESC, id DESC
         LIMIT 3
       `).bind(sessao.email).all(),
