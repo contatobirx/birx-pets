@@ -12,7 +12,7 @@
     message: $("mensagem"), printArea: $("areaImpressao"),
   };
 
-  let token = sessionStorage.getItem("orbitek_tag_admin") || "";
+  sessionStorage.removeItem("orbitek_tag_admin");
   let batches = [];
 
   function notify(message, error = false, target = ui.message) {
@@ -23,11 +23,23 @@
     target._hideTimer = setTimeout(() => { target.hidden = true; }, 6000);
   }
 
+  function showLogin() {
+    ui.panel.hidden = true;
+    ui.access.hidden = false;
+    ui.key.value = "";
+  }
+
   async function api(url) {
     const response = await fetch(url, {
-      headers: { "X-BIRX-Admin": token, Accept: "application/json" }, cache: "no-store",
+      credentials: "same-origin",
+      headers: { Accept: "application/json" },
+      cache: "no-store",
     });
     const data = await response.json().catch(() => ({}));
+    if (response.status === 401 || data.autenticado === false) {
+      showLogin();
+      throw new Error(data.mensagem || "Sessão administrativa expirada.");
+    }
     if (!response.ok || !data.sucesso) throw new Error(data.mensagem || `Erro HTTP ${response.status}.`);
     return data;
   }
@@ -194,30 +206,69 @@
   async function downloadConference() {
     if (!ui.batch.value) { notify("Selecione um lote antes de exportar.", true); return; }
     const oldText = ui.conference.textContent;
-    ui.conference.disabled = true; ui.conference.textContent = "Gerando CSV...";
+    ui.conference.disabled = true;
+    ui.conference.textContent = "Gerando CSV...";
     try {
       const response = await fetch(`/api/producao/conferencia?lote=${encodeURIComponent(ui.batch.value)}&_=${Date.now()}`, {
-        headers: { "X-BIRX-Admin": token }, cache: "no-store",
+        credentials: "same-origin",
+        cache: "no-store",
       });
-      if (!response.ok) throw new Error((await response.json().catch(() => ({}))).mensagem || "Não foi possível gerar o CSV.");
+      const erro = response.ok ? null : await response.json().catch(() => ({}));
+      if (response.status === 401 || erro?.autenticado === false) {
+        showLogin();
+        throw new Error(erro?.mensagem || "Sessão administrativa expirada.");
+      }
+      if (!response.ok) throw new Error(erro?.mensagem || "Não foi possível gerar o CSV.");
       const blob = await response.blob();
-      const url = URL.createObjectURL(blob); const a = document.createElement("a");
-      a.href = url; a.download = `BIRX-Conferencia-${ui.batch.value}.csv`; a.click();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `BIRX-Conferencia-${ui.batch.value}.csv`;
+      a.click();
       setTimeout(() => URL.revokeObjectURL(url), 1500);
       notify("Lista de conferência gerada.");
-    } catch (error) { notify(error.message, true); }
-    finally { ui.conference.disabled = false; ui.conference.textContent = oldText; }
+    } catch (error) {
+      notify(error.message || "Não foi possível gerar o CSV.", true);
+    } finally {
+      ui.conference.disabled = false;
+      ui.conference.textContent = oldText;
+    }
   }
 
   ui.accessForm.addEventListener("submit", async (event) => {
-    event.preventDefault(); token = ui.key.value.trim();
-    try { await loadBatches(); sessionStorage.setItem("orbitek_tag_admin", token); ui.access.hidden = true; ui.panel.hidden = false; }
-    catch (error) { notify(error.message, true, ui.accessMessage); }
+    event.preventDefault();
+    const chave = ui.key.value.trim();
+    try {
+      const response = await fetch("/api/admin-login", {
+        method: "POST",
+        credentials: "same-origin",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify({ chave }),
+      });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok || !data.sucesso) throw new Error(data.mensagem || "Não foi possível entrar.");
+      ui.key.value = "";
+      await loadBatches();
+      ui.access.hidden = true;
+      ui.panel.hidden = false;
+    } catch (error) {
+      notify(error.message, true, ui.accessMessage);
+    }
   });
+
   ui.batch.addEventListener("change", renderSummary);
   ui.refresh.addEventListener("click", () => loadBatches().catch((error) => notify(error.message, true)));
   ui.labels.addEventListener("click", generatePrint);
   ui.conference.addEventListener("click", downloadConference);
 
-  if (token) loadBatches().then(() => { ui.access.hidden = true; ui.panel.hidden = false; }).catch(() => sessionStorage.removeItem("orbitek_tag_admin"));
+  fetch("/api/admin-login", { credentials: "same-origin", cache: "no-store" })
+    .then((response) => response.json())
+    .then((data) => {
+      if (!data.autenticado) return showLogin();
+      return loadBatches().then(() => {
+        ui.access.hidden = true;
+        ui.panel.hidden = false;
+      });
+    })
+    .catch(showLogin);
 })();
