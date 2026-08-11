@@ -58,13 +58,6 @@ function carregar3DHome() {
 }
 
 function aplicarHomePremium() {
-  if (!document.querySelector('link[href*="home-premium.css"]')) {
-    const css = document.createElement('link');
-    css.rel = 'stylesheet';
-    css.href = '/css/home-premium.css?v=1.1';
-    document.head.appendChild(css);
-  }
-
   const hero = document.querySelector('.hero');
   if (hero) {
     hero.classList.add('hero-premium');
@@ -86,25 +79,10 @@ function aplicarHomePremium() {
           </div>
           <div class="hero-trust"><p><strong>Tecnologia criada para aproximar pets e tutores.</strong><br>Produto BIRX desenvolvido e produzido no Brasil.</p></div>
         </div>
-
         <div class="hero-visual reveal" aria-label="BIRX ID real e plataforma digital BIRX Pets">
-          <div class="premium-ring"></div>
-          <div class="premium-orb"></div>
-          <div class="premium-real-tag" data-birx-3d data-body="#151515" data-detail="#f5f5f2" data-spin="1" aria-label="Modelo 3D real da BIRX ID"></div>
-          <div class="premium-phone" aria-label="Perfil digital do pet">
-            <div class="premium-phone-screen">
-              <div class="premium-phone-notch"></div>
-              <div class="premium-phone-brand">BIRX PETS</div>
-              <div class="premium-phone-pet">🐾</div>
-              <h3>Thor</h3>
-              <p>Meu perfil de identificação</p>
-              <div class="premium-status"><i></i> Perfil ativo e protegido</div>
-              <div class="premium-contact">Falar com meu tutor</div>
-              <div class="premium-data"><span><b>NFC</b>ativo</span><span><b>QR</b>pronto</span></div>
-            </div>
-          </div>
-          <div class="premium-secure"><span>●</span> MODELO REAL BIRX ID</div>
-          <div class="premium-chip"><span class="premium-chip-icon">⌁</span><div><strong>Leitura instantânea</strong><small>Aproxime ou escaneie</small></div></div>
+          <div class="premium-ring"></div><div class="premium-orb"></div><div class="premium-real-tag" data-birx-3d data-body="#151515" data-detail="#f5f5f2" data-spin="1" aria-label="Modelo 3D real da BIRX ID"></div>
+          <div class="premium-phone" aria-label="Perfil digital do pet"><div class="premium-phone-screen"><div class="premium-phone-notch"></div><div class="premium-phone-brand">BIRX PETS</div><div class="premium-phone-pet">🐾</div><h3>Thor</h3><p>Meu perfil de identificação</p><div class="premium-status"><i></i> Perfil ativo e protegido</div><div class="premium-contact">Falar com meu tutor</div><div class="premium-data"><span><b>NFC</b>ativo</span><span><b>QR</b>pronto</span></div></div></div>
+          <div class="premium-secure"><span>●</span> MODELO REAL BIRX ID</div><div class="premium-chip"><span class="premium-chip-icon">⌁</span><div><strong>Leitura instantânea</strong><small>Aproxime ou escaneie</small></div></div>
         </div>
       </div>`;
   }
@@ -112,12 +90,7 @@ function aplicarHomePremium() {
   const proof = document.querySelector('.proof-bar');
   if (proof) {
     proof.classList.add('proof-premium');
-    proof.innerHTML = `<div class="container proof-grid">
-      <div><span class="proof-icon">∞</span><strong>Sem mensalidade</strong><span>Perfil digital sem cobrança recorrente</span></div>
-      <div><span class="proof-icon">⌁</span><strong>NFC + QR Code</strong><span>Identificação por aproximação ou câmera</span></div>
-      <div><span class="proof-icon">✦</span><strong>Dados atualizáveis</strong><span>Telefone e informações sempre editáveis</span></div>
-      <div><span class="proof-icon">BR</span><strong>Feita no Brasil</strong><span>Desenvolvimento e produção BIRX</span></div>
-    </div>`;
+    proof.innerHTML = `<div class="container proof-grid"><div><span class="proof-icon">∞</span><strong>Sem mensalidade</strong><span>Perfil digital sem cobrança recorrente</span></div><div><span class="proof-icon">⌁</span><strong>NFC + QR Code</strong><span>Identificação por aproximação ou câmera</span></div><div><span class="proof-icon">✦</span><strong>Dados atualizáveis</strong><span>Telefone e informações sempre editáveis</span></div><div><span class="proof-icon">BR</span><strong>Feita no Brasil</strong><span>Desenvolvimento e produção BIRX</span></div></div>`;
   }
 
   const products = document.querySelector('.birx-products');
@@ -125,28 +98,13 @@ function aplicarHomePremium() {
     const heading = products.querySelector('.heading-row');
     if (heading) heading.innerHTML = `<div><span class="kicker">BIRX ID</span><h2 id="produtos-title">A identificação inteligente da BIRX.</h2></div><p>O mesmo produto que você vê aqui é o modelo usado na fabricação. Escolha a versão clássica ou personalize as cores e o nome do pet.</p>`;
     const grid = products.querySelector('.birx-id-grid');
-    if (grid) grid.innerHTML = `
-      <article class="birx-id-card birx-id-real reveal is-visible">
-        <div class="birx-id-media birx-real-media"><span class="birx-id-badge birx-id-badge-dark">QR CODE + NFC</span><div class="product-real-3d" data-birx-3d data-body="#151515" data-detail="#f5f5f2"></div></div>
-        <div class="birx-id-content"><div class="birx-id-title-row"><div><span>BIRX ID</span><h3>Tag</h3></div><strong>3 × 3 cm • NFC integrado</strong></div><p>A BIRX ID real em formato medalha, com QR Code, NFC e acesso ao perfil digital do pet.</p><ul class="birx-id-features"><li><span>✓</span> QR Code conectado ao perfil digital</li><li><span>✓</span> NFC integrado no interior da tag</li><li><span>✓</span> Perfil atualizável pelo tutor</li><li><span>✓</span> Sem mensalidade</li></ul><a class="button button-product button-product-dark" href="/loja">Comprar BIRX ID <span aria-hidden="true">→</span></a></div>
-      </article>
-      <article class="birx-id-card birx-id-real reveal is-visible">
-        <div class="birx-id-media birx-real-media birx-real-media-custom"><span class="birx-id-badge">PERSONALIZADA</span><div class="product-real-3d" data-birx-3d data-body="#245eea" data-detail="#f5f5f2" data-name="THOR"></div></div>
-        <div class="birx-id-content"><div class="birx-id-title-row"><div><span>BIRX ID</span><h3>Personalizada</h3></div><strong>Cor + nome do pet</strong></div><p>Monte sua combinação, visualize a peça real em 3D e veja como ela ficará antes de pedir.</p><ul class="birx-id-features"><li><span>✓</span> Escolha a cor da peça</li><li><span>✓</span> Escolha a cor do logo e letras</li><li><span>✓</span> Nome do pet em relevo</li><li><span>✓</span> Preview 3D do modelo real</li></ul><a class="button button-product" href="/personalizar">Personalizar minha BIRX ID <span aria-hidden="true">→</span></a></div>
-      </article>`;
+    if (grid) grid.innerHTML = `<article class="birx-id-card birx-id-real reveal is-visible"><div class="birx-id-media birx-real-media"><span class="birx-id-badge birx-id-badge-dark">QR CODE + NFC</span><div class="product-real-3d" data-birx-3d data-body="#151515" data-detail="#f5f5f2"></div></div><div class="birx-id-content"><div class="birx-id-title-row"><div><span>BIRX ID</span><h3>Tag</h3></div><strong>3 × 3 cm • NFC integrado</strong></div><p>A BIRX ID real em formato medalha, com QR Code, NFC e acesso ao perfil digital do pet.</p><ul class="birx-id-features"><li><span>✓</span> QR Code conectado ao perfil digital</li><li><span>✓</span> NFC integrado no interior da tag</li><li><span>✓</span> Perfil atualizável pelo tutor</li><li><span>✓</span> Sem mensalidade</li></ul><a class="button button-product button-product-dark" href="/loja">Comprar BIRX ID <span aria-hidden="true">→</span></a></div></article><article class="birx-id-card birx-id-real reveal is-visible"><div class="birx-id-media birx-real-media birx-real-media-custom"><span class="birx-id-badge">PERSONALIZADA</span><div class="product-real-3d" data-birx-3d data-body="#245eea" data-detail="#f5f5f2" data-name="THOR"></div></div><div class="birx-id-content"><div class="birx-id-title-row"><div><span>BIRX ID</span><h3>Personalizada</h3></div><strong>Cor + nome do pet</strong></div><p>Monte sua combinação, visualize a peça real em 3D e veja como ela ficará antes de pedir.</p><ul class="birx-id-features"><li><span>✓</span> Escolha a cor da peça</li><li><span>✓</span> Escolha a cor do logo e letras</li><li><span>✓</span> Nome do pet em relevo</li><li><span>✓</span> Preview 3D do modelo real</li></ul><a class="button button-product" href="/personalizar">Personalizar minha BIRX ID <span aria-hidden="true">→</span></a></div></article>`;
   }
 
   const personalization = document.querySelector('.personalization');
   if (personalization) {
     personalization.classList.add('personalization-real');
-    personalization.innerHTML = `<div class="container personalization-grid">
-      <div class="personalization-copy reveal is-visible"><span class="kicker">FEITA PARA O SEU PET</span><h2 id="personalizacao-title">A BIRX ID com a identidade dele.</h2><p>Escolha a cor da peça, a cor do logo e das letras e coloque o nome do seu pet. O formato e a tecnologia continuam sendo os mesmos da BIRX ID real.</p><div class="personalization-options"><span>Nome do pet</span><span>Cor da peça</span><span>Cor do logo</span><span>QR + NFC</span><span>3 × 3 cm</span></div><a class="button button-primary" href="/personalizar">Personalizar em 3D <span aria-hidden="true">→</span></a></div>
-      <div class="personalization-real-grid reveal is-visible" aria-label="Exemplos reais de BIRX ID personalizada">
-        <article class="mini-real-tag"><div data-birx-3d data-body="#151515" data-detail="#f5f5f2" data-name="THOR"></div><span>THOR</span><small>Preto + Branco</small></article>
-        <article class="mini-real-tag mini-up"><div data-birx-3d data-body="#e978a7" data-detail="#151515" data-name="LUNA"></div><span>LUNA</span><small>Rosa + Preto</small></article>
-        <article class="mini-real-tag"><div data-birx-3d data-body="#245eea" data-detail="#f5f5f2" data-name="BENTO"></div><span>BENTO</span><small>Azul + Branco</small></article>
-      </div>
-    </div>`;
+    personalization.innerHTML = `<div class="container personalization-grid"><div class="personalization-copy reveal is-visible"><span class="kicker">FEITA PARA O SEU PET</span><h2 id="personalizacao-title">A BIRX ID com a identidade dele.</h2><p>Escolha a cor da peça, a cor do logo e das letras e coloque o nome do seu pet. O formato e a tecnologia continuam sendo os mesmos da BIRX ID real.</p><div class="personalization-options"><span>Nome do pet</span><span>Cor da peça</span><span>Cor do logo</span><span>QR + NFC</span><span>3 × 3 cm</span></div><a class="button button-primary" href="/personalizar">Personalizar em 3D <span aria-hidden="true">→</span></a></div><div class="personalization-real-grid reveal is-visible" aria-label="Exemplos reais de BIRX ID personalizada"><article class="mini-real-tag"><div data-birx-3d data-body="#151515" data-detail="#f5f5f2" data-name="THOR"></div><span>THOR</span><small>Preto + Branco</small></article><article class="mini-real-tag mini-up"><div data-birx-3d data-body="#e978a7" data-detail="#151515" data-name="LUNA"></div><span>LUNA</span><small>Rosa + Preto</small></article><article class="mini-real-tag"><div data-birx-3d data-body="#245eea" data-detail="#f5f5f2" data-name="BENTO"></div><span>BENTO</span><small>Azul + Branco</small></article></div></div>`;
   }
 
   const showcase = document.querySelector('.pet-showcase');
@@ -170,28 +128,6 @@ const observer = new IntersectionObserver((entries) => {
 }, { threshold: 0.12 });
 
 document.querySelectorAll('.reveal').forEach((item) => observer.observe(item));
-
-const counters = document.querySelectorAll('[data-count]');
-const counterObserver = new IntersectionObserver((entries) => {
-  entries.forEach((entry) => {
-    if (!entry.isIntersecting) return;
-    const element = entry.target;
-    const target = Number(element.dataset.count);
-    const suffix = element.dataset.suffix || '+';
-    const start = performance.now();
-    const duration = 1200;
-    const tick = (now) => {
-      const progress = Math.min((now - start) / duration, 1);
-      const eased = 1 - Math.pow(1 - progress, 3);
-      element.textContent = `${Math.round(target * eased)}${suffix}`;
-      if (progress < 1) requestAnimationFrame(tick);
-    };
-    requestAnimationFrame(tick);
-    counterObserver.unobserve(element);
-  });
-}, { threshold: 0.5 });
-
-counters.forEach((counter) => counterObserver.observe(counter));
 
 document.querySelectorAll('a[href^="#"]').forEach((link) => {
   link.addEventListener('click', (event) => {
