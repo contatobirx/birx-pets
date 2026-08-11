@@ -11,6 +11,7 @@ window.BirxAdmin = (() => {
   async function api(url, options = {}) {
     const response = await fetch(url, {
       ...options,
+      credentials: "same-origin",
       headers: { "Content-Type": "application/json", ...(getKey() ? { "X-BIRX-Admin": getKey() } : {}), ...(options.headers || {}) },
     });
     const data = await response.json().catch(() => ({ sucesso: false, mensagem: "Resposta inválida do servidor." }));
@@ -31,7 +32,7 @@ window.BirxAdmin = (() => {
 
   async function requireAuth() {
     if (!getKey()) {
-      location.href = '/admin/login.html';
+      location.href = `/admin/login.html?voltar=${encodeURIComponent(location.pathname + location.search)}`;
       return false;
     }
     try {
@@ -42,8 +43,11 @@ window.BirxAdmin = (() => {
     }
   }
 
-  function logout() {
+  async function logout() {
     clearKey();
+    try {
+      await fetch('/api/admin-login', { method: 'DELETE', credentials: 'same-origin' });
+    } catch {}
     location.href = '/admin/login.html';
   }
 
