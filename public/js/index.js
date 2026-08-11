@@ -1,3 +1,11 @@
+const estiloCabecalhoHome = document.createElement('style');
+estiloCabecalhoHome.textContent = `
+.site-header,.site-header.is-scrolled{background:rgba(3,8,15,.96)!important;border-bottom:1px solid rgba(255,255,255,.10)!important;box-shadow:0 10px 30px rgba(0,0,0,.18)!important;backdrop-filter:blur(18px)}
+.site-header .main-nav a{color:#f5f7fb!important}.site-header .main-nav a:after{background:#59c8ff!important}.site-header .login-button{border-color:rgba(255,255,255,.75)!important;color:#fff!important;background:transparent!important}.site-header .login-button:hover{background:#fff!important;color:#07111f!important}.site-header .main-nav a[href="/perdidos"]{border-left-color:rgba(255,255,255,.18)!important}.site-header .menu-toggle span{background:#fff!important}
+@media(max-width:980px){.site-header .main-nav{background:#07111f!important;border-color:rgba(255,255,255,.12)!important}.site-header .main-nav a{color:#fff!important}.site-header .main-nav a:hover{background:rgba(255,255,255,.08)!important}.site-header .main-nav a[href="/perdidos"]{border-top-color:rgba(255,255,255,.12)!important}}
+`;
+document.head.appendChild(estiloCabecalhoHome);
+
 const siteHeader = document.querySelector('.site-header');
 
 function atualizarCabecalhoAoRolar() {
@@ -55,7 +63,7 @@ function carregar3DHome() {
 
   const script = document.createElement('script');
   script.type = 'module';
-  script.src = '/js/home-tag-3d.js?v=1.0';
+  script.src = '/js/home-tag-3d.js?v=1.1';
   script.dataset.homeTag3d = '1';
   document.body.appendChild(script);
 }
