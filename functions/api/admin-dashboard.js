@@ -1,6 +1,3 @@
-Exit code: 0
-Wall time: 1.4 seconds
-Output:
 import { adminAutorizado } from "../_lib/admin-auth.js";
 
 function json(body, status = 200) {
@@ -17,7 +14,7 @@ function unauthorized() {
   return json({
     sucesso: false,
     autenticado: false,
-    mensagem: "SessÃ£o administrativa invÃ¡lida ou expirada.",
+    mensagem: "Sessão administrativa inválida ou expirada.",
   }, 401);
 }
 
@@ -95,13 +92,12 @@ export async function onRequestGet({ request, env }) {
     console.error("admin-dashboard GET", error);
     return json({
       sucesso: false,
-      mensagem: "NÃ£o foi possÃ­vel carregar o resumo administrativo.",
+      mensagem: "Não foi possível carregar o resumo administrativo.",
     }, 500);
   }
 }
 
 export async function onRequest(context) {
   if (context.request.method === "GET") return onRequestGet(context);
-  return json({ sucesso: false, mensagem: "MÃ©todo nÃ£o permitido." }, 405);
+  return json({ sucesso: false, mensagem: "Método não permitido." }, 405);
 }
-
