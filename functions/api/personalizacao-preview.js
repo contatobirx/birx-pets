@@ -8,10 +8,10 @@ export async function onRequestPost({request,env}){
     if(!CLOUDINARY_CLOUD_NAME||!CLOUDINARY_API_KEY||!CLOUDINARY_API_SECRET)return json({sucesso:false,mensagem:'A prévia está temporariamente indisponível.'},503);
     const form=await request.formData();
     const arquivo=form.get('imagem');
-    const nome=limpar(form.get('nome'),20).toUpperCase();
+    const nome=limpar(form.get('nome'),8).toUpperCase();
     if(!arquivo||typeof arquivo.arrayBuffer!=='function'||arquivo.type!=='image/png')return json({sucesso:false,mensagem:'Prévia inválida.'},400);
     if(arquivo.size<=0||arquivo.size>4*1024*1024)return json({sucesso:false,mensagem:'A prévia excedeu o tamanho permitido.'},400);
-    if(!nome||!/^[A-ZÀ-Ý0-9 -]{1,12}$/i.test(nome))return json({sucesso:false,mensagem:'Nome da personalização inválido.'},400);
+    if(!nome||!/^[A-ZÀ-Ý0-9 -]{1,8}$/i.test(nome))return json({sucesso:false,mensagem:'O nome da personalização deve ter até 8 caracteres.'},400);
 
     const timestamp=Math.floor(Date.now()/1000);
     const pasta='birx-pets/personalizacoes';

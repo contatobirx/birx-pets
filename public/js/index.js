@@ -63,7 +63,7 @@ function carregar3DHome() {
 
   const script = document.createElement('script');
   script.type = 'module';
-  script.src = '/js/home-tag-3d.js?v=1.2';
+  script.src = '/js/home-tag-3d.js?v=1.3';
   script.dataset.homeTag3d = '1';
   document.body.appendChild(script);
 }
