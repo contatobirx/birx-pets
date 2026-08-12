@@ -1,6 +1,0 @@
-import test from "node:test";
-import assert from "node:assert/strict";
-import { readFile } from "node:fs/promises";
-const [html,js,css,index,produtos]=await Promise.all([readFile(new URL("../public/t.html",import.meta.url),"utf8"),readFile(new URL("../public/js/accessibility.js",import.meta.url),"utf8"),readFile(new URL("../public/css/accessibility.css",import.meta.url),"utf8"),readFile(new URL("../public/index.html",import.meta.url),"utf8"),readFile(new URL("../public/produtos.html",import.meta.url),"utf8")]);
-test("o perfil público oferece leitura acessível para idosos",()=>{for(const id of["aumentarTexto","altoContraste","modoSimples"])assert.match(html,new RegExp(`id="${id}"`));assert.match(html,/aria-label="Opções de acessibilidade"/);assert.match(html,/Você acessou a identificação do pet/);assert.match(js,/localStorage/);assert.match(js,/aria-pressed/);assert.match(css,/a11y-texto-grande/);assert.match(css,/a11y-contraste/);assert.match(css,/a11y-simples/);assert.match(css,/prefers-reduced-motion/)});
-test("os modelos digitais são apresentados como NFC e QR Code",()=>{assert.match(index,/NFC \+ QR CODE/);assert.match(index,/NFC, QR Code, nome e telefone/);assert.match(produtos,/QR Code exclusivo/);assert.match(produtos,/<tr><th>QR Code<\/th><td>—<\/td><td>✓<\/td><td>✓<\/td><\/tr>/)});

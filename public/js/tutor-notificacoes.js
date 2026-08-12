@@ -1,1 +1,0 @@
-(function(){const badge=document.getElementById("contadorNotificacoes");if(!badge)return;fetch("/api/notificacoes",{credentials:"same-origin"}).then(r=>r.ok?r.json():null).then(d=>{const total=Number(d?.naoLidas||0);badge.textContent=total>99?"99+":String(total);badge.hidden=total===0}).catch(()=>{})})();
