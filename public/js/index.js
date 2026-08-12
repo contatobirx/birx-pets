@@ -32,12 +32,12 @@ function aplicarFotosVitrinePets() {
   const cards = [...document.querySelectorAll('.pet-showcase-premium .pet-profile-card')];
   if (cards.length < 3) return;
   const fotos = [
-    { src: '/assets/home/pet-card-1.jpg', alt: 'Luna usando BIRX ID' },
-    { src: '/assets/home/pet-card-2.jpg', alt: 'Bento usando BIRX ID' },
-    { src: '/assets/home/pet-card-3.jpg', alt: 'Cachorro usando BIRX ID com NFC' },
+    { src: '/assets/home/1.png?v=2', alt: 'Luna usando BIRX ID' },
+    { src: '/assets/home/2.png?v=2', alt: 'Bento usando BIRX ID' },
+    { src: '/assets/home/3.png?v=2', alt: 'Cachorro usando BIRX ID com NFC' },
   ];
   const estilo = document.createElement('style');
-  estilo.textContent = `.pet-showcase-premium .pet-profile-card{padding-top:0!important;overflow:hidden}.pet-card-photo{width:calc(100% + 48px);height:210px;margin:0 -24px 28px;object-fit:cover;object-position:center;display:block;border-bottom:1px solid rgba(17,37,68,.08)}.pet-showcase-premium .pet-profile-icon{display:none!important}@media(max-width:700px){.pet-card-photo{height:230px}}`;
+  estilo.textContent = `.pet-showcase-premium .pet-profile-card{padding-top:0!important;overflow:hidden}.pet-card-photo{width:calc(100% + 48px);height:260px;margin:0 -24px 28px;object-fit:cover;object-position:center;display:block;border-bottom:1px solid rgba(17,37,68,.08);image-rendering:auto}.pet-showcase-premium .pet-profile-icon{display:none!important}@media(max-width:700px){.pet-card-photo{height:280px}}`;
   document.head.appendChild(estilo);
   cards.slice(0,3).forEach((card, index) => {
     const icon = card.querySelector('.pet-profile-icon');
@@ -46,6 +46,7 @@ function aplicarFotosVitrinePets() {
     img.src = fotos[index].src;
     img.alt = fotos[index].alt;
     img.loading = 'lazy';
+    img.decoding = 'async';
     if (icon) icon.insertAdjacentElement('beforebegin', img); else card.prepend(img);
   });
   const terceiro = cards[2];
