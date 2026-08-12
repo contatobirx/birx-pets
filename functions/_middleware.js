@@ -1,6 +1,3 @@
-Exit code: 0
-Wall time: 1.7 seconds
-Output:
 import { adminAutorizado } from "./_lib/admin-auth.js";
 
 const LEGACY_HOSTS = new Set([
@@ -51,4 +48,3 @@ export async function onRequest(context) {
 
   return context.next();
 }
-
