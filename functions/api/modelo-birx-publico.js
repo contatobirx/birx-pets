@@ -1,8 +1,13 @@
 const EXACT_KEYS = [
+  "modelos-3d/1/TAG-NFC/Separados.3mf",
   "modelos-3d/TAG-NFC/Separados.3mf",
   "modelos-3d/Separados.3mf"
 ];
-const PREFIXES = ["modelos-3d/TAG-NFC/", "modelos-3d/"];
+const PREFIXES = [
+  "modelos-3d/1/TAG-NFC/",
+  "modelos-3d/TAG-NFC/",
+  "modelos-3d/"
+];
 
 function bucket(env) {
   return env.MODELOS_3D || env.R2 || env.BUCKET || env.ASSETS_R2 || null;
@@ -20,7 +25,9 @@ async function findModel(r2) {
     do {
       const listed = await r2.list({ prefix, limit: 1000, cursor });
       for (const object of listed.objects || []) {
-        if (/separados\.3mf$/i.test(object.key) || /separados/i.test(object.key)) found.push(object);
+        if (/separados\.3mf$/i.test(object.key) || /separados/i.test(object.key)) {
+          found.push(object);
+        }
       }
       cursor = listed.truncated ? listed.cursor : undefined;
     } while (cursor);
@@ -51,7 +58,7 @@ export async function onRequestGet({ env }) {
 
     const headers = new Headers();
     headers.set("Content-Type", "model/3mf");
-    headers.set("Cache-Control", "public, max-age=60, s-maxage=300");
+    headers.set("Cache-Control", "no-store");
     headers.set("X-BIRX-Model-Key", key);
     if (object.httpEtag) headers.set("ETag", object.httpEtag);
     if (object.size) headers.set("Content-Length", String(object.size));
