@@ -80,15 +80,12 @@ async function buildViewer(holder){
   root.updateMatrixWorld(true);
   box=new THREE.Box3().setFromObject(model);box.getCenter(center);box.getSize(size);
 
-  const f=await getFont();
   if(name){
+    const f=await getFont();
     const nameMesh=makeTextMesh(f,name,.48,size.x*.70,.065,detailColor);
     nameMesh.position.set(center.x,center.y-size.y*.18,box.max.z+.035);
     root.add(nameMesh);
   }
-  const nfcMesh=makeTextMesh(f,'NFC',.20,size.x*.30,.045,detailColor);
-  nfcMesh.position.set(center.x,center.y-size.y*.35,box.max.z+.037);
-  root.add(nfcMesh);
 
   function fit(){const rect=holder.getBoundingClientRect(),w=Math.max(1,rect.width),h=Math.max(1,rect.height);renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix();root.rotation.set(0,0,0);root.updateMatrixWorld(true);const b=new THREE.Box3().setFromObject(root),c=new THREE.Vector3(),s=new THREE.Vector3();b.getCenter(c);b.getSize(s);const vf=THREE.MathUtils.degToRad(camera.fov),hf=2*Math.atan(Math.tan(vf/2)*Math.max(camera.aspect,.1)),d=Math.max((s.y/2)/Math.tan(vf/2),(s.x/2)/Math.tan(hf/2),s.z*2)*1.22;camera.position.set(c.x,c.y,c.z+d);camera.lookAt(c);renderer.render(scene,camera)}
   fit();new ResizeObserver(fit).observe(holder);
