@@ -1,8 +1,8 @@
 const EXACT_KEYS = [
-  "modelos-3d/Separados.3mf",
-  "modelos-3d/TAG-NFC/Separados.3mf"
+  "modelos-3d/TAG-NFC/Separados.3mf",
+  "modelos-3d/Separados.3mf"
 ];
-const PREFIXES = ["modelos-3d/", "modelos-3d/TAG-NFC/"];
+const PREFIXES = ["modelos-3d/TAG-NFC/", "modelos-3d/"];
 
 function bucket(env) {
   return env.MODELOS_3D || env.R2 || env.BUCKET || env.ASSETS_R2 || null;
