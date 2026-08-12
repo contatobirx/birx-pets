@@ -22,5 +22,5 @@
 @media(max-width:620px){.premium-phone-notch{top:8px}}
 
 /* Celular completo do perfil do Bento, incluindo a moldura original. */
-.premium-phone.premium-phone-image{left:-29px;bottom:-19px;width:265px;height:auto;padding:0;border:0;border-radius:0;background:transparent;box-shadow:none;overflow:visible;filter:drop-shadow(0 35px 42px rgba(0,0,0,.44))}
-@media(max-width:620px){.premium-phone.premium-phone-image{left:-25px;bottom:-25px;width:220px;height:auto}}
+.premium-phone.premium-phone-image{left:-8px;bottom:24px;width:210px;height:auto;padding:0;border:0;border-radius:0;background:transparent;box-shadow:none;overflow:visible;z-index:8;filter:drop-shadow(0 35px 42px rgba(0,0,0,.44))}
+@media(max-width:620px){.premium-phone.premium-phone-image{left:-18px;bottom:16px;width:166px;height:auto}}
