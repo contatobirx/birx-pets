@@ -9,7 +9,6 @@ document.head.appendChild(estiloCabecalhoHome);
 function criarJornadaEncontro() {
   const hero = document.querySelector('.hero-premium');
   if (!hero || document.querySelector('.home-find-journey')) return;
-
   const estilo = document.createElement('style');
   estilo.textContent = `
 .home-find-journey{padding:84px 0;background:linear-gradient(180deg,#07111f 0%,#0b1930 100%);color:#fff;position:relative;overflow:hidden;border-top:1px solid rgba(255,255,255,.06)}
@@ -21,126 +20,58 @@ function criarJornadaEncontro() {
 @media(max-width:620px){.home-find-journey{padding:62px 0}.home-find-heading{margin-bottom:30px}.home-find-flow{grid-template-columns:1fr;gap:10px}.home-find-step,.home-find-step:last-child{grid-column:auto;min-height:auto;display:grid;grid-template-columns:58px 1fr;text-align:left;column-gap:15px;align-items:center;padding:18px}.home-find-icon{width:58px;height:58px;margin:0;grid-row:1/4}.home-find-step small,.home-find-step strong,.home-find-step p{grid-column:2}.home-find-step strong{margin:3px 0 4px}.home-find-result{margin-top:26px}.home-find-result .button{width:100%}}
 `;
   document.head.appendChild(estilo);
-
   const secao = document.createElement('section');
   secao.className = 'home-find-journey';
   secao.setAttribute('aria-labelledby', 'home-find-title');
-  secao.innerHTML = `
-    <div class="container">
-      <div class="home-find-heading reveal">
-        <span class="kicker">QUANDO CADA SEGUNDO IMPORTA</span>
-        <h2 id="home-find-title">E se seu pet se perder?</h2>
-        <p>A BIRX ID transforma a identificação em um caminho rápido entre quem encontrou seu pet e você. Sem depender de aplicativo.</p>
-      </div>
-      <div class="home-find-flow" aria-label="Como a BIRX ajuda quando um pet é encontrado">
-        <article class="home-find-step reveal"><div class="home-find-icon" aria-hidden="true">🐕</div><small>01</small><strong>Seu pet é encontrado</strong><p>Alguém percebe que ele está usando uma BIRX ID.</p></article>
-        <article class="home-find-step reveal"><div class="home-find-icon" aria-hidden="true">🏷️</div><small>02</small><strong>A BIRX ID está com ele</strong><p>A identificação acompanha seu pet na coleira.</p></article>
-        <article class="home-find-step reveal"><div class="home-find-icon" aria-hidden="true">📱</div><small>03</small><strong>QR Code ou NFC</strong><p>A pessoa escaneia o QR Code ou aproxima um celular compatível.</p></article>
-        <article class="home-find-step reveal"><div class="home-find-icon" aria-hidden="true">🐾</div><small>04</small><strong>O perfil aparece</strong><p>Nome, fotos e os dados que você escolheu manter atualizados.</p></article>
-        <article class="home-find-step reveal"><div class="home-find-icon" aria-hidden="true">💬</div><small>05</small><strong>Contato com o tutor</strong><p>WhatsApp ou ligação ficam a poucos toques de distância.</p></article>
-      </div>
-      <div class="home-find-result reveal">
-        <div class="home-find-promise" aria-label="Vantagens da identificação BIRX"><span>Sem aplicativo</span><span>Sem mensalidade</span><span>Em poucos segundos</span></div>
-        <a class="button" href="/t.html?tag=DEMO">Testar como funciona →</a>
-      </div>
-    </div>`;
-
+  secao.innerHTML = `<div class="container"><div class="home-find-heading reveal"><span class="kicker">QUANDO CADA SEGUNDO IMPORTA</span><h2 id="home-find-title">E se seu pet se perder?</h2><p>A BIRX ID transforma a identificação em um caminho rápido entre quem encontrou seu pet e você. Sem depender de aplicativo.</p></div><div class="home-find-flow" aria-label="Como a BIRX ajuda quando um pet é encontrado"><article class="home-find-step reveal"><div class="home-find-icon" aria-hidden="true">🐕</div><small>01</small><strong>Seu pet é encontrado</strong><p>Alguém percebe que ele está usando uma BIRX ID.</p></article><article class="home-find-step reveal"><div class="home-find-icon" aria-hidden="true">🏷️</div><small>02</small><strong>A BIRX ID está com ele</strong><p>A identificação acompanha seu pet na coleira.</p></article><article class="home-find-step reveal"><div class="home-find-icon" aria-hidden="true">📱</div><small>03</small><strong>QR Code ou NFC</strong><p>A pessoa escaneia o QR Code ou aproxima um celular compatível.</p></article><article class="home-find-step reveal"><div class="home-find-icon" aria-hidden="true">🐾</div><small>04</small><strong>O perfil aparece</strong><p>Nome, fotos e os dados que você escolheu manter atualizados.</p></article><article class="home-find-step reveal"><div class="home-find-icon" aria-hidden="true">💬</div><small>05</small><strong>Contato com o tutor</strong><p>WhatsApp ou ligação ficam a poucos toques de distância.</p></article></div><div class="home-find-result reveal"><div class="home-find-promise" aria-label="Vantagens da identificação BIRX"><span>Sem aplicativo</span><span>Sem mensalidade</span><span>Em poucos segundos</span></div><a class="button" href="/t.html?tag=DEMO">Testar como funciona →</a></div></div>`;
   hero.insertAdjacentElement('afterend', secao);
 }
-
 criarJornadaEncontro();
 
-const siteHeader = document.querySelector('.site-header');
-
-function atualizarCabecalhoAoRolar() {
-  siteHeader?.classList.toggle('is-scrolled', window.scrollY > 12);
+function aplicarFotosVitrinePets() {
+  const cards = [...document.querySelectorAll('.pet-showcase-premium .pet-profile-card')];
+  if (cards.length < 3) return;
+  const fotos = [
+    { src: '/assets/home/pet-card-1.jpg', alt: 'Luna usando BIRX ID' },
+    { src: '/assets/home/pet-card-2.jpg', alt: 'Bento usando BIRX ID' },
+    { src: '/assets/home/pet-card-3.jpg', alt: 'Cachorro usando BIRX ID com NFC' },
+  ];
+  const estilo = document.createElement('style');
+  estilo.textContent = `.pet-showcase-premium .pet-profile-card{padding-top:0!important;overflow:hidden}.pet-card-photo{width:calc(100% + 48px);height:210px;margin:0 -24px 28px;object-fit:cover;object-position:center;display:block;border-bottom:1px solid rgba(17,37,68,.08)}.pet-showcase-premium .pet-profile-icon{display:none!important}@media(max-width:700px){.pet-card-photo{height:230px}}`;
+  document.head.appendChild(estilo);
+  cards.slice(0,3).forEach((card, index) => {
+    const icon = card.querySelector('.pet-profile-icon');
+    const img = document.createElement('img');
+    img.className = 'pet-card-photo';
+    img.src = fotos[index].src;
+    img.alt = fotos[index].alt;
+    img.loading = 'lazy';
+    if (icon) icon.insertAdjacentElement('beforebegin', img); else card.prepend(img);
+  });
+  const terceiro = cards[2];
+  const label = terceiro.querySelector('small');
+  const titulo = terceiro.querySelector('h3');
+  const descricao = terceiro.querySelector('p');
+  if (label) label.textContent = 'BIRX ID';
+  if (titulo) titulo.textContent = 'Identificação inteligente';
+  if (descricao) descricao.textContent = 'QR Code, NFC e perfil digital para aproximar seu pet de você quando mais importa.';
+  const meta = terceiro.querySelector('.pet-profile-meta');
+  if (meta) meta.innerHTML = '<span>QR Code</span><span>NFC</span><span>Perfil digital</span>';
 }
+aplicarFotosVitrinePets();
 
+const siteHeader = document.querySelector('.site-header');
+function atualizarCabecalhoAoRolar() { siteHeader?.classList.toggle('is-scrolled', window.scrollY > 12); }
 atualizarCabecalhoAoRolar();
 window.addEventListener('scroll', atualizarCabecalhoAoRolar, { passive: true });
-
 const menuButton = document.querySelector('.menu-toggle');
 const menu = document.querySelector('.main-nav');
-
-menuButton?.addEventListener('click', () => {
-  const open = menuButton.getAttribute('aria-expanded') === 'true';
-  menuButton.setAttribute('aria-expanded', String(!open));
-  menuButton.setAttribute('aria-label', open ? 'Abrir menu' : 'Fechar menu');
-  menu?.classList.toggle('is-open', !open);
-});
-
-document.querySelectorAll('.main-nav a').forEach((link) => {
-  link.addEventListener('click', () => {
-    menuButton?.setAttribute('aria-expanded', 'false');
-    menuButton?.setAttribute('aria-label', 'Abrir menu');
-    menu?.classList.remove('is-open');
-  });
-});
-
-document.addEventListener('keydown', (event) => {
-  if (event.key !== 'Escape' || !menu?.classList.contains('is-open')) return;
-  menuButton?.setAttribute('aria-expanded', 'false');
-  menuButton?.setAttribute('aria-label', 'Abrir menu');
-  menu?.classList.remove('is-open');
-  menuButton?.focus();
-});
-
-document.addEventListener('click', (event) => {
-  if (!menu?.classList.contains('is-open')) return;
-  if (menu.contains(event.target) || menuButton?.contains(event.target)) return;
-  menuButton?.setAttribute('aria-expanded', 'false');
-  menuButton?.setAttribute('aria-label', 'Abrir menu');
-  menu?.classList.remove('is-open');
-});
-
-window.addEventListener('resize', () => {
-  if (window.innerWidth > 900 && menu?.classList.contains('is-open')) {
-    menuButton?.setAttribute('aria-expanded', 'false');
-    menuButton?.setAttribute('aria-label', 'Abrir menu');
-    menu?.classList.remove('is-open');
-  }
-});
-
-function carregar3DHome() {
-  if (!document.querySelector('[data-birx-3d]')) return;
-  if (document.querySelector('script[data-home-tag-3d]')) return;
-
-  const script = document.createElement('script');
-  script.type = 'module';
-  script.src = '/js/home-tag-3d.js?v=1.7';
-  script.dataset.homeTag3d = '1';
-  document.body.appendChild(script);
-}
-
+menuButton?.addEventListener('click', () => { const open = menuButton.getAttribute('aria-expanded') === 'true'; menuButton.setAttribute('aria-expanded', String(!open)); menuButton.setAttribute('aria-label', open ? 'Abrir menu' : 'Fechar menu'); menu?.classList.toggle('is-open', !open); });
+document.querySelectorAll('.main-nav a').forEach((link) => { link.addEventListener('click', () => { menuButton?.setAttribute('aria-expanded', 'false'); menuButton?.setAttribute('aria-label', 'Abrir menu'); menu?.classList.remove('is-open'); }); });
+document.addEventListener('keydown', (event) => { if (event.key !== 'Escape' || !menu?.classList.contains('is-open')) return; menuButton?.setAttribute('aria-expanded', 'false'); menuButton?.setAttribute('aria-label', 'Abrir menu'); menu?.classList.remove('is-open'); menuButton?.focus(); });
+document.addEventListener('click', (event) => { if (!menu?.classList.contains('is-open')) return; if (menu.contains(event.target) || menuButton?.contains(event.target)) return; menuButton?.setAttribute('aria-expanded', 'false'); menuButton?.setAttribute('aria-label', 'Abrir menu'); menu?.classList.remove('is-open'); });
+window.addEventListener('resize', () => { if (window.innerWidth > 900 && menu?.classList.contains('is-open')) { menuButton?.setAttribute('aria-expanded', 'false'); menuButton?.setAttribute('aria-label', 'Abrir menu'); menu?.classList.remove('is-open'); } });
+function carregar3DHome() { if (!document.querySelector('[data-birx-3d]')) return; if (document.querySelector('script[data-home-tag-3d]')) return; const script = document.createElement('script'); script.type = 'module'; script.src = '/js/home-tag-3d.js?v=1.7'; script.dataset.homeTag3d = '1'; document.body.appendChild(script); }
 carregar3DHome();
-
-if ('IntersectionObserver' in window) {
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach((entry) => {
-      if (!entry.isIntersecting) return;
-      entry.target.classList.add('is-visible');
-      observer.unobserve(entry.target);
-    });
-  }, { threshold: 0.12 });
-
-  document.querySelectorAll('.reveal').forEach((item) => observer.observe(item));
-} else {
-  document.querySelectorAll('.reveal').forEach((item) => item.classList.add('is-visible'));
-}
-
-document.querySelectorAll('a[href^="#"]').forEach((link) => {
-  link.addEventListener('click', (event) => {
-    const seletor = link.getAttribute('href');
-    if (!seletor || seletor === '#') return;
-    const destino = document.querySelector(seletor);
-    if (!destino) return;
-
-    event.preventDefault();
-    destino.scrollIntoView({
-      behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
-      block: 'start',
-    });
-
-    if (destino.id) history.replaceState(null, '', `#${destino.id}`);
-  });
-});
+if ('IntersectionObserver' in window) { const observer = new IntersectionObserver((entries) => { entries.forEach((entry) => { if (!entry.isIntersecting) return; entry.target.classList.add('is-visible'); observer.unobserve(entry.target); }); }, { threshold: 0.12 }); document.querySelectorAll('.reveal').forEach((item) => observer.observe(item)); } else { document.querySelectorAll('.reveal').forEach((item) => item.classList.add('is-visible')); }
+document.querySelectorAll('a[href^="#"]').forEach((link) => { link.addEventListener('click', (event) => { const seletor = link.getAttribute('href'); if (!seletor || seletor === '#') return; const destino = document.querySelector(seletor); if (!destino) return; event.preventDefault(); destino.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' }); if (destino.id) history.replaceState(null, '', `#${destino.id}`); }); });
