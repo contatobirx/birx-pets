@@ -8,7 +8,7 @@ function adicionarLojaInterna() {
   if (!menu || menu.querySelector('[data-loja-interna]')) return;
   const link = document.createElement('a');
   link.className = 'menu-item';
-  link.href = '/loja';
+  link.href = '/admin-loja.html';
   link.dataset.lojaInterna = '1';
   link.innerHTML = '<span>🧪</span>Loja interna';
   const primeiro = menu.querySelector('.menu-item');

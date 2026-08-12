@@ -6,10 +6,6 @@ const LEGACY_HOSTS = new Set([
 ]);
 
 const ROTAS_INTERNAS_EXATAS = new Set([
-  "/loja",
-  "/loja.html",
-  "/pedido",
-  "/pedido.html",
   "/admin-tags.html",
   "/admin-loja.html",
   "/admin-parceiros.html",

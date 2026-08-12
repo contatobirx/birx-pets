@@ -1,3 +1,1 @@
-document.querySelectorAll('.birx-public-nav a[href="/loja"],.birx-public-nav a[href="/loja.html"]').forEach(link=>link.remove());
-document.querySelectorAll('a[href="/loja"],a[href="/loja.html"]').forEach(link=>{if(link.closest('.birx-public-nav'))return;link.href='/personalizar';if(/comprar|loja|escolher/i.test(link.textContent||''))link.textContent='Personalizar BIRX ID →';});
 document.addEventListener('click',function(event){const button=event.target.closest('[data-birx-nav-toggle]');if(!button)return;const nav=button.closest('.birx-public-nav');const open=nav.classList.toggle('is-open');button.setAttribute('aria-expanded',String(open));button.setAttribute('aria-label',open?'Fechar menu':'Abrir menu')});
