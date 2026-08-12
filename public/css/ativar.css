@@ -1,0 +1,237 @@
+.pagina-ativacao {
+    min-height: 100vh;
+    padding: 40px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background:
+        radial-gradient(
+            circle at top left,
+            rgba(31, 89, 255, 0.12),
+            transparent 32%
+        ),
+        #f4f7fb;
+}
+
+.cartao-ativacao {
+    width: 100%;
+    max-width: 680px;
+    padding: 38px;
+    border-radius: 24px;
+    background: #ffffff;
+    box-shadow:
+        0 18px 55px rgba(22, 38, 82, 0.12);
+}
+
+.cabecalho-ativacao {
+    text-align: center;
+    margin-bottom: 32px;
+}
+
+.indicador-etapa {
+    display: inline-block;
+    margin-bottom: 12px;
+    padding: 7px 13px;
+    border-radius: 999px;
+    background: #eaf0ff;
+    color: #1d4ed8;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.cabecalho-ativacao h1 {
+    margin: 0 0 10px;
+    color: #12358b;
+    font-size: 34px;
+    line-height: 1.15;
+}
+
+.cabecalho-ativacao p {
+    margin: 0;
+    color: #63708b;
+    font-size: 16px;
+    line-height: 1.5;
+}
+
+.codigo-tag {
+    margin: 22px auto 0;
+    max-width: 300px;
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    border: 1px solid #dce5f5;
+    border-radius: 14px;
+    background: #f8faff;
+}
+
+.codigo-tag span {
+    color: #71809e;
+    font-size: 14px;
+}
+
+.codigo-tag strong {
+    color: #173b92;
+    letter-spacing: 0.5px;
+}
+
+.etapa-formulario {
+    display: none;
+}
+
+.etapa-formulario.ativa {
+    display: block;
+}
+
+.grade-campos {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+}
+
+.grupo-campo {
+    margin-bottom: 20px;
+}
+
+.campo-completo {
+    width: 100%;
+}
+
+.grupo-campo label {
+    display: block;
+    margin-bottom: 8px;
+    color: #26324c;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.grupo-campo input,
+.grupo-campo select,
+.grupo-campo textarea {
+    width: 100%;
+    padding: 14px 15px;
+    border: 1px solid #cfd9eb;
+    border-radius: 12px;
+    background: #ffffff;
+    color: #17213a;
+    font: inherit;
+    outline: none;
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
+    box-sizing: border-box;
+}
+
+.grupo-campo textarea {
+    min-height: 110px;
+    resize: vertical;
+}
+
+.grupo-campo input:focus,
+.grupo-campo select:focus,
+.grupo-campo textarea:focus {
+    border-color: #2d64e3;
+    box-shadow: 0 0 0 4px rgba(45, 100, 227, 0.12);
+}
+
+.mensagem-formulario {
+    min-height: 22px;
+    margin: 2px 0 16px;
+    color: #c02626;
+    font-size: 14px;
+    font-weight: 600;
+    text-align: center;
+}
+
+.acoes-formulario {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+}
+
+.botao-principal,
+.botao-secundario {
+    min-height: 48px;
+    padding: 0 22px;
+    border: none;
+    border-radius: 12px;
+    font: inherit;
+    font-weight: 700;
+    cursor: pointer;
+    transition:
+        transform 0.15s ease,
+        opacity 0.15s ease;
+}
+
+.botao-principal {
+    background: #2457d6;
+    color: #ffffff;
+}
+
+.botao-secundario {
+    background: #e9eef8;
+    color: #33415f;
+}
+
+.botao-principal:hover,
+.botao-secundario:hover {
+    transform: translateY(-1px);
+}
+
+.botao-principal:disabled {
+    cursor: not-allowed;
+    opacity: 0.65;
+    transform: none;
+}
+
+.escondido {
+    display: none;
+}
+
+.estado-sucesso {
+    padding: 18px 0 4px;
+    text-align: center;
+}
+
+.estado-sucesso h2 {
+    margin: 0 0 10px;
+    color: #166534;
+    font-size: 30px;
+}
+
+.estado-sucesso p {
+    margin: 0;
+    color: #58647c;
+    line-height: 1.6;
+}
+
+@media (max-width: 620px) {
+    .pagina-ativacao {
+        padding: 20px 14px;
+        align-items: flex-start;
+    }
+
+    .cartao-ativacao {
+        padding: 26px 20px;
+        border-radius: 18px;
+    }
+
+    .cabecalho-ativacao h1 {
+        font-size: 28px;
+    }
+
+    .grade-campos {
+        grid-template-columns: 1fr;
+        gap: 0;
+    }
+
+    .acoes-formulario {
+        flex-direction: column-reverse;
+    }
+
+    .botao-principal,
+    .botao-secundario {
+        width: 100%;
+    }
+}

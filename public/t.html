@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#12358b">
+  <meta name="description" content="Perfil de identificação pet protegido pela BIRX Pets.">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="BIRX Pets">
+  <meta property="og:title" content="Perfil do Pet - BIRX Pets" id="metaOgTitulo">
+  <meta property="og:description" content="Consulte as informações e entre em contato com o tutor." id="metaOgDescricao">
+  <meta property="og:url" content="https://pets.birx.com.br" id="metaOgUrl">
+  <title>Perfil do Pet - BIRX Pets</title>
+  <link rel="icon" href="/assets/login.png" type="image/png">
+  <link rel="stylesheet" href="/css/geral.css">
+  <link rel="stylesheet" href="/css/pet.css?v=3.3">
+  <link rel="stylesheet" href="/css/ux.css?v=1">
+  <link rel="stylesheet" href="/css/location.css?v=2.4">
+  <link rel="stylesheet" href="/css/perdidos-map.css?v=2.10.2">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
+  <link rel="stylesheet" href="/css/pet-gallery.css?v=2.11">
+  <link rel="stylesheet" href="/css/accessibility.css?v=3.16">
+  <link rel="stylesheet" href="/css/scan-location.css?v=3.17">
+  <link rel="stylesheet" href="/css/avistamentos.css?v=4.5">
+</head>
+<body>
+  <nav class="barra-acessibilidade" aria-label="Opções de acessibilidade">
+    <strong>Facilitar leitura:</strong>
+    <button id="aumentarTexto" type="button" aria-pressed="false"><span aria-hidden="true">A+</span> Aumentar texto</button>
+    <button id="altoContraste" type="button" aria-pressed="false"><span aria-hidden="true">◐</span> Alto contraste</button>
+    <button id="modoSimples" type="button" aria-pressed="false"><span aria-hidden="true">☰</span> Modo simples</button>
+  </nav>
+  <div class="instrucao-qr" role="note"><strong>Você acessou a identificação do pet.</strong><span>Para ajudar, use os botões grandes de ligar ou WhatsApp abaixo.</span></div>
+  <div id="conviteLocalizacao" class="convite-localizacao" hidden>
+    <div class="convite-localizacao-fundo"></div>
+    <section role="dialog" aria-modal="true" aria-labelledby="tituloConviteLocalizacao" aria-describedby="textoConviteLocalizacao">
+      <span class="convite-localizacao-icone" aria-hidden="true">📍</span>
+      <h2 id="tituloConviteLocalizacao">Avisar onde esta tag foi encontrada?</h2>
+      <p id="textoConviteLocalizacao">Se você permitir, enviaremos sua localização atual e a precisão do GPS exclusivamente ao tutor deste pet.</p>
+      <ul><li>O perfil continuará disponível se você não aceitar.</li><li>Sua localização não será exibida publicamente.</li><li>O navegador solicitará sua autorização.</li></ul>
+      <button id="permitirLocalizacaoScan" type="button">Permitir e enviar localização</button>
+      <button id="recusarLocalizacaoScan" class="convite-secundario" type="button">Agora não</button>
+    </section>
+  </div>
+  <main class="pagina-pet">
+    <section id="estadoCarregando" class="estado-carregando" aria-live="polite">
+      <div class="marca-carregando"><img src="/assets/login.png" alt="BIRX Pets"></div>
+      <div class="spinner" aria-hidden="true"></div>
+      <p>Carregando perfil do pet...</p>
+    </section>
+
+    <article id="perfilPet" class="perfil-premium escondido">
+      <a class="botao-voltar-perfil" id="voltarPerfil" href="/">← Voltar</a>
+      <a class="voltar-perdidos escondido" id="voltarPerdidos" href="/perdidos">← Voltar para animais perdidos</a>
+      <header class="topo-marca">
+        <a class="marca-orbitek" href="https://pets.birx.com.br" aria-label="BIRX Pets">
+          <img src="/assets/login.png" alt="BIRX Pets">
+        </a>
+        <span class="selo-protegido">Perfil protegido</span>
+      </header>
+
+      <section class="hero-pet">
+        <div class="decoracao-pata" aria-hidden="true">🐾</div>
+        <div class="foto-pet" id="fotoPet" aria-label="Foto do pet">🐾</div>
+        <div class="hero-conteudo">
+          <span class="status-pet seguro" id="statusPet">Estou seguro</span>
+          <h1 id="nomePet">Pet</h1>
+          <p class="local-pet"><span aria-hidden="true">📍</span><span id="localPet">Localização não informada</span></p>
+          <p class="codigo-tag">Tag <strong id="codigoTagPerfil">—</strong></p>
+        </div>
+      </section>
+
+      <div id="alertaPetPerdido" class="alerta-pet-perdido escondido" role="alert">
+        <div class="icone-alerta" aria-hidden="true">!</div>
+        <div><strong>Este pet está desaparecido</strong><p>Ajude-o a voltar para casa. Entre em contato com o tutor imediatamente.</p></div>
+      </div>
+      <section class="mapa-pet-perdido escondido" id="localizacaoPetPerdido" aria-labelledby="tituloMapaPetPerdido"><button class="botao-ultima-localizacao" id="abrirUltimaLocalizacao" type="button" aria-expanded="false"><span>📍</span><span><strong>Última localização</strong><small>Veja onde o tutor informou que este pet foi visto</small></span><b>›</b></button><div class="mapa-pet-conteudo" id="conteudoMapaPetPerdido" hidden><div><span>Local informado pelo tutor</span><h2 id="tituloMapaPetPerdido">Onde este pet foi visto por último</h2><p id="textoMapaPetPerdido">A posição exibida é aproximada para proteger o animal e o tutor.</p></div><div id="mapaPetPerdido" aria-label="Mapa da última localização deste pet"></div></div></section>
+      <section class="galeria-publica escondido" id="galeriaPublica"><h2>Fotos para ajudar na identificação</h2><div class="galeria-publica-grid" id="galeriaPublicaGrid"></div></section>
+
+      <section class="acoes-principais" aria-label="Ações de contato">
+        <a href="#" class="botao-acao botao-whatsapp escondido" id="botaoWhatsapp" target="_blank" rel="noopener noreferrer">
+          <span aria-hidden="true">💬</span><span>Falar no WhatsApp</span>
+        </a>
+        <a href="#" class="botao-acao botao-ligar escondido" id="botaoLigar">
+          <span aria-hidden="true">📞</span><span>Ligar para o tutor</span>
+        </a>
+      </section>
+
+      <section class="compartilhar-localizacao" aria-labelledby="tituloCompartilharLocalizacao">
+        <div><strong id="tituloCompartilharLocalizacao">Encontrou este pet?</strong><p>Com sua permissão, envie a localização atual ao tutor para ajudar no reencontro.</p></div>
+        <button type="button" id="botaoCompartilharLocalizacao"><span aria-hidden="true">📍</span> Compartilhar localização</button>
+        <small>A localização só é acessada após seu toque e será compartilhada exclusivamente com o tutor.</small>
+      </section>
+      <section id="avistamentosPublico" class="avistamentos-publico escondido"><h2>Viu este pet?</h2><p>Registre um possível avistamento com horário, localização e foto. O tutor validará o relato antes de ele aparecer no mapa.</p><button id="abrirRelatoAvistamento" type="button">Registrar avistamento</button><p id="avistamentosQuantidade" class="avistamentos-nota"></p><div id="mapaAvistamentos" class="avistamentos-mapa" hidden></div><p class="avistamentos-nota">A linha no mapa apenas organiza os relatos em ordem cronológica. Ela não representa a localização atual nem uma rota garantida do pet.</p></section>
+
+      <section class="secao-perfil" aria-labelledby="tituloIdentificacao">
+        <div class="titulo-secao"><span class="icone-secao" aria-hidden="true">🐶</span><div><h2 id="tituloIdentificacao">Identificação</h2><p>Informações principais do pet</p></div></div>
+        <div class="grade-informacoes">
+          <div class="informacao"><span>Espécie</span><strong id="especiePet">—</strong></div>
+          <div class="informacao"><span>Raça</span><strong id="racaPet">—</strong></div>
+          <div class="informacao"><span>Sexo</span><strong id="sexoPet">—</strong></div>
+          <div class="informacao"><span>Idade</span><strong id="idadePet">—</strong></div>
+        </div>
+      </section>
+
+      <section class="secao-perfil" aria-labelledby="tituloCuidados">
+        <div class="titulo-secao"><span class="icone-secao" aria-hidden="true">❤️</span><div><h2 id="tituloCuidados">Cuidados importantes</h2><p>Orientações para abordar e cuidar deste pet</p></div></div>
+        <div class="bloco-texto"><p id="comportamentoPet">Nenhuma informação cadastrada.</p></div>
+      </section>
+
+      <section class="secao-perfil secao-tutor" aria-labelledby="tituloTutor">
+        <div class="titulo-secao"><span class="icone-secao" aria-hidden="true">👤</span><div><h2 id="tituloTutor">Tutor responsável</h2><p>Contato cadastrado na BIRX Pets</p></div></div>
+        <div class="tutor-conteudo">
+          <div><span class="rotulo">Nome do tutor</span><strong id="nomeTutor">Não informado</strong></div>
+          <button type="button" class="botao-copiar escondido" id="botaoCopiarContato">Copiar contato</button>
+        </div>
+      </section>
+
+      <section class="barra-compartilhar" aria-label="Compartilhar perfil">
+        <button type="button" id="botaoCompartilhar"><span aria-hidden="true">↗</span> Compartilhar perfil</button>
+        <button type="button" id="botaoCopiarLink"><span aria-hidden="true">🔗</span> Copiar link</button>
+      </section>
+
+      <footer class="rodape-perfil">
+        <img src="/assets/login.png" alt="BIRX Pets">
+        <p>Identificação inteligente para quem você ama.</p>
+        <small>As informações deste perfil são fornecidas pelo tutor.</small>
+      </footer>
+    </article>
+
+    <section id="estadoErro" class="estado-erro escondido" role="alert">
+      <img src="/assets/login.png" alt="BIRX Pets">
+      <div class="icone-erro" aria-hidden="true">🐾</div>
+      <h1 id="tituloErro">Não foi possível abrir esta tag</h1>
+      <p id="mensagemErro"></p>
+      <a href="#" id="botaoAtivar" class="botao-principal escondido">Ativar minha tag</a>
+      <a href="https://pets.birx.com.br" class="link-voltar">Ir para o site da BIRX</a>
+    </section>
+  </main>
+
+  <div id="modalAvistamento" class="avistamento-form" hidden><form id="formAvistamento"><h2>Registrar possível avistamento</h2><p>Envie somente informações que você presenciou.</p><label>Quando viu? *<input name="vistoEm" type="datetime-local" required></label><label>Foto (opcional)<input name="foto" type="file" accept="image/jpeg,image/png,image/webp"></label><label>O que observou?<textarea name="observacoes" maxlength="500" rows="3"></textarea></label><label>Contato para o tutor (opcional)<input name="contato" maxlength="150"></label><p id="avistamentoLocalStatus">A localização será solicitada ao enviar.</p><div class="acoes"><button id="fecharRelatoAvistamento" type="button">Cancelar</button><button type="submit">Enviar ao tutor</button></div></form></div>
+  <div id="toastPerfil" class="toast-perfil" role="status" aria-live="polite"></div>
+  <div class="foto-ampliada" id="fotoAmpliada" hidden><button type="button" aria-label="Fechar foto">✕</button><img alt="Foto ampliada do pet"></div>
+  <script src="/js/core/api.js?v=2"></script>
+  <script src="/js/pet.js?v=3.7.1"></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+  <script src="/js/pet-lost-map.js?v=2.10.2"></script>
+  <script src="/js/pet-gallery.js?v=2.11"></script>
+  <script src="/js/pet-location.js?v=3.17"></script>
+  <script src="/js/pet-avistamentos.js?v=4.5"></script>
+  <script src="/js/core/notifications.js?v=2"></script>
+  <script src="/js/core/ux.js?v=1"></script>
+  <script src="/js/accessibility.js?v=3.16"></script>
+</body>
+</html>

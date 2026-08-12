@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#2463eb">
+  <title>Transferência de pet | BIRX Pets</title>
+  <link rel="icon" href="/assets/login.png">
+  <link rel="stylesheet" href="/css/aceitar-transferencia.css?v=3.4">
+</head>
+<body>
+  <main class="pagina-aceite">
+    <section class="cartao-aceite">
+      <a class="marca" href="/"><img src="/assets/login.png" alt="BIRX Pets"></a>
+      <div id="carregandoAceite" class="estado"><span class="spinner"></span><h1>Consultando convite...</h1><p>Aguarde um instante.</p></div>
+      <div id="conviteAceite" hidden>
+        <span class="selo">TRANSFERÊNCIA SEGURA</span>
+        <h1>Você foi convidado para cuidar de <span id="nomePetAceite">um pet</span></h1>
+        <p><strong id="tutorAtualAceite"></strong> deseja transferir o perfil e a tag deste pet para você.</p>
+        <div class="destino"><small>NOVA CONTA RESPONSÁVEL</small><strong id="emailDestinoAceite"></strong><span id="nomeDestinoAceite"></span></div>
+        <div class="aviso"><span>🔒</span><p>A transferência só ocorrerá depois da sua confirmação. As informações de saúde, fotos e histórico permanecerão no perfil.</p></div>
+        <button id="confirmarAceite" type="button">Aceitar transferência</button>
+        <a class="recusar" href="/">Não reconheço este convite</a>
+      </div>
+      <div id="resultadoAceite" class="estado" hidden><div id="iconeResultado" class="icone-resultado">✓</div><h1 id="tituloResultado"></h1><p id="mensagemResultado"></p><a id="acaoResultado" class="botao-link" href="/login">Entrar no BIRX Pets</a></div>
+    </section>
+  </main>
+  <script src="/js/aceitar-transferencia.js?v=3.4"></script>
+  <script src="/js/pwa.js?v=4.0.0"></script>
+</body>
+</html>

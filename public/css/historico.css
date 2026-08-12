@@ -1,0 +1,260 @@
+* {
+    box-sizing: border-box;
+}
+
+:root {
+    font-family:
+        Inter,
+        Arial,
+        Helvetica,
+        sans-serif;
+
+    color: #172554;
+    background: #eef3fb;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+}
+
+button,
+a {
+    font: inherit;
+}
+
+.escondido {
+    display: none !important;
+}
+
+.pagina-historico {
+    min-height: 100vh;
+    padding: 40px 20px;
+}
+
+.cartao-historico {
+    width: min(760px, 100%);
+    margin: 0 auto;
+    overflow: hidden;
+    border-radius: 24px;
+    background: #ffffff;
+    box-shadow:
+        0 20px 60px rgba(15, 23, 42, 0.12);
+}
+
+.cabecalho {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 24px;
+    padding: 32px;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.marca {
+    display: inline-block;
+    margin-bottom: 8px;
+    color: #2563eb;
+    font-size: 14px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.cabecalho h1 {
+    margin: 0 0 8px;
+    font-size: clamp(28px, 5vw, 38px);
+    line-height: 1.1;
+}
+
+.cabecalho p {
+    margin: 0;
+    color: #64748b;
+    line-height: 1.5;
+}
+
+.botao-voltar {
+    flex: 0 0 auto;
+    padding: 11px 17px;
+    border: 1px solid #cbd5e1;
+    border-radius: 12px;
+    color: #1e3a8a;
+    background: #ffffff;
+    font-weight: 700;
+    text-decoration: none;
+    transition:
+        transform 0.2s ease,
+        background 0.2s ease;
+}
+
+.botao-voltar:hover {
+    background: #f8fafc;
+    transform: translateY(-1px);
+}
+
+.estado {
+    padding: 60px 32px;
+    text-align: center;
+}
+
+.estado h2 {
+    margin: 16px 0 8px;
+}
+
+.estado p {
+    max-width: 470px;
+    margin: 0 auto;
+    color: #64748b;
+    line-height: 1.6;
+}
+
+.carregador {
+    width: 42px;
+    height: 42px;
+    margin: 0 auto 20px;
+    border: 4px solid #dbeafe;
+    border-top-color: #2563eb;
+    border-radius: 50%;
+    animation: girar 0.8s linear infinite;
+}
+
+.icone-estado {
+    display: grid;
+    width: 58px;
+    height: 58px;
+    margin: 0 auto;
+    place-items: center;
+    border-radius: 50%;
+    background: #eff6ff;
+    color: #1d4ed8;
+    font-size: 26px;
+    font-weight: 900;
+}
+
+.conteudo-historico {
+    padding: 28px 32px 36px;
+}
+
+.resumo {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+    margin-bottom: 32px;
+}
+
+.resumo div {
+    padding: 20px;
+    border: 1px solid #dbe4f0;
+    border-radius: 16px;
+    background: #f8fafc;
+}
+
+.resumo span {
+    display: block;
+    margin-bottom: 7px;
+    color: #64748b;
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.resumo strong {
+    color: #0f172a;
+    font-size: 20px;
+}
+
+.linha-tempo {
+    position: relative;
+}
+
+.linha-tempo::before {
+    content: "";
+    position: absolute;
+    top: 13px;
+    bottom: 13px;
+    left: 12px;
+    width: 2px;
+    background: #dbeafe;
+}
+
+.item-leitura {
+    position: relative;
+    display: grid;
+    grid-template-columns: 26px 1fr;
+    gap: 16px;
+    padding-bottom: 24px;
+}
+
+.item-leitura:last-child {
+    padding-bottom: 0;
+}
+
+.marcador {
+    position: relative;
+    z-index: 1;
+    width: 26px;
+    height: 26px;
+    border: 6px solid #eff6ff;
+    border-radius: 50%;
+    background: #2563eb;
+}
+
+.dados-leitura {
+    padding: 18px;
+    border: 1px solid #dbe4f0;
+    border-radius: 16px;
+    background: #ffffff;
+}
+
+.local-leitura {
+    margin: 0 0 7px;
+    color: #0f172a;
+    font-size: 18px;
+}
+
+.data-leitura {
+    margin: 0;
+    color: #64748b;
+    font-size: 14px;
+}
+
+@keyframes girar {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@media (max-width: 600px) {
+    .pagina-historico {
+        padding: 0;
+    }
+
+    .cartao-historico {
+        min-height: 100vh;
+        border-radius: 0;
+    }
+
+    .cabecalho {
+        flex-direction: column;
+        padding: 26px 20px;
+    }
+
+    .botao-voltar {
+        width: 100%;
+        text-align: center;
+    }
+
+    .conteudo-historico {
+        padding: 24px 20px 32px;
+    }
+
+    .resumo {
+        grid-template-columns: 1fr;
+    }
+
+    .estado {
+        padding: 50px 20px;
+    }
+}
+
+.secao-localizacoes{margin-top:34px;padding-top:28px;border-top:1px solid #dbe4f0}.titulo-localizacoes span{color:#2563eb;font-size:12px;font-weight:800;letter-spacing:.08em}.titulo-localizacoes h2{margin:7px 0;font-size:23px}.titulo-localizacoes p{margin:0 0 18px;color:#64748b;line-height:1.5}.lista-localizacoes{display:grid;gap:12px}.item-localizacao{padding:17px;border:1px solid #cfe0ff;border-radius:15px;background:#f5f9ff}.item-localizacao strong,.item-localizacao span{display:block}.item-localizacao span{margin-top:5px;color:#64748b;font-size:14px}.item-localizacao a{display:inline-block;margin-top:12px;padding:10px 14px;border-radius:10px;background:#225bea;color:#fff;font-weight:800;text-decoration:none}

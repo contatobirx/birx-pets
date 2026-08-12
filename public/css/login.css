@@ -1,0 +1,207 @@
+* { box-sizing: border-box; }
+
+:root {
+    font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    color: #0f2f82;
+    background: #eef5ff;
+}
+
+body { margin: 0; min-height: 100vh; }
+button, input { font: inherit; }
+button { cursor: pointer; }
+button:disabled { cursor: wait; opacity: .7; }
+.escondido { display: none !important; }
+
+.pagina-login {
+    position: relative;
+    display: grid;
+    min-height: 100vh;
+    padding: 42px 24px;
+    place-items: center;
+    overflow: hidden;
+    isolation: isolate;
+    background-color: #eef5ff;
+    background-image: url("/assets/fundo.png");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
+}
+
+
+
+.cartao-login {
+    position: relative;
+    z-index: 2;
+    width: min(620px, 100%);
+    overflow: hidden;
+    border: 1px solid rgba(203, 213, 225, .78);
+    border-radius: 34px;
+    background: rgba(255, 255, 255, .96);
+    box-shadow: 0 30px 90px rgba(15, 47, 130, .18);
+    backdrop-filter: blur(18px);
+}
+
+.cabecalho-login { padding: 34px 54px 24px; text-align: center; }
+.marca { display: inline-flex; width: min(300px, 72%); margin-bottom: 12px; text-decoration: none; }
+.marca img { display: block; width: 100%; height: auto; }
+
+.cabecalho-login h1 {
+    margin: 0 0 12px;
+    color: #0b2a68;
+    font-size: clamp(36px, 5vw, 52px);
+    line-height: 1.04;
+    letter-spacing: -.035em;
+}
+
+.cabecalho-login p { margin: 0; color: #60708f; font-size: 17px; line-height: 1.6; }
+.etapa-login { padding: 10px 54px 34px; }
+
+label {
+    display: block;
+    margin-bottom: 10px;
+    color: #102a5f;
+    font-size: 16px;
+    font-weight: 800;
+}
+
+.rotulo-com-icone { display: flex; align-items: center; gap: 9px; }
+.rotulo-com-icone span { color: #2563eb; font-size: 18px; }
+
+.campo-com-icone { position: relative; }
+.campo-com-icone input {
+    width: 100%;
+    min-height: 68px;
+    padding: 18px 58px 18px 20px;
+    border: 2px solid #2b67f2;
+    border-radius: 16px;
+    outline: 0;
+    color: #0f172a;
+    background: #fff;
+    font-size: 18px;
+    box-shadow: 0 5px 18px rgba(37, 99, 235, .06);
+    transition: border-color .2s ease, box-shadow .2s ease, transform .2s ease;
+}
+
+.campo-com-icone input::placeholder { color: #8a99b2; }
+.campo-com-icone input:focus {
+    border-color: #174fe2;
+    box-shadow: 0 0 0 5px rgba(37, 99, 235, .13), 0 9px 24px rgba(37,99,235,.08);
+    transform: translateY(-1px);
+}
+
+.icone-campo {
+    position: absolute;
+    top: 50%;
+    right: 22px;
+    width: 18px;
+    height: 18px;
+    border-radius: 50% 50% 42% 42%;
+    color: #8190aa;
+    font-size: 0;
+    transform: translateY(-65%);
+    background: #8190aa;
+}
+.icone-campo::after {
+    content: "";
+    position: absolute;
+    top: 15px;
+    left: -6px;
+    width: 30px;
+    height: 16px;
+    border-radius: 16px 16px 5px 5px;
+    background: #8190aa;
+}
+
+.campo-codigo {
+    width: 100%;
+    min-height: 68px;
+    padding: 17px;
+    border: 2px solid #2b67f2;
+    border-radius: 16px;
+    outline: 0;
+    color: #0f172a;
+    font-size: 27px;
+    font-weight: 800;
+    letter-spacing: .3em;
+    text-align: center;
+}
+.campo-codigo:focus { border-color: #174fe2; box-shadow: 0 0 0 5px rgba(37,99,235,.13); }
+
+.ajuda-campo {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin: 12px 0 24px;
+    color: #64748b;
+    font-size: 14px;
+    line-height: 1.55;
+}
+.ajuda-campo span { flex: 0 0 auto; margin-top: 2px; color: #2563eb; font-size: 12px; }
+
+.botao-principal {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    width: 100%;
+    min-height: 64px;
+    margin-top: 18px;
+    border: 0;
+    border-radius: 16px;
+    color: #fff;
+    background: linear-gradient(135deg, #2f6cf4, #0f59e8);
+    box-shadow: 0 14px 28px rgba(37, 99, 235, .25);
+    font-size: 18px;
+    font-weight: 850;
+    transition: transform .2s ease, box-shadow .2s ease, filter .2s ease;
+}
+.botao-principal:hover:not(:disabled) { transform: translateY(-2px); filter: brightness(1.03); box-shadow: 0 18px 34px rgba(37,99,235,.3); }
+
+.botao-secundario, .botao-alterar { border: 0; color: #2563eb; background: transparent; font-weight: 800; }
+.botao-secundario { width: 100%; margin-top: 18px; padding: 10px; }
+.botao-alterar { padding: 0; margin-bottom: 22px; }
+.titulo-etapa { margin-bottom: 22px; }
+.titulo-etapa h2 { margin: 0 0 8px; color: #0b2a68; font-size: 30px; }
+.titulo-etapa p { margin: 0; color: #64748b; line-height: 1.5; }
+
+.mensagem-sistema { margin: 0 54px 28px; padding: 14px 16px; border-radius: 12px; font-size: 14px; font-weight: 700; line-height: 1.5; text-align: center; }
+.mensagem-sistema.erro { border: 1px solid #fecaca; color: #991b1b; background: #fef2f2; }
+.mensagem-sistema.sucesso { border: 1px solid #bbf7d0; color: #166534; background: #f0fdf4; }
+
+.rodape-login { padding: 22px 34px; border-top: 1px solid #e2e8f0; background: #f8fbff; text-align: center; }
+.rodape-login p { margin: 0; color: #64748b; font-size: 13px; line-height: 1.5; }
+
+
+
+@media (max-width: 680px) {
+    .pagina-login {
+        padding: 18px 14px;
+        align-items: center;
+        background-position: 58% center;
+    }
+    .cartao-login { border-radius: 26px; }
+    .cabecalho-login { padding: 26px 22px 20px; }
+    .marca { width: min(280px, 86%); margin-bottom: 8px; }
+    .cabecalho-login h1 { font-size: clamp(31px, 10vw, 42px); }
+    .cabecalho-login p { font-size: 15px; }
+    .etapa-login { padding: 8px 22px 28px; }
+    .campo-com-icone input, .campo-codigo { min-height: 60px; }
+    .botao-principal { min-height: 58px; }
+    .mensagem-sistema { margin: 0 22px 24px; }
+    .rodape-login { padding: 18px 22px; }
+}
+
+@media (max-width: 420px) {
+    .pagina-login {
+        padding: 12px;
+        background-position: 62% center;
+        background-size: cover;
+    }
+    .cartao-login { border-radius: 24px; }
+    .marca { width: min(250px, 86%); }
+    .cabecalho-login { padding-top: 24px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { scroll-behavior: auto !important; transition: none !important; }
+}

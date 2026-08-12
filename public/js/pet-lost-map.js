@@ -1,0 +1,8 @@
+(function(){
+  const secao=document.getElementById("localizacaoPetPerdido"),conteudo=document.getElementById("conteudoMapaPetPerdido"),botao=document.getElementById("abrirUltimaLocalizacao"),elemento=document.getElementById("mapaPetPerdido");
+  const tag=new URLSearchParams(location.search).get("tag")?.trim().toUpperCase();
+  if(!secao||!conteudo||!botao||!elemento||!tag||!window.L)return;
+  let localizacao=null,mapa=null;
+  fetch(`/api/ultima-localizacao?tag=${encodeURIComponent(tag)}`,{headers:{Accept:"application/json"}}).then(async resposta=>{const dados=await resposta.json();if(!resposta.ok)throw new Error(dados.mensagem);if(!dados.localizacao)return;localizacao=dados.localizacao;secao.classList.remove("escondido")}).catch(()=>{});
+  botao.addEventListener("click",()=>{if(!localizacao)return;const abrir=conteudo.hidden;conteudo.hidden=!abrir;botao.setAttribute("aria-expanded",String(abrir));botao.classList.toggle("aberto",abrir);if(!abrir)return;const lat=Number(localizacao.latitudeAproximada),lng=Number(localizacao.longitudeAproximada);if(!mapa){mapa=L.map(elemento,{scrollWheelZoom:false}).setView([lat,lng],13);L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:18,attribution:"&copy; OpenStreetMap"}).addTo(mapa);L.marker([lat,lng]).addTo(mapa).bindPopup(`Último local informado para ${localizacao.nome||"este pet"}`).openPopup();const data=new Date(localizacao.informadaEm);if(!Number.isNaN(data.getTime()))document.getElementById("textoMapaPetPerdido").textContent=`Localização aproximada informada pelo tutor em ${data.toLocaleString("pt-BR")}.`;}setTimeout(()=>mapa.invalidateSize(),50)});
+})();
