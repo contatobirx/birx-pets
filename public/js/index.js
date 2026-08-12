@@ -1,6 +1,3 @@
-Exit code: 0
-Wall time: 1.3 seconds
-Output:
 const estiloCabecalhoHome = document.createElement('style');
 estiloCabecalhoHome.textContent = `
 .site-header,.site-header.is-scrolled{background:rgba(3,8,15,.96)!important;border-bottom:1px solid rgba(255,255,255,.10)!important;box-shadow:0 10px 30px rgba(0,0,0,.18)!important;backdrop-filter:blur(18px)}
@@ -56,7 +53,7 @@ window.addEventListener('resize', () => {
   if (window.innerWidth > 900 && menu?.classList.contains('is-open')) {
     menuButton?.setAttribute('aria-expanded', 'false');
     menuButton?.setAttribute('aria-label', 'Abrir menu');
-    menu.classList.remove('is-open');
+    menu?.classList.remove('is-open');
   }
 });
 
@@ -103,4 +100,3 @@ document.querySelectorAll('a[href^="#"]').forEach((link) => {
     if (destino.id) history.replaceState(null, '', `#${destino.id}`);
   });
 });
-
