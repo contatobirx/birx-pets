@@ -188,6 +188,9 @@ async function buildViewer(holder) {
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   holder.innerHTML = '';
   holder.appendChild(renderer.domElement);
+  renderer.domElement.style.cursor = 'grab';
+  renderer.domElement.style.touchAction = 'none';
+  holder.title = 'Clique e arraste para girar';
 
   scene.add(new THREE.HemisphereLight(0xffffff, 0x61708c, 2.8));
   const key = new THREE.DirectionalLight(0xffffff, 4.2);
@@ -252,7 +255,6 @@ async function buildViewer(holder) {
     camera.aspect = w / h;
     camera.updateProjectionMatrix();
 
-    root.rotation.set(0, 0, 0);
     root.updateMatrixWorld(true);
     const bounds = new THREE.Box3().setFromObject(root);
     const c = new THREE.Vector3();
@@ -275,6 +277,39 @@ async function buildViewer(holder) {
 
   fit();
   new ResizeObserver(fit).observe(holder);
+
+  let dragging = false;
+  let lastX = 0;
+  let lastY = 0;
+  const redraw = () => renderer.render(scene, camera);
+
+  renderer.domElement.addEventListener('pointerdown', event => {
+    dragging = true;
+    lastX = event.clientX;
+    lastY = event.clientY;
+    renderer.domElement.style.cursor = 'grabbing';
+    renderer.domElement.setPointerCapture(event.pointerId);
+  });
+
+  renderer.domElement.addEventListener('pointermove', event => {
+    if (!dragging) return;
+    const dx = event.clientX - lastX;
+    const dy = event.clientY - lastY;
+    lastX = event.clientX;
+    lastY = event.clientY;
+    root.rotation.y += dx * 0.012;
+    root.rotation.x = THREE.MathUtils.clamp(root.rotation.x + dy * 0.008, -0.8, 0.8);
+    redraw();
+  });
+
+  const release = event => {
+    if (!dragging) return;
+    dragging = false;
+    renderer.domElement.style.cursor = 'grab';
+    try { renderer.domElement.releasePointerCapture(event.pointerId); } catch {}
+  };
+  renderer.domElement.addEventListener('pointerup', release);
+  renderer.domElement.addEventListener('pointercancel', release);
 }
 
 Promise.all(
