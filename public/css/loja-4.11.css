@@ -1,2 +1,8 @@
-/* Arquivo de compatibilidade da Loja BIRX.
-   Mantido para evitar erro 404/MIME em versões ainda em cache. */
+/* Compatibilidade da Loja BIRX.
+   O CSS principal define .checkout-modal com display:grid; por isso o atributo
+   hidden precisa de uma regra explícita para realmente remover o modal da tela. */
+.checkout-modal[hidden],
+.drawer-overlay[hidden] {
+  display: none !important;
+  pointer-events: none !important;
+}
