@@ -18,15 +18,25 @@ document.addEventListener('click', function (event) {
     event.preventDefault();
     event.stopPropagation();
 
+    if (document.activeElement && dialog.contains(document.activeElement)) {
+      document.activeElement.blur();
+    }
+
     const container = dialog.parentElement;
     if (container) {
       container.hidden = true;
       container.setAttribute('aria-hidden', 'true');
+      container.style.pointerEvents = 'none';
     } else {
       dialog.hidden = true;
     }
 
     document.body.classList.remove('locked');
+
+    const safeFocus = document.getElementById('abrirCarrinho') || document.querySelector('main a, main button');
+    if (safeFocus && typeof safeFocus.focus === 'function') {
+      requestAnimationFrame(() => safeFocus.focus({ preventScroll: true }));
+    }
     return;
   }
 
@@ -34,10 +44,18 @@ document.addEventListener('click', function (event) {
   if (drawer) {
     event.preventDefault();
     event.stopPropagation();
+
+    if (document.activeElement && drawer.contains(document.activeElement)) {
+      document.activeElement.blur();
+    }
+
     drawer.classList.remove('open', 'is-open');
     drawer.setAttribute('aria-hidden', 'true');
     const overlay = drawer.previousElementSibling;
     if (overlay && overlay.hasAttribute('hidden')) overlay.hidden = true;
     document.body.classList.remove('locked');
+
+    const opener = document.getElementById('abrirCarrinho');
+    if (opener) requestAnimationFrame(() => opener.focus({ preventScroll: true }));
   }
 }, true);
