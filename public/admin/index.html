@@ -1,5 +1,90 @@
-Exit code: 0
-Wall time: 1.7 seconds
-Output:
-<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#17388f"><title>Admin | BIRX Pets</title><link rel="stylesheet" href="/admin/css/admin.css?v=1.1"></head><body><div class="admin-shell"><aside class="sidebar" id="sidebar"><div class="brand"><a href="/"><img src="/assets/login.png" alt="BIRX Pets"></a><button class="sidebar-close" id="sidebarClose" type="button">Ã—</button></div><nav class="menu"><a class="menu-item active" href="/admin/"><span>âŒ‚</span>Dashboard</a><a class="menu-item" href="/admin/crm.html"><span>â—Ž</span>CRM</a><a class="menu-item" href="/admin/pedidos.html"><span>â–¤</span>Pedidos</a><a class="menu-item" href="/admin/financeiro.html"><span>R$</span>Financeiro</a><a class="menu-item" href="/admin/materiais.html"><span>â–¦</span>Materiais</a><a class="menu-item" href="/admin/estoque.html"><span>â–£</span>Estoque</a><a class="menu-item" href="/admin/fornecedores.html"><span>â—«</span>Fornecedores</a><a class="menu-item" href="/admin/compras.html"><span>ðŸ›’</span>Compras</a><a class="menu-item" href="/admin/produtos.html"><span>â—‡</span>Produtos</a><a class="menu-item" href="/admin/modelos-3d.html"><span>â—ˆ</span>Modelos 3D</a><a class="menu-item" href="/admin/impressoras.html"><span>ðŸ–¨</span>Impressoras</a><a class="menu-item" href="/admin/central-producao.html"><span>â–¤</span>Central de ProduÃ§Ã£o</a><a class="menu-item" href="/admin/precificacao.html"><span>R$</span>PrecificaÃ§Ã£o</a><a class="menu-item" href="/admin/producao-integrada.html"><span>ðŸ­</span>ProduÃ§Ã£o integrada</a><a class="menu-item" href="/admin/auditoria.html"><span>âœ“</span>Auditoria</a><a class="menu-item" href="/admin-tags.html"><span>âŒ</span>Tags</a><a class="menu-item" href="/producao.html"><span>âš™</span>ProduÃ§Ã£o de tags</a><a class="menu-item" href="/admin-loja.html"><span>ðŸ§ª</span>Loja interna</a></nav><div class="sidebar-footer"><p>OperaÃ§Ã£o BIRX Pets</p><button type="button" class="secondary" onclick="BirxAdmin.logout()">Sair</button></div></aside><div class="sidebar-overlay" id="sidebarOverlay" hidden></div><main class="main-content"><header class="topbar"><div class="topbar-left"><button class="menu-toggle" id="menuToggle" type="button">â˜°</button><div><span class="eyebrow">ÃREA ADMINISTRATIVA</span><h1>Dashboard</h1></div></div><a class="site-link" href="/">Ver site</a></header><div id="dashboardMensagem" class="feedback" hidden></div><section class="welcome"><div><span class="eyebrow">CENTRAL DE OPERAÃ‡Ã•ES</span><h2>VisÃ£o geral da BIRX Pets</h2><p>Acompanhe comercial, estoque, produÃ§Ã£o e financeiro em uma Ãºnica Ã¡rea.</p></div><div class="welcome-badge">BIRX<br><strong>ADMIN</strong></div></section><section class="stats-grid"><article class="stat-card"><div class="stat-icon">â–¦</div><div><span>Materiais</span><strong id="dashMateriais">â€”</strong><small>ativos cadastrados</small></div></article><article class="stat-card"><div class="stat-icon">R$</div><div><span>Valor do estoque</span><strong id="dashValorEstoque">R$ â€”</strong><small>custo mÃ©dio dos materiais</small></div></article><article class="stat-card"><div class="stat-icon">!</div><div><span>Abaixo do mÃ­nimo</span><strong id="dashBaixoMinimo">â€”</strong><small>considerando reservas de produÃ§Ã£o</small></div></article><article class="stat-card"><div class="stat-icon">ðŸ›’</div><div><span>Compras no mÃªs</span><strong id="dashComprasMes">R$ â€”</strong><small>valor registrado no mÃªs atual</small></div></article><article class="stat-card"><div class="stat-icon">â—‡</div><div><span>Produtos acabados</span><strong id="dashProdutos">â€”</strong><small>unidades em estoque</small></div></article><article class="stat-card"><div class="stat-icon">âŒ</div><div><span>Tags em estoque</span><strong id="dashTags">â€”</strong><small>mesma regra da PreparaÃ§Ã£o de Tags</small></div></article></section><section class="content-grid"><article class="panel"><div class="panel-header"><div><span class="eyebrow">AÃ‡Ã•ES RÃPIDAS</span><h3>OperaÃ§Ã£o</h3></div></div><div class="quick-actions"><a href="/admin/crm.html" class="action-card"><span class="action-icon">â—Ž</span><div><strong>CRM</strong><small>Pet shops, clÃ­nicas, contatos e prÃ³ximos retornos.</small></div><b>â†’</b></a><a href="/admin/pedidos.html" class="action-card"><span class="action-icon">â–¤</span><div><strong>Pedidos</strong><small>Reserve produto acabado e identifique produÃ§Ã£o necessÃ¡ria.</small></div><b>â†’</b></a><a href="/admin/financeiro.html" class="action-card"><span class="action-icon">R$</span><div><strong>Financeiro</strong><small>Contas a receber/pagar e lanÃ§amentos dos pedidos.</small></div><b>â†’</b></a><a href="/admin/compras.html" class="action-card"><span class="action-icon">ðŸ›’</span><div><strong>Registrar compra</strong><small>Entrada automÃ¡tica no estoque e recÃ¡lculo do custo mÃ©dio.</small></div><b>â†’</b></a><a href="/admin/estoque.html" class="action-card"><span class="action-icon">â–£</span><div><strong>Ajustar estoque</strong><small>Saldo fÃ­sico, reservado, disponÃ­vel e histÃ³rico.</small></div><b>â†’</b></a><a href="/admin/modelos-3d.html" class="action-card"><span class="action-icon">â—ˆ</span><div><strong>Biblioteca 3D</strong><small>Versione modelos e armazene .3mf/.stl no R2.</small></div><b>â†’</b></a><a href="/admin/impressoras.html" class="action-card"><span class="action-icon">ðŸ–¨</span><div><strong>Impressoras</strong><small>Cadastre mÃ¡quinas, bicos, materiais e status.</small></div><b>â†’</b></a><a href="/admin/central-producao.html" class="action-card"><span class="action-icon">â–¤</span><div><strong>Central de ProduÃ§Ã£o</strong><small>Distribua ordens e acompanhe fila, impressÃ£o e conclusÃ£o.</small></div><b>â†’</b></a><a href="/admin/precificacao.html" class="action-card"><span class="action-icon">R$</span><div><strong>PrecificaÃ§Ã£o</strong><small>Monte a composiÃ§Ã£o e calcule custo, margem e preÃ§o sugerido.</small></div><b>â†’</b></a><a href="/admin/producao-integrada.html" class="action-card"><span class="action-icon">ðŸ­</span><div><strong>ProduÃ§Ã£o integrada</strong><small>Baixe materiais e gere estoque de produto acabado automaticamente.</small></div><b>â†’</b></a><a href="/admin/auditoria.html" class="action-card"><span class="action-icon">âœ“</span><div><strong>Auditoria do sistema</strong><small>Verifique divergÃªncias entre estoque, reservas, tags e produÃ§Ã£o.</small></div><b>â†’</b></a><a href="/admin-tags.html" class="action-card"><span class="action-icon">âŒ</span><div><strong>PreparaÃ§Ã£o de Tags</strong><small>Criar lotes, gravar e testar tags.</small></div><b>â†’</b></a></div></article><article class="panel"><div class="panel-header"><div><span class="eyebrow">ALERTAS</span><h3>Estoque mÃ­nimo</h3></div></div><div class="quick-actions" id="alertasEstoque"><div class="empty">Carregando alertas...</div></div></article></section></main></div><script src="/admin/js/admin.js?v=1.1"></script><script src="/admin/js/ui.js?v=1.12"></script><script src="/admin/js/dashboard.js?v=1.2"></script></body></html>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#102a68">
+  <title>Painel Administrativo | BIRX Pets</title>
+  <link rel="stylesheet" href="/admin/css/admin.css?v=2.0">
+</head>
+<body>
+<div class="admin-shell">
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <a href="/" aria-label="BIRX Pets"><img src="/assets/login.png" alt="BIRX Pets"></a>
+      <button class="sidebar-close" id="sidebarClose" type="button" aria-label="Fechar menu">×</button>
+    </div>
 
+    <nav class="menu" aria-label="Navegação administrativa">
+      <div class="menu-group"><span class="menu-group-title">Visão geral</span><a class="menu-item active" href="/admin/"><span>⌂</span>Dashboard</a></div>
+      <div class="menu-group"><span class="menu-group-title">Comercial</span><a class="menu-item" href="/admin/crm.html"><span>◎</span>CRM</a><a class="menu-item" href="/admin/pedidos.html"><span>▤</span>Pedidos</a></div>
+      <div class="menu-group"><span class="menu-group-title">Financeiro</span><a class="menu-item" href="/admin/financeiro.html"><span>R$</span>Financeiro</a><a class="menu-item" href="/admin/compras.html"><span>🛒</span>Compras</a><a class="menu-item" href="/admin/precificacao.html"><span>％</span>Precificação</a></div>
+      <div class="menu-group"><span class="menu-group-title">Estoque</span><a class="menu-item" href="/admin/materiais.html"><span>◆</span>Materiais</a><a class="menu-item" href="/admin/estoque.html"><span>▣</span>Estoque</a><a class="menu-item" href="/admin/fornecedores.html"><span>◫</span>Fornecedores</a><a class="menu-item" href="/admin/produtos.html"><span>◇</span>Produtos</a></div>
+      <div class="menu-group"><span class="menu-group-title">Produção</span><a class="menu-item" href="/admin/central-producao.html"><span>▤</span>Central de Produção</a><a class="menu-item" href="/admin/producao-integrada.html"><span>🏭</span>Produção integrada</a><a class="menu-item" href="/admin/impressoras.html"><span>▦</span>Impressoras</a><a class="menu-item" href="/admin/modelos-3d.html"><span>◈</span>Modelos 3D</a><a class="menu-item" href="/admin-tags.html"><span>⌁</span>Tags</a></div>
+      <div class="menu-group"><span class="menu-group-title">Sistema</span><a class="menu-item" href="/admin/auditoria.html"><span>✓</span>Auditoria</a></div>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="admin-user"><span class="admin-avatar">B</span><div><strong>Administrador</strong><small>contato.birx@gmail.com</small></div></div>
+      <button type="button" class="logout-button" onclick="BirxAdmin.logout()">Sair</button>
+    </div>
+  </aside>
+
+  <div class="sidebar-overlay" id="sidebarOverlay" hidden></div>
+  <main class="main-content">
+    <header class="topbar">
+      <div class="topbar-left"><button class="menu-toggle" id="menuToggle" type="button" aria-label="Abrir menu">☰</button><div><span class="eyebrow">ÁREA ADMINISTRATIVA</span><h1>Dashboard</h1></div></div>
+      <div class="topbar-actions"><span class="admin-pill">● Sistema online</span><a class="site-link" href="/">Ver site</a></div>
+    </header>
+
+    <div id="dashboardMensagem" class="feedback" hidden></div>
+
+    <section class="welcome">
+      <div><span class="eyebrow">CENTRAL DE OPERAÇÕES</span><h2>Bom dia. Aqui está a BIRX hoje.</h2><p>Acompanhe vendas, estoque, produção e financeiro em um único lugar.</p></div>
+      <div class="welcome-badge"><span>BIRX</span><strong>ADMIN</strong></div>
+    </section>
+
+    <section class="stats-grid" aria-label="Indicadores principais">
+      <article class="stat-card"><div class="stat-icon">⌁</div><div><span>Tags disponíveis</span><strong id="dashTags">—</strong><small>prontas para preparação e uso</small></div></article>
+      <article class="stat-card"><div class="stat-icon">!</div><div><span>Estoque crítico</span><strong id="dashBaixoMinimo">—</strong><small>materiais abaixo do mínimo</small></div></article>
+      <article class="stat-card"><div class="stat-icon">◇</div><div><span>Produtos acabados</span><strong id="dashProdutos">—</strong><small>unidades prontas em estoque</small></div></article>
+      <article class="stat-card"><div class="stat-icon">R$</div><div><span>Valor do estoque</span><strong id="dashValorEstoque">R$ —</strong><small>custo médio dos materiais</small></div></article>
+      <article class="stat-card"><div class="stat-icon">🛒</div><div><span>Compras no mês</span><strong id="dashComprasMes">R$ —</strong><small>valor registrado no mês atual</small></div></article>
+      <article class="stat-card"><div class="stat-icon">◆</div><div><span>Materiais ativos</span><strong id="dashMateriais">—</strong><small>itens cadastrados no sistema</small></div></article>
+    </section>
+
+    <section class="dashboard-grid">
+      <article class="panel priorities-panel">
+        <div class="panel-header"><div><span class="eyebrow">HOJE NA BIRX</span><h3>Prioridades operacionais</h3></div><a href="/admin/auditoria.html">Ver auditoria</a></div>
+        <div class="priority-list">
+          <a class="priority-item" href="/admin/estoque.html"><span class="priority-icon warning">!</span><div><strong>Estoque mínimo</strong><small id="prioridadeEstoque">Verificando materiais críticos...</small></div><b>→</b></a>
+          <a class="priority-item" href="/admin/central-producao.html"><span class="priority-icon">▤</span><div><strong>Produção</strong><small>Acompanhe ordens, fila e impressão.</small></div><b>→</b></a>
+          <a class="priority-item" href="/admin/pedidos.html"><span class="priority-icon">◎</span><div><strong>Pedidos</strong><small>Revise pedidos e reservas de produtos.</small></div><b>→</b></a>
+          <a class="priority-item" href="/admin/crm.html"><span class="priority-icon">↗</span><div><strong>Relacionamento</strong><small>Consulte contatos e próximos retornos do CRM.</small></div><b>→</b></a>
+        </div>
+      </article>
+
+      <article class="panel alerts-panel">
+        <div class="panel-header"><div><span class="eyebrow">ALERTAS</span><h3>Estoque mínimo</h3></div><span class="status-dot">Monitorado</span></div>
+        <div class="quick-actions compact" id="alertasEstoque"><div class="empty">Carregando alertas...</div></div>
+      </article>
+    </section>
+
+    <section class="panel quick-panel">
+      <div class="panel-header"><div><span class="eyebrow">AÇÕES RÁPIDAS</span><h3>O que você quer fazer?</h3></div></div>
+      <div class="quick-grid">
+        <a href="/admin/pedidos.html" class="quick-card"><span>▤</span><strong>Novo pedido</strong><small>Gerenciar pedidos e reservas.</small></a>
+        <a href="/admin/compras.html" class="quick-card"><span>🛒</span><strong>Registrar compra</strong><small>Entrada de materiais e custos.</small></a>
+        <a href="/admin/estoque.html" class="quick-card"><span>▣</span><strong>Ajustar estoque</strong><small>Corrigir saldo e movimentações.</small></a>
+        <a href="/admin/central-producao.html" class="quick-card"><span>🏭</span><strong>Nova produção</strong><small>Organizar fila de fabricação.</small></a>
+        <a href="/admin-tags.html" class="quick-card"><span>⌁</span><strong>Preparar tags</strong><small>Criar lote, gravar e testar NFC.</small></a>
+        <a href="/admin/crm.html" class="quick-card"><span>◎</span><strong>Novo contato</strong><small>Registrar oportunidade no CRM.</small></a>
+      </div>
+    </section>
+  </main>
+</div>
+<script src="/admin/js/admin.js?v=1.1"></script>
+<script src="/admin/js/ui.js?v=1.12"></script>
+<script src="/admin/js/dashboard.js?v=2.0"></script>
+</body>
+</html>
