@@ -59,3 +59,92 @@ document.addEventListener('click', function (event) {
     if (opener) requestAnimationFrame(() => opener.focus({ preventScroll: true }));
   }
 }, true);
+
+(function melhorarLoja() {
+  if (!/^\/loja(?:\/|$)/.test(location.pathname)) return;
+
+  const style = document.createElement('style');
+  style.textContent = `
+    .birx-public-nav{
+      background:#050505!important;
+      border-bottom:1px solid rgba(255,255,255,.10)!important;
+      box-shadow:0 8px 24px rgba(0,0,0,.18)!important;
+    }
+    .birx-public-nav__links a{
+      color:#f5f7fb!important;
+    }
+    .birx-public-nav__links a[aria-current="page"]{
+      color:#66cfff!important;
+    }
+    .birx-public-nav__toggle{
+      color:#fff!important;
+    }
+    .birx-public-nav__brand img{
+      filter:none!important;
+    }
+    .cart-button{
+      background:#111827!important;
+      color:#fff!important;
+      border-color:rgba(255,255,255,.16)!important;
+    }
+    .hero-product.birx-3d-hero{
+      min-height:420px!important;
+      position:relative!important;
+      display:grid!important;
+      place-items:center!important;
+      overflow:visible!important;
+    }
+    .hero-product.birx-3d-hero:before{
+      content:"";
+      position:absolute;
+      width:360px;
+      height:360px;
+      border:1px solid rgba(112,181,255,.18);
+      border-radius:50%;
+      box-shadow:0 0 0 45px rgba(74,136,255,.035),0 0 0 90px rgba(74,136,255,.02);
+    }
+    .hero-product .store-3d-tag{
+      position:relative;
+      z-index:2;
+      width:min(440px,90%);
+      height:440px;
+    }
+    .hero-product .store-3d-tag canvas{
+      width:100%!important;
+      height:100%!important;
+      display:block!important;
+    }
+    .hero-product .store-3d-badge{
+      position:absolute;
+      right:8%;
+      bottom:10%;
+      z-index:4;
+      padding:9px 13px;
+      border-radius:999px;
+      background:#fff;
+      color:#17346d;
+      font-size:.68rem;
+      font-weight:900;
+      letter-spacing:.12em;
+    }
+    @media(max-width:760px){
+      .hero-product.birx-3d-hero{min-height:320px!important}
+      .hero-product .store-3d-tag{height:320px;width:min(340px,94%)}
+    }
+  `;
+  document.head.appendChild(style);
+
+  const hero = document.querySelector('.hero-product');
+  if (!hero || hero.querySelector('[data-birx-3d]')) return;
+
+  hero.classList.add('birx-3d-hero');
+  hero.innerHTML = '<div class="store-3d-tag" data-birx-3d data-body="#151515" data-detail="#f5f5f2" data-spin="1" aria-label="Modelo 3D real da BIRX ID"></div><span class="store-3d-badge">MODELO 3D REAL</span>';
+
+  if (!document.querySelector('script[data-store-tag-3d]')) {
+    const script = document.createElement('script');
+    script.type = 'module';
+    script.src = '/js/home-tag-3d.js?v=1.7';
+    script.dataset.storeTag3d = '1';
+    document.body.appendChild(script);
+  }
+})();
