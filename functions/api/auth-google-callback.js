@@ -1,3 +1,7 @@
+import { criarCookieAdmin } from "../_lib/admin-auth.js";
+
+const ADMIN_EMAIL = "contato.birx@gmail.com";
+
 function cookie(request, nome) {
   for (const parte of (request.headers.get("Cookie") || "").split(";")) {
     const [chave, ...valor] = parte.trim().split("=");
@@ -46,7 +50,17 @@ export async function onRequestGet({ request, env }) {
     const respostaUsuario = await fetch("https://openidconnect.googleapis.com/v1/userinfo", { headers: { Authorization: `Bearer ${token.access_token}`, Accept: "application/json" } });
     const usuario = await respostaUsuario.json();
     if (!respostaUsuario.ok || !usuario.email || usuario.email_verified !== true) return redirecionar(request, "google-email-invalido", [limparState]);
+
     const email = String(usuario.email).trim().toLowerCase();
+    if (email === ADMIN_EMAIL) {
+      if (!env.TAG_ADMIN_TOKEN) return redirecionar(request, "google-falhou", [limparState]);
+      const headers = new Headers({ Location: `${origem}/admin/` });
+      headers.append("Set-Cookie", limparState);
+      headers.append("Set-Cookie", await criarCookieAdmin(env, request));
+      headers.append("Set-Cookie", "orbitek_sessao=; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=0");
+      return new Response(null, { status: 302, headers });
+    }
+
     const pet = await env.DB.prepare(`SELECT nome_tutor FROM pets WHERE LOWER(email) = ? LIMIT 1`).bind(email).first();
     if (!pet) return redirecionar(request, "conta-nao-encontrada", [limparState]);
 
@@ -56,6 +70,7 @@ export async function onRequestGet({ request, env }) {
     const expira = new Date(agora.getTime() + 30 * 24 * 60 * 60 * 1000);
     const ip = request.headers.get("CF-Connecting-IP") || request.headers.get("X-Forwarded-For") || null;
     const userAgent = request.headers.get("User-Agent") || null;
+
     await env.DB.batch([
       env.DB.prepare(`DELETE FROM sessoes_tutor WHERE email = ? AND expira_em <= ?`).bind(email, agora.toISOString()),
       env.DB.prepare(`INSERT INTO sessoes_tutor (email, token_hash, criado_em, expira_em, ultimo_acesso, ip, user_agent, provedor) VALUES (?, ?, ?, ?, ?, ?, ?, 'google')`).bind(email, sessaoHash, agora.toISOString(), expira.toISOString(), agora.toISOString(), ip, userAgent)
