@@ -48,3 +48,77 @@ document.addEventListener('click', function (event) {
   hero.innerHTML='<div class="store-3d-tag" aria-hidden="true"></div><button class="store-color-click" type="button" aria-label="Toque para mudar a cor da BIRX ID"></button><span class="store-3d-badge">MODELO 3D REAL</span><span class="store-color-hint">Toque para mudar de cor</span>';
   if(!document.querySelector('script[data-store-tag-3d]')){const script=document.createElement('script');script.type='module';script.src='/js/loja-tag-3d.js?v=4.0';script.dataset.storeTag3d='1';document.body.appendChild(script);}
 })();
+
+(function melhorarCardsDaLoja(){
+  if(!/^\/loja(?:\/|$)/.test(location.pathname))return;
+
+  const style=document.createElement('style');
+  style.textContent=`
+    .product-grid{gap:28px!important}
+    .product-card{position:relative!important;border:1px solid #dbe4f1!important;border-radius:26px!important;box-shadow:0 18px 46px rgba(17,34,68,.09)!important;transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease!important}
+    .product-card:hover{transform:translateY(-5px);border-color:#bfd0ee!important;box-shadow:0 26px 60px rgba(17,34,68,.14)!important}
+    .product-media{height:285px!important;background:linear-gradient(145deg,#f5f8ff,#e6eefc)!important}
+    .product-media img{object-fit:contain!important;padding:18px!important;filter:drop-shadow(0 18px 22px rgba(19,42,82,.16))}
+    .product-content{padding:25px!important}
+    .product-content h3{font-size:1.28rem!important;margin:8px 0 10px!important}
+    .product-content p{min-height:54px;line-height:1.55!important}
+    .birx-card-benefits{display:flex;flex-wrap:wrap;gap:7px;margin:16px 0 2px}
+    .birx-card-benefits span{display:inline-flex;align-items:center;padding:6px 9px;border-radius:999px;background:#f1f5fb;color:#41516d;font-size:.67rem;font-weight:800}
+    .birx-card-monthly{display:inline-flex!important;width:max-content;margin-top:13px;padding:6px 10px;border-radius:999px;background:#e9f8ef;color:#187348!important;font-size:.66rem!important;letter-spacing:.04em!important}
+    .product-buy{align-items:flex-end!important;gap:10px!important;padding-top:18px!important}
+    .product-price strong{font-size:1.55rem!important;letter-spacing:-.03em}
+    .birx-card-actions{display:flex;flex-direction:column;gap:8px;min-width:150px}
+    .birx-personalize{display:flex;align-items:center;justify-content:center;padding:10px 12px;border:1px solid #2463eb;border-radius:11px;color:#245ed8;text-decoration:none;font-size:.73rem;font-weight:900;background:#fff}
+    .birx-card-actions .add-button{width:100%}
+    .product-card[data-birx-featured="1"]:before{content:"MAIS ESCOLHIDA";position:absolute;top:14px;right:14px;z-index:5;padding:7px 10px;border-radius:999px;background:#2463eb;color:#fff;font-size:.58rem;font-weight:900;letter-spacing:.08em;box-shadow:0 8px 18px rgba(36,99,235,.25)}
+    @media(max-width:620px){.product-media{height:245px!important}.product-content p{min-height:0}.product-buy{align-items:stretch!important;flex-direction:column}.birx-card-actions{width:100%}}
+  `;
+  document.head.appendChild(style);
+
+  function decorar(){
+    document.querySelectorAll('.product-card').forEach(card=>{
+      if(card.dataset.birxEnhanced==='1')return;
+      const content=card.querySelector('.product-content');
+      const buy=card.querySelector('.product-buy');
+      const add=card.querySelector('[data-adicionar], .add-button');
+      if(!content||!buy||!add)return;
+
+      const title=(card.querySelector('h3')?.textContent||'').trim();
+      const slug=add.dataset.adicionar||'';
+      const isBirx=/birx|nfc|tag/i.test(title+' '+slug);
+      const isNfc=/nfc|smart|connect/i.test(title+' '+slug);
+
+      const monthly=document.createElement('span');
+      monthly.className='birx-card-monthly';
+      monthly.textContent='✓ Sem mensalidade';
+      const desc=content.querySelector('p');
+      (desc||content.firstElementChild)?.insertAdjacentElement('afterend',monthly);
+
+      const benefits=document.createElement('div');
+      benefits.className='birx-card-benefits';
+      benefits.innerHTML=isBirx
+        ? `<span>${isNfc?'NFC + QR Code':'Identificação prática'}</span><span>Perfil editável</span><span>Suporte BIRX</span>`
+        : '<span>Produção BIRX</span><span>Feito para pets</span>';
+      buy.insertAdjacentElement('beforebegin',benefits);
+
+      const actions=document.createElement('div');
+      actions.className='birx-card-actions';
+      if(isBirx){
+        const personalize=document.createElement('a');
+        personalize.className='birx-personalize';
+        personalize.href=slug?`/personalizar?produto=${encodeURIComponent(slug)}`:'/personalizar';
+        personalize.textContent='Personalizar minha BIRX ID';
+        actions.appendChild(personalize);
+      }
+      add.parentNode.insertBefore(actions,add);
+      actions.appendChild(add);
+
+      if(/smart|connect/i.test(title+' '+slug))card.dataset.birxFeatured='1';
+      card.dataset.birxEnhanced='1';
+    });
+  }
+
+  decorar();
+  const grid=document.getElementById('gradeProdutos')||document.querySelector('.product-grid');
+  if(grid)new MutationObserver(decorar).observe(grid,{childList:true,subtree:true});
+})();
