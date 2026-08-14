@@ -38,12 +38,12 @@ document.addEventListener('click', function (event) {
     .hero-product .store-3d-tag{position:absolute!important;inset:0!important;z-index:2;width:100%!important;height:100%!important;overflow:hidden!important;contain:layout paint size!important}
     .hero-product .store-3d-tag canvas{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;max-width:100%!important;max-height:100%!important;display:block!important;touch-action:none!important}
     .hero-product .store-3d-badge{position:absolute;right:8%;bottom:10%;z-index:4;padding:9px 13px;border-radius:999px;background:#fff;color:#17346d;font-size:.68rem;font-weight:900;letter-spacing:.12em;pointer-events:none}
-    .hero-product .store-color-hint{position:absolute;left:50%;bottom:7%;transform:translateX(-50%);z-index:4;color:#4e607e;font-size:.78rem;font-weight:800;pointer-events:none;white-space:nowrap}
-    @media(max-width:760px){.hero-product.birx-3d-hero{min-height:360px!important}}
+    .hero-product .store-color-hint{position:absolute;left:50%;bottom:calc(7% - 38px);transform:translateX(-50%);z-index:4;color:#4e607e;font-size:.78rem;font-weight:800;pointer-events:none;white-space:nowrap}
+    @media(max-width:760px){.hero-product.birx-3d-hero{min-height:360px!important}.hero-product .store-color-hint{bottom:calc(7% - 32px)}}
   `;
   document.head.appendChild(style);
   const hero=document.querySelector('.hero-product');if(!hero||hero.querySelector('.store-3d-tag'))return;
   hero.classList.add('birx-3d-hero');
-  hero.innerHTML='<div class="store-3d-tag" aria-label="Modelo 3D da BIRX ID. Clique para mudar a cor"></div><span class="store-3d-badge">MODELO 3D REAL</span><span class="store-color-hint">Clique na BIRX ID para mudar a cor</span>';
+  hero.innerHTML='<div class="store-3d-tag" aria-label="Modelo 3D da BIRX ID. Clique para mudar a cor"></div><span class="store-3d-badge">MODELO 3D REAL</span><span class="store-color-hint">Toque para mudar de cor</span>';
   if(!document.querySelector('script[data-store-tag-3d]')){const script=document.createElement('script');script.type='module';script.src='/js/loja-tag-3d.js?v=3.0';script.dataset.storeTag3d='1';document.body.appendChild(script);}
 })();
