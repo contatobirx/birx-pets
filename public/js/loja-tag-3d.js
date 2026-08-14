@@ -2,6 +2,7 @@ import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.180.0/+esm';
 import { unzipSync, strFromU8 } from 'https://cdn.jsdelivr.net/npm/fflate@0.8.2/+esm';
 
 const holder = document.querySelector('.store-3d-tag');
+const colorButton = document.querySelector('.store-color-click');
 if (!holder) throw new Error('Viewer da loja não encontrado');
 
 function parseTransform(value) {
@@ -37,9 +38,12 @@ const scene=new THREE.Scene();
 const camera=new THREE.PerspectiveCamera(32,1,.1,100);
 const renderer=new THREE.WebGLRenderer({antialias:true,alpha:true});
 renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.outputColorSpace=THREE.SRGBColorSpace;
-holder.innerHTML='';holder.appendChild(renderer.domElement);holder.style.cursor='pointer';holder.title='Clique para mudar a cor';
-scene.add(new THREE.HemisphereLight(0xffffff,0x61708c,2.8));const key=new THREE.DirectionalLight(0xffffff,4.2);key.position.set(4,5,7);scene.add(key);
+holder.innerHTML='';holder.appendChild(renderer.domElement);
+renderer.domElement.style.pointerEvents='none';
+renderer.domElement.style.userSelect='none';
 
+scene.add(new THREE.HemisphereLight(0xffffff,0x61708c,2.8));
+const key=new THREE.DirectionalLight(0xffffff,4.2);key.position.set(4,5,7);scene.add(key);
 const root=new THREE.Group();scene.add(root);
 const palettes=[['#151515','#f5f5f2'],['#245eea','#f5f5f2'],['#d93636','#f5f5f2'],['#e978a7','#f5f5f2'],['#f5f2ea','#151515']];
 let paletteIndex=0,bodyMaterials=[],detailMaterials=[];
@@ -53,6 +57,7 @@ async function load(){
 }
 function resize(){const r=holder.getBoundingClientRect(),w=Math.max(1,Math.round(r.width)),h=Math.max(1,Math.round(r.height));renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix()}
 function render(){renderer.render(scene,camera)}
-holder.addEventListener('click',()=>{paletteIndex=(paletteIndex+1)%palettes.length;const[body,detail]=palettes[paletteIndex];bodyMaterials.forEach(m=>m.color.set(body));detailMaterials.forEach(m=>m.color.set(detail));render()});
+function changeColor(){paletteIndex=(paletteIndex+1)%palettes.length;const[body,detail]=palettes[paletteIndex];bodyMaterials.forEach(m=>m.color.set(body));detailMaterials.forEach(m=>m.color.set(detail));render()}
+if(colorButton) colorButton.addEventListener('click', changeColor);
 new ResizeObserver(()=>{resize();render()}).observe(holder);
 resize();load().catch(err=>{console.error('BIRX loja 3D',err);holder.innerHTML='<span class="birx-3d-fallback">BIRX ID</span>'});
