@@ -140,15 +140,15 @@ document.addEventListener('click', function (event) {
   document.head.appendChild(style);
 
   const hero = document.querySelector('.hero-product');
-  if (!hero || hero.querySelector('[data-birx-3d]')) return;
+  if (!hero || hero.querySelector('.store-3d-tag')) return;
 
   hero.classList.add('birx-3d-hero');
-  hero.innerHTML = '<div class="store-3d-tag" data-birx-3d data-body="#151515" data-detail="#f5f5f2" aria-label="Modelo 3D real da BIRX ID"></div><span class="store-3d-badge">MODELO 3D REAL</span>';
+  hero.innerHTML = '<div class="store-3d-tag" aria-label="Modelo 3D real da BIRX ID"></div><span class="store-3d-badge">MODELO 3D REAL</span>';
 
   if (!document.querySelector('script[data-store-tag-3d]')) {
     const script = document.createElement('script');
     script.type = 'module';
-    script.src = '/js/home-tag-3d.js?v=1.8';
+    script.src = '/js/loja-tag-3d.js?v=1.0';
     script.dataset.storeTag3d = '1';
     document.body.appendChild(script);
   }
