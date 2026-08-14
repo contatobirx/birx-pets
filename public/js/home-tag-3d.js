@@ -1,4 +1,5 @@
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.180.0/+esm';
+import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/controls/OrbitControls.js/+esm';
 import { FontLoader } from 'https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/loaders/FontLoader.js/+esm';
 import { TextGeometry } from 'https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/geometries/TextGeometry.js/+esm';
 import { unzipSync, strFromU8 } from 'https://cdn.jsdelivr.net/npm/fflate@0.8.2/+esm';
@@ -122,7 +123,7 @@ function keepOnlyBirxSymbol(piece) {
 
 function makeTextMesh(fontValue, label, fontSize, maxWidth, depth, color) {
   const geometry = new TextGeometry(label, {
-    font: fontValue, size: fontSize, depth, curveSegments: 5,
+    font: fontValue, size: fontSize, depth, curveSegments: 6,
     bevelEnabled: true, bevelThickness: 0.014, bevelSize: 0.009, bevelSegments: 2,
   });
   geometry.computeBoundingBox();
@@ -153,9 +154,8 @@ async function buildViewer(holder) {
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   holder.innerHTML = '';
   holder.appendChild(renderer.domElement);
-  renderer.domElement.style.cursor = 'grab';
   renderer.domElement.style.touchAction = 'none';
-  holder.title = 'Clique e arraste para girar';
+  holder.title = 'Arraste para girar';
 
   scene.add(new THREE.HemisphereLight(0xffffff, 0x61708c, 2.8));
   const key = new THREE.DirectionalLight(0xffffff, 4.2);
@@ -164,7 +164,6 @@ async function buildViewer(holder) {
 
   const root = new THREE.Group();
   const model = new THREE.Group();
-  root.add(model);
   scene.add(root);
 
   const pieces = await getPieces();
@@ -174,107 +173,95 @@ async function buildViewer(holder) {
     const geometry = geometryFromXml(piece.xml, piece.componentTransform, piece.buildTransform, filter);
     const material = new THREE.MeshStandardMaterial({
       color: type === 'body' ? bodyColor : detailColor,
-      roughness: 0.43, metalness: 0.01,
-      polygonOffset: type !== 'body', polygonOffsetFactor: -3, polygonOffsetUnits: -3,
+      roughness: 0.43,
+      metalness: 0.01,
+      polygonOffset: type !== 'body',
+      polygonOffsetFactor: -3,
+      polygonOffsetUnits: -3,
     });
     const mesh = new THREE.Mesh(geometry, material);
     mesh.renderOrder = type === 'body' ? 1 : 5;
     model.add(mesh);
   }
 
-  // IMPORTANTE: o pivô é corrigido nos próprios vértices.
-  // Assim o objeto local (0,0,0) passa a ser o centro físico da tag e nunca muda durante a rotação.
   let box = new THREE.Box3().setFromObject(model);
-  const rawCenter = new THREE.Vector3();
-  const rawSize = new THREE.Vector3();
-  box.getCenter(rawCenter);
-  box.getSize(rawSize);
-  if (!Number.isFinite(rawSize.x) || !Number.isFinite(rawSize.y) || Math.max(rawSize.x, rawSize.y) <= 0) {
+  const center = new THREE.Vector3();
+  const size = new THREE.Vector3();
+  box.getCenter(center);
+  box.getSize(size);
+  if (!Number.isFinite(size.x) || !Number.isFinite(size.y) || Math.max(size.x, size.y) <= 0) {
     throw new Error('Geometria inválida');
   }
-  model.traverse(obj => {
-    if (obj.isMesh && obj.geometry) obj.geometry.translate(-rawCenter.x, -rawCenter.y, -rawCenter.z);
-  });
 
-  const scale = 3.65 / Math.max(rawSize.x, rawSize.y);
+  const scale = 3.65 / Math.max(size.x, size.y);
   model.scale.setScalar(scale);
+  model.position.set(-center.x * scale, -center.y * scale, -center.z * scale);
   model.rotation.y = Math.PI;
-  model.position.set(0, 0, 0);
-  root.position.set(0, 0, 0);
-  root.rotation.set(0, 0, 0);
+  root.add(model);
   root.updateMatrixWorld(true);
 
   box = new THREE.Box3().setFromObject(model);
-  const size = new THREE.Vector3();
+  box.getCenter(center);
   box.getSize(size);
 
   if (name) {
     const f = await getFont();
     const nameMesh = makeTextMesh(f, name, 0.43, size.x * 0.72, 0.065, detailColor);
-    // O texto entra dentro do model para compartilhar exatamente o mesmo pivô.
-    nameMesh.position.set(0, -size.y * 0.19 / scale, (box.max.z + 0.035) / scale);
-    nameMesh.rotation.y = Math.PI;
-    model.add(nameMesh);
+    nameMesh.position.set(center.x, center.y - size.y * 0.19, box.max.z + 0.035);
+    root.add(nameMesh);
   }
 
-  // Distância fixa calculada uma única vez. Arrastar nunca altera zoom/câmera.
-  function resize() {
+  const controls = new OrbitControls(camera, renderer.domElement);
+  controls.enableDamping = true;
+  controls.dampingFactor = 0.08;
+  controls.enablePan = false;
+  controls.enableZoom = true;
+  controls.rotateSpeed = 0.75;
+  controls.zoomSpeed = 0.8;
+
+  function fitView() {
     const rect = holder.getBoundingClientRect();
-    const w = Math.max(1, rect.width);
-    const h = Math.max(1, rect.height);
+    const w = Math.max(1, Math.round(rect.width));
+    const h = Math.max(1, Math.round(rect.height));
     renderer.setSize(w, h, false);
     camera.aspect = w / h;
     camera.updateProjectionMatrix();
-    renderer.render(scene, camera);
+
+    root.rotation.set(0, 0, 0);
+    root.updateMatrixWorld(true);
+    const bounds = new THREE.Box3().setFromObject(root);
+    const c = new THREE.Vector3();
+    const s = new THREE.Vector3();
+    bounds.getCenter(c);
+    bounds.getSize(s);
+
+    const vf = THREE.MathUtils.degToRad(camera.fov);
+    const hf = 2 * Math.atan(Math.tan(vf / 2) * Math.max(camera.aspect, 0.1));
+    const distance = Math.max(
+      (s.y / 2) / Math.tan(vf / 2),
+      (s.x / 2) / Math.tan(hf / 2),
+      s.z * 2,
+    ) * 1.20;
+
+    controls.target.copy(c);
+    camera.position.set(c.x, c.y, c.z + distance);
+    camera.near = Math.max(0.01, distance / 100);
+    camera.far = Math.max(100, distance * 20);
+    camera.updateProjectionMatrix();
+    controls.minDistance = Math.max(0.4, distance * 0.48);
+    controls.maxDistance = Math.max(8, distance * 3.2);
+    controls.update();
   }
 
-  const vf = THREE.MathUtils.degToRad(camera.fov);
-  const initialBounds = new THREE.Box3().setFromObject(root);
-  const initialSize = new THREE.Vector3();
-  initialBounds.getSize(initialSize);
-  const initialRect = holder.getBoundingClientRect();
-  const initialAspect = Math.max(initialRect.width, 1) / Math.max(initialRect.height, 1);
-  const hf = 2 * Math.atan(Math.tan(vf / 2) * Math.max(initialAspect, 0.1));
-  const cameraDistance = Math.max(
-    (initialSize.y / 2) / Math.tan(vf / 2),
-    (initialSize.x / 2) / Math.tan(hf / 2),
-    initialSize.z * 2,
-  ) * 1.28;
-  camera.position.set(0, 0, cameraDistance);
-  camera.lookAt(0, 0, 0);
+  fitView();
+  new ResizeObserver(fitView).observe(holder);
 
-  resize();
-  new ResizeObserver(resize).observe(holder);
-
-  let dragging = false;
-  let lastX = 0;
-  const redraw = () => renderer.render(scene, camera);
-
-  renderer.domElement.addEventListener('pointerdown', event => {
-    dragging = true;
-    lastX = event.clientX;
-    renderer.domElement.style.cursor = 'grabbing';
-    renderer.domElement.setPointerCapture(event.pointerId);
-  });
-
-  renderer.domElement.addEventListener('pointermove', event => {
-    if (!dragging) return;
-    const dx = event.clientX - lastX;
-    lastX = event.clientX;
-    root.rotation.y += dx * 0.012;
-    root.rotation.x = 0;
-    root.rotation.z = 0;
-    redraw();
-  });
-
-  const release = event => {
-    if (!dragging) return;
-    dragging = false;
-    renderer.domElement.style.cursor = 'grab';
-    try { renderer.domElement.releasePointerCapture(event.pointerId); } catch {}
-  };
-  renderer.domElement.addEventListener('pointerup', release);
-  renderer.domElement.addEventListener('pointercancel', release);
+  function animate() {
+    requestAnimationFrame(animate);
+    controls.update();
+    renderer.render(scene, camera);
+  }
+  animate();
 }
 
 Promise.all(
