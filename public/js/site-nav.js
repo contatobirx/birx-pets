@@ -122,3 +122,53 @@ document.addEventListener('click', function (event) {
   const grid=document.getElementById('gradeProdutos')||document.querySelector('.product-grid');
   if(grid)new MutationObserver(decorar).observe(grid,{childList:true,subtree:true});
 })();
+
+(function adicionarComoFuncionaLoja(){
+  if(!/^\/loja(?:\/|$)/.test(location.pathname))return;
+  if(document.querySelector('.birx-how-store'))return;
+
+  const produtos=document.getElementById('produtosLoja')||document.querySelector('.store-section');
+  if(!produtos)return;
+
+  const style=document.createElement('style');
+  style.textContent=`
+    .birx-how-store{padding:72px 0;background:linear-gradient(180deg,#f8fbff 0%,#f2f7ff 100%);border-bottom:1px solid #dfe7f3}
+    .birx-how-store .store-container{width:min(1160px,calc(100% - 40px));margin:auto}
+    .birx-how-head{text-align:center;max-width:720px;margin:0 auto 42px}
+    .birx-how-head .store-kicker{display:block;margin-bottom:9px}
+    .birx-how-head h2{margin:0;font-size:clamp(2rem,4vw,3.15rem);letter-spacing:-.04em;color:#111a31}
+    .birx-how-head p{margin:13px auto 0;color:#667085;max-width:620px;font-size:.96rem}
+    .birx-how-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;position:relative}
+    .birx-how-step{position:relative;padding:25px 22px 23px;border:1px solid #dbe5f2;border-radius:22px;background:#fff;box-shadow:0 14px 34px rgba(19,42,82,.07)}
+    .birx-how-number{display:grid;place-items:center;width:38px;height:38px;margin-bottom:17px;border-radius:12px;background:#101d39;color:#fff;font-size:.8rem;font-weight:900}
+    .birx-how-icon{display:grid;place-items:center;position:absolute;right:20px;top:20px;width:42px;height:42px;border-radius:14px;background:#eef4ff;font-size:1.3rem}
+    .birx-how-step h3{margin:0 0 8px;font-size:1.08rem;color:#111a31}
+    .birx-how-step p{margin:0;color:#6b778c;font-size:.82rem;line-height:1.55}
+    .birx-how-note{display:flex;justify-content:center;align-items:center;gap:8px;margin-top:26px;color:#43516a;font-size:.78rem;font-weight:800}
+    .birx-how-note strong{color:#17734a}
+    @media(max-width:900px){.birx-how-grid{grid-template-columns:repeat(2,1fr)}}
+    @media(max-width:620px){.birx-how-store{padding:55px 0}.birx-how-store .store-container{width:min(100% - 28px,1160px)}.birx-how-head{margin-bottom:28px}.birx-how-grid{grid-template-columns:1fr;gap:12px}.birx-how-step{padding:21px}.birx-how-note{text-align:center;align-items:flex-start}}
+  `;
+  document.head.appendChild(style);
+
+  const section=document.createElement('section');
+  section.className='birx-how-store';
+  section.setAttribute('aria-labelledby','birxComoFuncionaTitulo');
+  section.innerHTML=`
+    <div class="store-container">
+      <div class="birx-how-head">
+        <span class="store-kicker">SIMPLES DO INÍCIO AO FIM</span>
+        <h2 id="birxComoFuncionaTitulo">Como funciona a BIRX ID?</h2>
+        <p>Em poucos passos, seu pet passa a ter uma identificação inteligente pronta para ajudar quem o encontrar a falar com você.</p>
+      </div>
+      <div class="birx-how-grid">
+        <article class="birx-how-step"><span class="birx-how-number">01</span><span class="birx-how-icon" aria-hidden="true">🎨</span><h3>Personalize</h3><p>Escolha o modelo, a cor e os dados da BIRX ID do seu pet.</p></article>
+        <article class="birx-how-step"><span class="birx-how-number">02</span><span class="birx-how-icon" aria-hidden="true">📦</span><h3>Receba em casa</h3><p>Nós produzimos sua BIRX ID e enviamos para o endereço escolhido.</p></article>
+        <article class="birx-how-step"><span class="birx-how-number">03</span><span class="birx-how-icon" aria-hidden="true">🐾</span><h3>Cadastre seu pet</h3><p>Ative a tag e mantenha o perfil do pet atualizado sempre que precisar.</p></article>
+        <article class="birx-how-step"><span class="birx-how-number">04</span><span class="birx-how-icon" aria-hidden="true">📱</span><h3>NFC ou QR Code</h3><p>Quem encontrar seu pet aproxima o celular ou lê o QR Code para acessar o perfil.</p></article>
+      </div>
+      <div class="birx-how-note"><strong>✓ Sem mensalidade</strong><span>•</span><span>O perfil pode ser atualizado pelo tutor.</span></div>
+    </div>`;
+
+  produtos.parentNode.insertBefore(section,produtos);
+})();
