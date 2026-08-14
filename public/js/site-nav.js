@@ -148,7 +148,7 @@ document.addEventListener('click', function (event) {
   if (!document.querySelector('script[data-store-tag-3d]')) {
     const script = document.createElement('script');
     script.type = 'module';
-    script.src = '/js/loja-tag-3d.js?v=1.0';
+    script.src = '/js/loja-tag-3d.js?v=2.0';
     script.dataset.storeTag3d = '1';
     document.body.appendChild(script);
   }
