@@ -231,9 +231,14 @@ async function buildViewer(holder) {
 
   const scale = 3.65 / Math.max(size.x, size.y);
   model.scale.setScalar(scale);
-  model.position.set(-center.x * scale, -center.y * scale, -center.z * scale);
   model.rotation.y = Math.PI;
   root.add(model);
+  root.updateMatrixWorld(true);
+
+  // Centraliza usando o centro REAL depois de aplicar escala e rotação inicial.
+  box = new THREE.Box3().setFromObject(model);
+  box.getCenter(center);
+  model.position.sub(center);
   root.updateMatrixWorld(true);
 
   box = new THREE.Box3().setFromObject(model);
@@ -255,6 +260,8 @@ async function buildViewer(holder) {
     camera.aspect = w / h;
     camera.updateProjectionMatrix();
 
+    root.rotation.x = 0;
+    root.rotation.z = 0;
     root.updateMatrixWorld(true);
     const bounds = new THREE.Box3().setFromObject(root);
     const c = new THREE.Vector3();
@@ -270,8 +277,8 @@ async function buildViewer(holder) {
       s.z * 2,
     ) * 1.22;
 
-    camera.position.set(c.x, c.y, c.z + distance);
-    camera.lookAt(c);
+    camera.position.set(0, 0, distance);
+    camera.lookAt(0, 0, 0);
     renderer.render(scene, camera);
   }
 
@@ -280,13 +287,13 @@ async function buildViewer(holder) {
 
   let dragging = false;
   let lastX = 0;
-  let lastY = 0;
   const redraw = () => renderer.render(scene, camera);
 
   renderer.domElement.addEventListener('pointerdown', event => {
     dragging = true;
     lastX = event.clientX;
-    lastY = event.clientY;
+    root.rotation.x = 0;
+    root.rotation.z = 0;
     renderer.domElement.style.cursor = 'grabbing';
     renderer.domElement.setPointerCapture(event.pointerId);
   });
@@ -294,11 +301,10 @@ async function buildViewer(holder) {
   renderer.domElement.addEventListener('pointermove', event => {
     if (!dragging) return;
     const dx = event.clientX - lastX;
-    const dy = event.clientY - lastY;
     lastX = event.clientX;
-    lastY = event.clientY;
+    root.rotation.x = 0;
+    root.rotation.z = 0;
     root.rotation.y += dx * 0.012;
-    root.rotation.x = THREE.MathUtils.clamp(root.rotation.x + dy * 0.008, -0.8, 0.8);
     redraw();
   });
 
