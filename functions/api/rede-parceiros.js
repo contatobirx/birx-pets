@@ -1,9 +1,81 @@
-const HEADERS={"Content-Type":"application/json; charset=UTF-8","Cache-Control":"public, max-age=120"};
-const json=(body,status=200)=>new Response(JSON.stringify(body),{status,headers:HEADERS});
-const clean=(value,max=300)=>String(value??"").trim().slice(0,max);
-const number=value=>Number.isFinite(Number(value))?Number(value):null;
-async function sha(value){const data=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(value));return[...new Uint8Array(data)].map(byte=>byte.toString(16).padStart(2,"0")).join("")}
-function distance(a,b,c,d){const rad=x=>x*Math.PI/180,R=6371,dLat=rad(c-a),dLng=rad(d-b),v=Math.sin(dLat/2)**2+Math.cos(rad(a))*Math.cos(rad(c))*Math.sin(dLng/2)**2;return R*2*Math.atan2(Math.sqrt(v),Math.sqrt(1-v))}
-export async function onRequestGet({request,env}){try{const url=new URL(request.url),categoria=clean(url.searchParams.get("categoria"),50),cidade=clean(url.searchParams.get("cidade"),100),cep=clean(url.searchParams.get("cep"),9).replace(/\D/g,""),servico=clean(url.searchParams.get("servico"),80),emergencia=url.searchParams.get("emergencia")==="1",lat=number(url.searchParams.get("lat")),lng=number(url.searchParams.get("lng"));const result=await env.DB.prepare(`SELECT id,nome,whatsapp,categoria,endereco,cep,bairro,cidade,estado,latitude,longitude,horarios,servicos,especialidades,atende_emergencia AS atendeEmergencia,promocao,produtos,descricao,verificado FROM parceiros WHERE status='ativo' AND publico=1 AND verificado=1 AND (?='' OR categoria=?) AND (?='' OR LOWER(cidade)=LOWER(?)) AND (?='' OR REPLACE(cep,'-','')=?) AND (?=0 OR atende_emergencia=1) AND (?='' OR LOWER(COALESCE(servicos,'')||' '||COALESCE(especialidades,'')) LIKE '%'||LOWER(?)||'%') ORDER BY nome LIMIT 150`).bind(categoria,categoria,cidade,cidade,cep,cep,emergencia?1:0,servico,servico).all();const parceiros=(result.results||[]).map(item=>{const itemLat=number(item.latitude),itemLng=number(item.longitude);return{...item,distanciaKm:lat!==null&&lng!==null&&itemLat!==null&&itemLng!==null?distance(lat,lng,itemLat,itemLng):null}}).sort((a,b)=>a.distanciaKm===null?1:b.distanciaKm===null?-1:a.distanciaKm-b.distanciaKm);return json({sucesso:true,parceiros})}catch(error){console.error("rede-parceiros GET",error);return json({sucesso:false,mensagem:"Não foi possível carregar os parceiros."},500)}}
-export async function onRequestPost({request,env}){try{const body=await request.json().catch(()=>({})),id=Number.parseInt(body.parceiroId,10),motivo=clean(body.motivo,120),details=clean(body.detalhes,800),contact=clean(body.contato,180),honeypot=clean(body.site,100);if(honeypot)return json({sucesso:true,mensagem:"Relato recebido."});if(!id||motivo.length<3)return json({sucesso:false,mensagem:"Informe o motivo do relato."},400);const exists=await env.DB.prepare("SELECT id FROM parceiros WHERE id=? AND status='ativo'").bind(id).first();if(!exists)return json({sucesso:false,mensagem:"Parceiro não encontrado."},404);const ip=request.headers.get("CF-Connecting-IP")||"desconhecido",origin=await sha(`${ip}:${new Date().toISOString().slice(0,10)}`);const recent=await env.DB.prepare("SELECT COUNT(*) AS total FROM parceiro_denuncias WHERE origem_hash=? AND criado_em>datetime('now','-1 hour')").bind(origin).first();if(Number(recent?.total||0)>=5)return json({sucesso:false,mensagem:"Aguarde antes de enviar outro relato."},429);await env.DB.prepare("INSERT INTO parceiro_denuncias(parceiro_id,motivo,detalhes,contato,origem_hash) VALUES(?,?,?,?,?)").bind(id,motivo,details||null,contact||null,origin).run();return json({sucesso:true,mensagem:"Obrigado. A BIRX vai conferir essa informação."},201)}catch(error){console.error("rede-parceiros POST",error);return json({sucesso:false,mensagem:"Não foi possível enviar o relato."},500)}}
-export async function onRequest(context){if(context.request.method==="GET")return onRequestGet(context);if(context.request.method==="POST")return onRequestPost(context);return json({sucesso:false},405)}
+const HEADERS = { "Content-Type": "application/json; charset=UTF-8", "Cache-Control": "public, max-age=120" };
+const json = (body, status = 200) => new Response(JSON.stringify(body), { status, headers: HEADERS });
+const clean = (value, max = 300) => String(value ?? "").trim().slice(0, max);
+const number = value => Number.isFinite(Number(value)) ? Number(value) : null;
+
+async function sha(value) {
+  const data = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(value));
+  return [...new Uint8Array(data)].map(byte => byte.toString(16).padStart(2, "0")).join("");
+}
+
+function distance(a, b, c, d) {
+  const rad = value => value * Math.PI / 180;
+  const R = 6371;
+  const dLat = rad(c - a);
+  const dLng = rad(d - b);
+  const value = Math.sin(dLat / 2) ** 2 + Math.cos(rad(a)) * Math.cos(rad(c)) * Math.sin(dLng / 2) ** 2;
+  return R * 2 * Math.atan2(Math.sqrt(value), Math.sqrt(1 - value));
+}
+
+export async function onRequestGet({ request, env }) {
+  try {
+    const url = new URL(request.url);
+    const categoria = clean(url.searchParams.get("categoria"), 50);
+    const cidade = clean(url.searchParams.get("cidade"), 100);
+    const cep = clean(url.searchParams.get("cep"), 9).replace(/\D/g, "");
+    const servico = clean(url.searchParams.get("servico"), 80);
+    const emergencia = url.searchParams.get("emergencia") === "1";
+    const lat = number(url.searchParams.get("lat"));
+    const lng = number(url.searchParams.get("lng"));
+    const result = await env.DB.prepare(`SELECT
+      id,nome,whatsapp,categoria,endereco,cep,bairro,cidade,estado,latitude,longitude,horarios,servicos,especialidades,
+      atende_emergencia AS atendeEmergencia,produtos,descricao,verificado,
+      CASE WHEN promocao_validade IS NULL OR promocao_validade='' OR date(promocao_validade)>=date('now','localtime') THEN promocao ELSE NULL END AS promocao,
+      CASE WHEN promocao_validade IS NULL OR promocao_validade='' OR date(promocao_validade)>=date('now','localtime') THEN promocao_codigo ELSE NULL END AS promocaoCodigo,
+      CASE WHEN promocao_validade IS NULL OR promocao_validade='' OR date(promocao_validade)>=date('now','localtime') THEN promocao_validade ELSE NULL END AS promocaoValidade
+      FROM parceiros WHERE status='ativo' AND publico=1 AND verificado=1
+      AND (?='' OR categoria=?) AND (?='' OR LOWER(cidade)=LOWER(?)) AND (?='' OR REPLACE(cep,'-','')=?)
+      AND (?=0 OR atende_emergencia=1)
+      AND (?='' OR LOWER(COALESCE(servicos,'')||' '||COALESCE(especialidades,'')) LIKE '%'||LOWER(?)||'%')
+      ORDER BY nome LIMIT 150`).bind(categoria, categoria, cidade, cidade, cep, cep, emergencia ? 1 : 0, servico, servico).all();
+    const parceiros = (result.results || []).map(item => {
+      const partnerLat = number(item.latitude);
+      const partnerLng = number(item.longitude);
+      return { ...item, distanciaKm: lat !== null && lng !== null && partnerLat !== null && partnerLng !== null ? distance(lat, lng, partnerLat, partnerLng) : null };
+    }).sort((a, b) => a.distanciaKm === null ? 1 : b.distanciaKm === null ? -1 : a.distanciaKm - b.distanciaKm);
+    return json({ sucesso: true, parceiros });
+  } catch (error) {
+    console.error("rede-parceiros GET", error);
+    return json({ sucesso: false, mensagem: "Não foi possível carregar os parceiros." }, 500);
+  }
+}
+
+export async function onRequestPost({ request, env }) {
+  try {
+    const body = await request.json().catch(() => ({}));
+    const id = Number.parseInt(body.parceiroId, 10);
+    const motivo = clean(body.motivo, 120);
+    const details = clean(body.detalhes, 800);
+    const contact = clean(body.contato, 180);
+    const honeypot = clean(body.site, 100);
+    if (honeypot) return json({ sucesso: true, mensagem: "Relato recebido." });
+    if (!id || motivo.length < 3) return json({ sucesso: false, mensagem: "Informe o motivo do relato." }, 400);
+    const exists = await env.DB.prepare("SELECT id FROM parceiros WHERE id=? AND status='ativo'").bind(id).first();
+    if (!exists) return json({ sucesso: false, mensagem: "Parceiro não encontrado." }, 404);
+    const ip = request.headers.get("CF-Connecting-IP") || "desconhecido";
+    const origin = await sha(`${ip}:${new Date().toISOString().slice(0, 10)}`);
+    const recent = await env.DB.prepare("SELECT COUNT(*) AS total FROM parceiro_denuncias WHERE origem_hash=? AND criado_em>datetime('now','-1 hour')").bind(origin).first();
+    if (Number(recent?.total || 0) >= 5) return json({ sucesso: false, mensagem: "Aguarde antes de enviar outro relato." }, 429);
+    await env.DB.prepare("INSERT INTO parceiro_denuncias(parceiro_id,motivo,detalhes,contato,origem_hash) VALUES(?,?,?,?,?)").bind(id, motivo, details || null, contact || null, origin).run();
+    return json({ sucesso: true, mensagem: "Obrigado. A BIRX vai conferir essa informação." }, 201);
+  } catch (error) {
+    console.error("rede-parceiros POST", error);
+    return json({ sucesso: false, mensagem: "Não foi possível enviar o relato." }, 500);
+  }
+}
+
+export async function onRequest(context) {
+  if (context.request.method === "GET") return onRequestGet(context);
+  if (context.request.method === "POST") return onRequestPost(context);
+  return json({ sucesso: false }, 405);
+}

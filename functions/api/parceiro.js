@@ -11,7 +11,7 @@ async function sha(value) {
 async function session(request, env) {
   const raw = sessionToken(request);
   if (!raw) return null;
-  return env.DB.prepare(`SELECT p.id,p.nome,p.email,p.whatsapp,p.cidade,p.estado,p.categoria,p.endereco,p.cep,p.bairro,p.latitude,p.longitude,p.horarios,p.servicos,p.especialidades,p.atende_emergencia AS atendeEmergencia,p.promocao,p.produtos,p.descricao,p.publico,p.verificado FROM parceiro_sessoes s INNER JOIN parceiros p ON p.id=s.parceiro_id WHERE s.token_hash=? AND s.expira_em>CURRENT_TIMESTAMP AND p.status='ativo' LIMIT 1`).bind(await sha(raw)).first();
+  return env.DB.prepare(`SELECT p.id,p.nome,p.email,p.whatsapp,p.cidade,p.estado,p.categoria,p.endereco,p.cep,p.bairro,p.latitude,p.longitude,p.horarios,p.servicos,p.especialidades,p.atende_emergencia AS atendeEmergencia,p.promocao,p.promocao_codigo AS promocaoCodigo,promocao_validade AS promocaoValidade,p.produtos,p.descricao,p.publico,p.verificado FROM parceiro_sessoes s INNER JOIN parceiros p ON p.id=s.parceiro_id WHERE s.token_hash=? AND s.expira_em>CURRENT_TIMESTAMP AND p.status='ativo' LIMIT 1`).bind(await sha(raw)).first();
 }
 
 async function stock(env, partnerId) {
@@ -37,6 +37,12 @@ export async function onRequestGet({ request, env }) {
   }
 }
 
+const validDate = value => {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+  const date = new Date(`${value}T00:00:00.000Z`);
+  return Number.isFinite(date.getTime()) && date.toISOString().slice(0, 10) === value;
+};
+
 async function savePublicProfile(env, partner, body) {
   const categories = ["Pet shop", "Clínica veterinária", "Banho e tosa", "Creche", "Hotel", "Adestramento", "Outro"];
   const category = categories.includes(body.categoria) ? body.categoria : "Outro";
@@ -45,13 +51,18 @@ async function savePublicProfile(env, partner, body) {
   const state = clean(body.estado, 2).toUpperCase();
   const latitude = Number(body.latitude);
   const longitude = Number(body.longitude);
+  const promotion = clean(body.promocao, 500);
+  const promotionCode = clean(body.promocaoCodigo, 30).toUpperCase().replace(/[^A-Z0-9_-]/g, "");
+  const promotionExpiry = clean(body.promocaoValidade, 10);
   const isPublic = body.publico ? 1 : 0;
   if (isPublic && (!whatsapp || !city)) return json({ sucesso: false, mensagem: "Informe WhatsApp e cidade antes de publicar." }, 400);
-  await env.DB.prepare(`UPDATE parceiros SET whatsapp=?,categoria=?,endereco=?,cep=?,bairro=?,cidade=?,estado=?,latitude=?,longitude=?,horarios=?,servicos=?,especialidades=?,atende_emergencia=?,promocao=?,produtos=?,descricao=?,publico=?,verificado=1,atualizado_em=CURRENT_TIMESTAMP WHERE id=?`).bind(
+  if (promotionCode && !promotion) return json({ sucesso: false, mensagem: "Descreva o benefício antes de informar um cupom." }, 400);
+  if (promotionExpiry && !validDate(promotionExpiry)) return json({ sucesso: false, mensagem: "Informe uma data de validade válida para a promoção." }, 400);
+  await env.DB.prepare(`UPDATE parceiros SET whatsapp=?,categoria=?,endereco=?,cep=?,bairro=?,cidade=?,estado=?,latitude=?,longitude=?,horarios=?,servicos=?,especialidades=?,atende_emergencia=?,promocao=?,promocao_codigo=?,promocao_validade=?,produtos=?,descricao=?,publico=?,verificado=1,atualizado_em=CURRENT_TIMESTAMP WHERE id=?`).bind(
     whatsapp, category, clean(body.endereco, 240), clean(body.cep, 9), clean(body.bairro, 100), city, state,
     Number.isFinite(latitude) ? latitude : null, Number.isFinite(longitude) ? longitude : null,
     clean(body.horarios, 500), clean(body.servicos, 700), clean(body.especialidades, 500), body.atendeEmergencia ? 1 : 0,
-    clean(body.promocao, 500), clean(body.produtos, 700), clean(body.descricao, 1000), isPublic, partner.id
+    promotion, promotionCode || null, promotionExpiry || null, clean(body.produtos, 700), clean(body.descricao, 1000), isPublic, partner.id
   ).run();
   return json({ sucesso: true, mensagem: isPublic ? "Perfil verificado e publicado na Rede BIRX." : "Perfil atualizado." });
 }
