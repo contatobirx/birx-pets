@@ -59,7 +59,9 @@ test("cada parceiro ganha uma vitrine própria com agendamento e cupom vigente",
   assert.match(profile, /perfil-parceiro\.css/);
   assert.match(profileClient, /Compartilhar perfil/);
   assert.match(profileClient, /api\/parceiro-publico/);
-  assert.match(profileClient, /Agendar pelo WhatsApp/);
+  assert.match(profileClient, /Continuar no WhatsApp/);
+  assert.match(profileClient, /motivoContato/);
+  assert.match(profileClient, /whatsappNumber/);
   assert.match(profileClient, /copiarCupom/);
   assert.match(profileApi, /status='ativo' AND publico=1 AND verificado=1/);
   assert.match(profileApi, /promocao_validade/);
