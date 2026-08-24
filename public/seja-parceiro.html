@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#050505">
+  <meta name="description" content="Cadastre seu negócio para fazer parte da Rede de Parceiros BIRX Pets.">
+  <title>Seja parceiro | BIRX Pets</title>
+  <link rel="stylesheet" href="/css/seja-parceiro.css?v=1.0">
+</head>
+<body>
+  <header>
+    <a href="/" aria-label="Voltar ao início"><img src="/assets/login.png" alt="BIRX Pets"></a>
+    <nav><a href="/">Início</a><a href="/parceiros">Rede BIRX</a><a href="/login">Entrar</a></nav>
+  </header>
+  <main>
+    <section class="intro">
+      <div><span>PROGRAMA DE PARCEIROS</span><h1>Seu negócio mais perto de quem cuida de pets.</h1><p>Entre para a Rede BIRX e tenha um perfil para apresentar seus serviços, produtos, promoções e canais de atendimento aos tutores.</p></div>
+      <aside><strong>Como funciona</strong><ol><li>Você envia os dados do negócio.</li><li>A BIRX revisa a solicitação.</li><li>Você recebe um acesso para completar o perfil e publicar quando quiser.</li></ol></aside>
+    </section>
+    <section class="card">
+      <div class="card-title"><div><span>CADASTRO DE INTERESSE</span><h2>Vamos conhecer o seu negócio</h2><p>Leva poucos minutos. Seus dados não aparecem publicamente antes da sua aprovação e publicação.</p></div><a href="/parceiros">Ver parceiros atuais</a></div>
+      <form id="formCadastro" class="form-grid" novalidate>
+        <label class="wide">Nome do estabelecimento<input id="nome" maxlength="120" autocomplete="organization" required placeholder="Ex.: Pet Feliz Clínica Veterinária"></label>
+        <label>Categoria<select id="categoria" required><option value="">Selecione</option><option>Pet shop</option><option>Clínica veterinária</option><option>Banho e tosa</option><option>Creche</option><option>Hotel</option><option>Adestramento</option><option>Outro</option></select></label>
+        <label>WhatsApp<input id="whatsapp" maxlength="30" inputmode="tel" autocomplete="tel" required placeholder="(41) 99999-9999"></label>
+        <label>Seu nome<input id="responsavel" maxlength="120" autocomplete="name" required placeholder="Responsável pelo contato"></label>
+        <label>E-mail<input id="email" type="email" maxlength="180" autocomplete="email" required placeholder="contato@negocio.com.br"></label>
+        <label>CEP<input id="cep" maxlength="9" inputmode="numeric" autocomplete="postal-code" placeholder="00000-000"></label>
+        <label>Cidade<input id="cidade" maxlength="100" autocomplete="address-level2" required></label>
+        <label>UF<input id="estado" maxlength="2" autocomplete="address-level1" required placeholder="PR"></label>
+        <label class="wide">Endereço<input id="endereco" maxlength="240" autocomplete="street-address" placeholder="Rua, número e complemento"></label>
+        <label class="wide">Serviços oferecidos<textarea id="servicos" maxlength="700" placeholder="Ex.: consultas, vacinas, banho, tosa, hospedagem..."></textarea></label>
+        <label class="wide">Produtos que vende<textarea id="produtos" maxlength="700" placeholder="Ex.: rações, medicamentos, acessórios, BIRX IDs..."></textarea></label>
+        <label class="wide">Promoção ou benefício que gostaria de divulgar<textarea id="promocao" maxlength="500" placeholder="Ex.: 10% de desconto na primeira consulta"></textarea></label>
+        <label class="wide">Conte um pouco sobre o negócio<textarea id="descricao" maxlength="1000" placeholder="História, diferenciais, especialidades e público atendido."></textarea></label>
+        <label class="check"><input id="emergencia" type="checkbox"> Oferecemos atendimento de emergência</label>
+        <label class="armadilha">Não preencha este campo<input id="site" tabindex="-1" autocomplete="off"></label>
+        <label class="check wide"><input id="consentimento" type="checkbox" required> Autorizo a BIRX Pets a entrar em contato sobre esta solicitação e declaro que os dados informados são corretos.</label>
+        <button type="submit">Enviar solicitação de parceria</button>
+      </form>
+      <div id="mensagem" class="mensagem" role="status" aria-live="polite" hidden></div>
+    </section>
+  </main>
+  <footer>© 2026 BIRX Pets · <a href="/privacidade">Privacidade</a> · <a href="/termos">Termos de uso</a></footer>
+  <script src="/js/seja-parceiro.js?v=1.0"></script>
+</body>
+</html>

@@ -35,10 +35,37 @@ test("a BIRX administra aprovação e distribuição sem expor códigos",()=>{
   assert.match(admin,/Distribuir estoque/);
   assert.match(adminJs,/ele não será exibido novamente/);
   assert.match(adminApi,/X-BIRX-Admin/);
-  assert.match(adminApi,/codigoAcesso:code/);
+  assert.match(adminApi,/codigoAcesso:\s*code/);
   assert.doesNotMatch(adminApi,/SELECT[^\n]+codigo_acesso_hash[^\n]+FROM parceiros p LEFT/);
   assert.match(migration,/CREATE TABLE IF NOT EXISTS parceiros/);
   assert.match(migration,/CREATE TABLE IF NOT EXISTS parceiro_estoque/);
   assert.match(migration,/tag_codigo TEXT NOT NULL UNIQUE/);
+});
+
+test("negócios podem pedir entrada na Rede BIRX, com aprovação antes do acesso", async () => {
+  const [signup, signupClient, signupApi, signupMigration, admin, adminClient, adminApi] = await Promise.all([
+    readFile(new URL("../public/seja-parceiro.html", import.meta.url), "utf8"),
+    readFile(new URL("../public/js/seja-parceiro.js", import.meta.url), "utf8"),
+    readFile(new URL("../functions/api/cadastro-parceiro.js", import.meta.url), "utf8"),
+    readFile(new URL("../database/038_cadastro_parceiros.sql", import.meta.url), "utf8"),
+    readFile(new URL("../public/admin-parceiros.html", import.meta.url), "utf8"),
+    readFile(new URL("../public/js/admin-parceiros.js", import.meta.url), "utf8"),
+    readFile(new URL("../functions/api/admin-parceiros.js", import.meta.url), "utf8")
+  ]);
+  assert.match(signup, /Serviços oferecidos/);
+  assert.match(signup, /Produtos que vende/);
+  assert.match(signup, /Promoção ou benefício/);
+  assert.match(signup, /consentimento/);
+  assert.match(signupClient, /api\/cadastro-parceiro/);
+  assert.match(signupApi, /INSERT INTO parceiros[\s\S]+['"]pendente['"]/);
+  assert.match(signupApi, /CF-Connecting-IP/);
+  assert.match(signupApi, /parceiro_cadastro_envios/);
+  assert.match(signupMigration, /parceiro_cadastro_envios/);
+  assert.match(admin, /Solicitações e parceiros/);
+  assert.match(adminClient, /Aprovar e gerar acesso/);
+  assert.match(adminClient, /acao: "aprovar"/);
+  assert.match(adminApi, /action === "aprovar"/);
+  assert.match(adminApi, /codigo_acesso_hash/);
+  assert.match(adminApi, /Aprove a solicitação para gerar o acesso/);
 });
 
