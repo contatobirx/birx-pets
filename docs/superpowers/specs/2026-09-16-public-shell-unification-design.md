@@ -20,13 +20,14 @@ O trabalho inclui:
 - menu mobile compartilhado;
 - rodapé unificado;
 - tokens visuais comuns de cor, tipografia, espaçamento e bordas;
-- estrutura reutilizável para futuras páginas públicas, incluindo Clube Birx.
+- estrutura reutilizável para futuras páginas públicas, incluindo Clube Birx;
+- criação de um anchor estável `#clube-birx` na home, apontando para o bloco já existente do Clube Birx, sem criar uma nova página nesta etapa.
 
 Fora do escopo desta etapa:
 - reescrever filtros, buscas, mapas ou APIs;
 - alterar regras de adoção, parceiros ou pets perdidos;
 - redesenhar os cards internos de cada página;
-- criar a página do Clube Birx;
+- criar a página `/clube`;
 - mudar autenticação ou área logada.
 
 ## Direção visual
@@ -49,29 +50,26 @@ O cabeçalho público terá:
 - menu hambúrguer no mobile;
 - destaque visual do item correspondente à página atual.
 
-Navegação proposta:
-- Início
-- BIRX ID
-- Como funciona
-- Funcionalidades
-- Comunidade
-- Clube Birx
-- Loja
-- Entrar
+Navegação proposta e destinos:
+- **Início** → `/`
+- **BIRX ID** → `/#produtos`
+- **Como funciona** → `/#como-funciona`
+- **Funcionalidades** → `/#funcionalidades`
+- **Comunidade** → dropdown no desktop / grupo expandido no mobile
+- **Clube Birx** → `/#clube-birx`
+- **Loja** → `/loja`
+- **Entrar** → `/login`
 
-### Comportamento dos links
+### Comunidade
 
-Como várias páginas são rotas separadas, links para seções da home usarão URL completa com hash:
-- `/#produtos`
-- `/#como-funciona`
-- `/#funcionalidades`
+No desktop, `Comunidade` será um dropdown simples acionável por clique e acessível por teclado. Ele conterá:
+- Pets perdidos → `/perdidos`
+- Adoção → `/adocao`
+- Parceiros → `/parceiros`
 
-`Comunidade` funcionará como agrupamento visual contendo:
-- Pets perdidos
-- Adoção
-- Parceiros
+No mobile, esses três links aparecerão empilhados logo abaixo do rótulo `Comunidade`, sem exigir um segundo menu complexo.
 
-No desktop pode aparecer como grupo ou dropdown simples; no mobile, como bloco empilhado no menu. A implementação deve evitar dependência de JavaScript complexo para o básico da navegação.
+A navegação deve continuar utilizável mesmo que os recursos avançados do JavaScript não carreguem; os links principais permanecem âncoras reais.
 
 ## Rodapé compartilhado
 
@@ -83,28 +81,30 @@ O rodapé terá quatro grupos principais:
 - slogan `Inovação que conecta.`
 
 ### BIRX ID
-- Comprar
-- Personalizar
-- Como funciona
-- Perfil demonstrativo
+- Comprar → `/loja`
+- Personalizar → `/personalizar`
+- Como funciona → `/#como-funciona`
+- Perfil demonstrativo → `/t.html?tag=DEMO`
 
 ### Comunidade
-- Pets perdidos
-- Adoção
-- Parceiros
-- Clube Birx
+- Pets perdidos → `/perdidos`
+- Adoção → `/adocao`
+- Parceiros → `/parceiros`
+- Clube Birx → `/#clube-birx`
 
 ### Ajuda e contato
-- WhatsApp
-- e-mail
-- Entrar
-- links institucionais já existentes, quando aplicável
+- WhatsApp já utilizado pelo site;
+- e-mail público já utilizado pelo site;
+- Entrar → `/login`;
+- links institucionais já existentes, quando aplicável.
 
 O rodapé será escuro para reforçar continuidade com o cabeçalho.
 
 ## Arquitetura de implementação
 
-A solução deve reaproveitar os arquivos existentes `site-nav.css` e `site-nav.js`, em vez de duplicar cabeçalhos e estilos em cada página.
+A solução deve reaproveitar os arquivos existentes `site-nav.css` e `site-nav.js`, em vez de criar uma camada paralela de navegação.
+
+Como o projeto é estático e não possui template engine compartilhada, cada página manterá a marcação mínima do header/footer no HTML, mas toda a apresentação e comportamento ficarão centralizados nos arquivos comuns. Isso evita introduzir dependência de JavaScript para renderizar a navegação inteira.
 
 ### CSS
 
@@ -114,7 +114,7 @@ Ele deverá conter:
 - variáveis de cor e espaçamento da casca pública;
 - estilos do cabeçalho desktop/mobile;
 - estilos da navegação e estado ativo;
-- estilos do grupo Comunidade;
+- estilos do dropdown Comunidade;
 - estilos do rodapé compartilhado;
 - regras responsivas.
 
@@ -123,7 +123,8 @@ Ele deverá conter:
 `public/js/site-nav.js` deve continuar responsável apenas por comportamentos comuns de navegação, como:
 - abrir/fechar menu mobile;
 - fechar menu ao navegar;
-- comportamento opcional do agrupamento Comunidade, se necessário.
+- abrir/fechar o dropdown Comunidade no desktop;
+- fechar dropdown ao clicar fora ou pressionar Escape.
 
 Não deve absorver lógica de Adoção, Parceiros ou Perdidos.
 
@@ -140,6 +141,8 @@ Cada página mantém:
 - modais;
 - arquivos JS específicos.
 
+A home receberá apenas o anchor `#clube-birx` no bloco já existente do Clube Birx para que o link global não fique quebrado.
+
 ## Compatibilidade e risco
 
 O maior risco é quebrar CSS específico por causa de seletores genéricos como `header`, `nav`, `footer` ou `a` presentes nos estilos antigos.
@@ -148,7 +151,8 @@ Mitigação:
 - usar classes prefixadas `.birx-public-*`;
 - evitar novos seletores globais;
 - revisar folhas específicas de Perdidos, Adoção e Parceiros;
-- preservar IDs e classes funcionais usados pelo JavaScript.
+- preservar IDs e classes funcionais usados pelo JavaScript;
+- conferir que estilos legados de `header` não sobrescrevam o cabeçalho compartilhado.
 
 Também deve ser evitada qualquer alteração visual que afete mapas, filtros ou modais nesta etapa.
 
@@ -166,10 +170,11 @@ Em telas menores:
 
 Manter:
 - `aria-label` no menu;
-- `aria-expanded` no botão mobile;
+- `aria-expanded` no botão mobile e no controle Comunidade quando aplicável;
 - `aria-current="page"` no item ativo;
 - foco visível;
 - contraste adequado em fundo escuro;
+- fechamento do dropdown com Escape;
 - links e botões com área de toque confortável.
 
 ## Critérios de aceitação
@@ -179,9 +184,11 @@ A implementação será considerada correta quando:
 2. O visual combinar com a home atual.
 3. O item atual de navegação estiver destacado corretamente.
 4. O menu mobile abrir e fechar nas três páginas.
-5. Os fluxos existentes de filtros, mapa, busca, cards e modais continuarem funcionando.
-6. Não houver regressão visual evidente em desktop e mobile.
-7. A estrutura compartilhada estiver pronta para reutilização em futuras páginas, especialmente Clube Birx.
+5. O dropdown Comunidade funcionar no desktop e permanecer simples no mobile.
+6. Os fluxos existentes de filtros, mapa, busca, cards e modais continuarem funcionando.
+7. Não houver regressão visual evidente em desktop e mobile.
+8. O link Clube Birx levar ao bloco correto da home.
+9. A estrutura compartilhada estiver pronta para reutilização em futuras páginas públicas.
 
 ## Estratégia de validação
 
@@ -191,7 +198,9 @@ Antes do merge:
 - confirmar presença dos mesmos componentes de header/footer nas três páginas;
 - verificar que IDs funcionais existentes não foram removidos;
 - validar navegação desktop/mobile manualmente ou por teste DOM simples, quando disponível;
-- confirmar que páginas continuam carregando seus scripts específicos.
+- validar abertura/fechamento do dropdown Comunidade e tecla Escape;
+- confirmar que páginas continuam carregando seus scripts específicos;
+- confirmar que `/#clube-birx` aponta para um elemento existente na home.
 
 ## Resultado esperado
 
