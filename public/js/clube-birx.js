@@ -1,5 +1,6 @@
 (() => {
-  const clube = document.querySelector('.birx-features-hub .birx-benefits');
+  const init = () => {
+    const clube = document.querySelector('.birx-features-hub .birx-benefits');
   if (!clube || clube.dataset.clubeBirx === '1') return;
 
   clube.dataset.clubeBirx = '1';
@@ -137,4 +138,11 @@
   };
   prev?.addEventListener('click', () => scrollOffers(-1));
   next?.addEventListener('click', () => scrollOffers(1));
+  };
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init, { once: true });
+  } else {
+    init();
+  }
 })();
