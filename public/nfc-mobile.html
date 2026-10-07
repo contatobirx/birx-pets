@@ -16,6 +16,14 @@
 
   <section id="status" class="status">Pronto para começar.</section>
 
+  <section id="authBox" class="manual" hidden>
+    <label>Chave administrativa
+      <input id="adminKey" type="password" autocomplete="current-password" placeholder="Chave administrativa">
+    </label>
+    <button id="adminLogin" type="button">Entrar</button>
+    <small>Necessário para registrar automaticamente a baixa das tags gravadas.</small>
+  </section>
+
   <section class="camera" id="cameraBox" hidden>
     <video id="video" playsinline muted></video>
     <div class="mira"></div>
@@ -47,6 +55,6 @@
     <p>Este modo grava o link NDEF para manter a produção andando. Ele não aplica a senha PWD/PACK usada pela gravadora PN5180. Para tags novas isso funciona normalmente; tags já protegidas podem recusar a gravação.</p>
   </section>
 </main>
-<script src="/js/nfc-mobile.js?v=1.1"></script>
+<script src="/js/nfc-mobile.js?v=1.2"></script>
 </body>
 </html>
