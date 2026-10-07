@@ -24,7 +24,7 @@ Os nomes substituem comercialmente `Essential`, `NFC Connect` e `Smart NFC`. Os 
 - Corpo piloto em PETG ou nylon PA12; acabamento fosco e bordas arredondadas.
 - Cores iniciais: preto, azul BIRX, branco e rosa.
 - QR Code com contraste alto, margem livre e teste em pelo menos três celulares.
-- Inlay NFC sugerido: NTAG213 ou equivalente. Tamanho e alcance devem ser homologados no protótipo físico.
+- Inlay NFC sugerido: NTAG213, NTAG215 ou NTAG216. A gravadora BIRX USB v1.5 identifica o modelo via GET_VERSION antes de escrever e usa as páginas corretas de configuração, PWD e PACK; chips desconhecidos são recusados. Tamanho e alcance devem ser homologados no protótipo físico.
 - Gravação NFC e QR Code devem usar o mesmo endereço curto `https://pets.birx.com.br/q/CODIGO`.
 
 ## Embalagem piloto
