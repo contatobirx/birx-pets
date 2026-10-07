@@ -49,7 +49,7 @@ unsigned long sessionCount=0;
 
 String fitLine(String s){s.replace("\r"," ");s.replace("\n"," ");if(s.length()>21)s=s.substring(0,21);return s;}
 void tela(const String&a,const String&b="",const String&c=""){if(!oledOk)return;display.clearDisplay();display.setTextColor(SSD1306_WHITE);display.setTextSize(1);display.setCursor(0,0);display.println(fitLine(a));display.setCursor(0,11);display.println(fitLine(b));display.setCursor(0,22);display.println(fitLine(c));display.display();}
-void telaPronto(){tela("BIRX NFC v1.6","USB / PN5180 OK","Aguardando QR...");}
+void telaPronto(){tela("BIRX NFC v1.6.1","USB / PN5180 OK","Aguardando QR...");}
 void telaSucesso(){tela("GRAVADA + PROTEGIDA",currentCode,lastChip+" #"+String(sessionCount));}
 void telaStatus(){tela("STATUS BIRX NFC","OLED: "+String(oledOk?"OK":"ERRO"),"Gravadas: "+String(sessionCount));}
 bool btn(int p){if(digitalRead(p)==LOW&&millis()-lastButtonTime>debounceTime){lastButtonTime=millis();return true;}return false;}
@@ -147,11 +147,29 @@ void setup(){
   Serial.begin(115200);Serial.setTimeout(3000);
   pinMode(BTN_UP,INPUT_PULLUP);pinMode(BTN_DOWN,INPUT_PULLUP);pinMode(BTN_OK,INPUT_PULLUP);
   Wire.begin(OLED_SDA,OLED_SCL);oledOk=display.begin(SSD1306_SWITCHCAPVCC,OLED_ADDR);
-  if(oledOk)tela("BIRX PETS","NFC USB v1.6","Iniciando...");
+  if(oledOk)tela("BIRX PETS","NFC USB v1.6.1","Iniciando...");
   else Serial.println("{\"type\":\"warning\",\"message\":\"OLED nao encontrada 0x3C\"}");
-  SPI.begin(SPI_SCK,SPI_MISO,SPI_MOSI);nfc.begin();nfc.reset();nfc.setupRF();
+  tela("BIRX NFC v1.6.1","SPI","Iniciando...");
+  Serial.println("{\"type\":\"diag\",\"step\":\"spi_begin\"}");
+  SPI.begin(SPI_SCK,SPI_MISO,SPI_MOSI);
+  delay(100);
+
+  tela("BIRX NFC v1.6.1","PN5180","begin...");
+  Serial.println("{\"type\":\"diag\",\"step\":\"pn_begin\"}");
+  nfc.begin();
+
+  tela("BIRX NFC v1.6.1","PN5180","reset...");
+  Serial.println("{\"type\":\"diag\",\"step\":\"pn_reset\"}");
+  nfc.reset();
+
+  tela("BIRX NFC v1.6.1","PN5180","setupRF...");
+  Serial.println("{\"type\":\"diag\",\"step\":\"pn_setupRF\"}");
+  nfc.setupRF();
+
+  tela("BIRX NFC v1.6.1","PN5180 OK","Inicializado");
+  Serial.println("{\"type\":\"diag\",\"step\":\"pn_ready\"}");
   delay(500);telaPronto();
-  Serial.println("{\"type\":\"ready\",\"device\":\"BIRX-NFC\",\"fw\":\"1.6\",\"display\":\"SSD1306-128x32\",\"chips\":[\"NTAG213\",\"NTAG215\",\"NTAG216\"],\"wait_tag_ms\":30000}");
+  Serial.println("{\"type\":\"ready\",\"device\":\"BIRX-NFC\",\"fw\":\"1.6.1\",\"display\":\"SSD1306-128x32\",\"chips\":[\"NTAG213\",\"NTAG215\",\"NTAG216\"],\"wait_tag_ms\":30000}");
 }
 
 void loop(){
