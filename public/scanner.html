@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#123f36">
+<title>Leitor BIRX ID</title>
+<link rel="stylesheet" href="/css/scanner.css?v=1.0">
+</head>
+<body>
+<main>
+  <img src="/assets/login.png" alt="BIRX Pets" class="logo">
+  <span class="eyebrow">ESTAÇÃO DE PRODUÇÃO</span>
+  <h1>Leitor de QR Code</h1>
+  <p class="lead">Use a câmera do celular para identificar a BIRX ID. A gravação NFC acontece no computador conectado ao ESP32 + PN5180.</p>
+  <section class="status" id="status">Validando pareamento…</section>
+  <section class="camera" id="cameraBox" hidden>
+    <video id="video" playsinline muted></video>
+    <div class="mira"></div>
+  </section>
+  <button id="start" hidden>Ativar câmera</button>
+  <section class="resultado" id="resultado" hidden>
+    <small>ÚLTIMA BIRX ID</small>
+    <strong id="codigo"></strong>
+    <span id="mensagem"></span>
+  </section>
+  <form id="manual" hidden>
+    <label>Ou digite o código manualmente
+      <input id="codigoManual" placeholder="BIRX-26-123456" autocomplete="off">
+    </label>
+    <button type="submit">Enviar código</button>
+  </form>
+</main>
+<script src="/js/scanner.js?v=1.0"></script>
+</body>
+</html>

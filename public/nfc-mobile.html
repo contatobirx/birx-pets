@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#123f36">
+<title>Gravar NFC pelo celular | BIRX Pets</title>
+<link rel="stylesheet" href="/css/nfc-mobile.css?v=1.0">
+</head>
+<body>
+<main>
+  <img src="/assets/login.png" alt="BIRX Pets" class="logo">
+  <span class="eyebrow">MODO CELULAR</span>
+  <h1>Gravar BIRX ID no NFC</h1>
+  <p class="lead">Leia o QR Code da mesma BIRX ID e grave o link diretamente na tag NFC usando um Android com Chrome.</p>
+
+  <section id="status" class="status">Pronto para começar.</section>
+
+  <section id="authBox" class="manual" hidden>
+    <label>Chave administrativa
+      <input id="adminKey" type="password" autocomplete="current-password" placeholder="Chave administrativa">
+    </label>
+    <button id="adminLogin" type="button">Entrar</button>
+    <small>Necessário para registrar automaticamente a baixa das tags gravadas.</small>
+  </section>
+
+  <section class="camera" id="cameraBox" hidden>
+    <video id="video" playsinline muted></video>
+    <div class="mira"></div>
+  </section>
+
+  <button id="startCamera" type="button">Ler QR Code</button>
+
+  <section class="manual">
+    <label>Ou digite o código
+      <input id="manualCode" placeholder="BIRX-26-123456" autocomplete="off" autocapitalize="characters">
+    </label>
+    <button id="useManual" type="button" class="secondary">Usar código digitado</button>
+  </section>
+
+  <section id="tagBox" class="tag" hidden>
+    <small>BIRX ID SELECIONADA</small>
+    <strong id="codigo"></strong>
+    <code id="url"></code>
+    <div class="actions">
+      <button id="writeNfc" type="button">Gravar NFC</button>
+      <button id="copyUrl" type="button" class="secondary">Copiar link</button>
+      <button id="confirmWritten" type="button" class="secondary">Confirmar como gravada</button>
+    </div>
+    <p class="hint">Use a mesma peça cujo QR Code acabou de ser lido. Encoste o celular na tag e mantenha até aparecer a confirmação.</p>
+  </section>
+
+  <section class="help">
+    <b>Importante</b>
+    <p>Este modo grava o link NDEF para manter a produção andando. Ele não aplica a senha PWD/PACK usada pela gravadora PN5180. Para tags novas isso funciona normalmente; tags já protegidas podem recusar a gravação.</p>
+  </section>
+</main>
+<script src="/js/nfc-mobile.js?v=1.2"></script>
+</body>
+</html>
